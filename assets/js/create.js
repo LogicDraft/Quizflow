@@ -496,8 +496,6 @@ if (formEmail) {
     btn.textContent = "Processing...";
     btn.disabled = true;
 
-    // Validated name earlier
-
     // Try to login first (if they've been here before)
     let { data, error } = await supabase.auth.signInWithPassword({ email, password });
     
@@ -513,9 +511,14 @@ if (formEmail) {
 
     if (error) {
       showAuthError(error.message);
+      btn.textContent = "Continue";
+      btn.disabled = false;
+    } else {
+      // Login or signup was successful! Explicitly show the dashboard.
+      btn.textContent = "Success!";
+      showAccountView();
+      await loadPersonalAccountData();
     }
-    btn.textContent = "Continue";
-    btn.disabled = false;
   });
 }
 
