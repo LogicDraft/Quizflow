@@ -1,13 +1,5 @@
 {
-  "redirects": [
-    { "source": "/home.html",      "destination": "/",         "permanent": true },
-    { "source": "/create.html",    "destination": "/create",   "permanent": true },
-    { "source": "/setup.html",     "destination": "/setup",    "permanent": true },
-    { "source": "/dashboard.html", "destination": "/dashboard","permanent": true },
-    { "source": "/index.html",     "destination": "/join",     "permanent": true },
-    { "source": "/host.html",      "destination": "/host",     "permanent": true },
-    { "source": "/quiz",           "destination": "/join",     "permanent": true }
-  ],
+  "cleanUrls": true,
   "rewrites": [
     { "source": "/",          "destination": "/pages/home.html"      },
     { "source": "/home",      "destination": "/pages/home.html"      },
@@ -16,6 +8,15 @@
     { "source": "/create",    "destination": "/pages/create.html"    },
     { "source": "/dashboard", "destination": "/pages/dashboard.html" },
     { "source": "/setup",     "destination": "/pages/setup.html"     }
+  ],
+  "redirects": [
+    { "source": "/home.html",      "destination": "/",          "permanent": true },
+    { "source": "/index.html",     "destination": "/join",      "permanent": true },
+    { "source": "/host.html",      "destination": "/host",      "permanent": true },
+    { "source": "/create.html",    "destination": "/create",    "permanent": true },
+    { "source": "/dashboard.html", "destination": "/dashboard", "permanent": true },
+    { "source": "/setup.html",     "destination": "/setup",     "permanent": true },
+    { "source": "/quiz",           "destination": "/join",      "permanent": true }
   ],
   "headers": [
     {
@@ -30,14 +31,6 @@
       "headers": [
         { "key": "Content-Type", "value": "text/css" },
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
-      ]
-    },
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options",        "value": "SAMEORIGIN" },
-        { "key": "Referrer-Policy",        "value": "strict-origin-when-cross-origin" }
       ]
     }
   ]
