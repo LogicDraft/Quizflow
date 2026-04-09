@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="theme-color" content="#050508" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Secure Quiz - Smart & Secure Quiz Platform</title>
+  <meta name="description" content="Secure Quiz app for creating, sharing, and taking secure quizzes with real-time results, anti-cheat controls, and a teacher dashboard." />
+  <meta name="robots" content="index, follow" />
+  <meta name="keywords" content="Secure Quiz app, SecureQuiz, secure quiz platform, online quiz app, anti-cheat quiz, teacher dashboard" />
+  <link rel="canonical" href="https://securequizapp.tech/" />
+  <meta property="og:title" content="Secure Quiz app | SecureQuiz" />
+  <meta property="og:description" content="Create, host, and attempt secure quizzes with real-time results and anti-cheat controls." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" type="image/png" href="/assets/SecureQuizIcon.png" />
+  <link rel="stylesheet" href="/assets/css/style.css" />
+  <link rel="stylesheet" href="/assets/css/minimal.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@400;500;700;900&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "SecureQuiz",
+    "alternateName": "Secure Quiz app",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Web",
+    "description": "A secure quiz app for teachers and students with real-time results and anti-cheat controls."
+  }
+  </script>
+  <script src="/assets/js/theme.js"></script>
+</head>
+<body class="page-with-footer bg-slate-950 text-white relative overflow-hidden bg-[radial-gradient(circle_at_50%_20%,rgba(99,102,241,0.25),transparent_50%)] before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_80%_0%,rgba(168,85,247,0.2),transparent_40%)] before:pointer-events-none font-inter tracking-tight">
+
+  <canvas id="canvas" class="absolute w-96 h-96 bg-indigo-500/10 blur-[140px] rounded-full"></canvas>
+  <div id="cursor" class="absolute w-96 h-96 bg-pink-500/10 blur-[140px] rounded-full"></div>
+
+  <header class="marketing-nav bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.4)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] transition-all duration-300 ease-out hover:-translate-y-0.5 relative before:absolute before:inset-0 before:rounded-2xl before:border before:border-white/5">
+    <a class="marketing-brand" href="home">SecureQuiz</a>
+    <nav class="marketing-links">
+      <a href="#about">About</a>
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="setup">Setup Guide</a>
+    </nav>
+    <a href="create" class="btn-primary relative overflow-hidden px-4 py-2 rounded-xl bg-indigo-500 transition-all duration-300 ease-out hover:-translate-y-1 hover:brightness-110 hover:scale-[1.01] shadow-[0_0_30px_rgba(99,102,241,0.5)] hover:shadow-[0_0_50px_rgba(99,102,241,0.7)] before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700" style="text-decoration:none;">Create Quiz</a>
+    <button class="btn-theme-switch btn-icon-toggle" title="Toggle UI Mode">
+      <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5"></circle>
+        <line x1="12" y1="1" x2="12" y2="3"></line>
+        <line x1="12" y1="21" x2="12" y2="23"></line>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+        <line x1="1" y1="12" x2="3" y2="12"></line>
+        <line x1="21" y1="12" x2="23" y2="12"></line>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+      </svg>
+      <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+    </button>
+  </header>
+
+  <div id="app" class="relative after:absolute after:inset-0 after:bg-[url('/noise.png')] after:opacity-[0.03] after:pointer-events-none">
+    <section class="screen active">
+      <div class="screen-inner landing-shell">
+        <div class="hero landing-hero reveal-up" style="margin-top:0;text-align:left;max-width:1020px;">
+          <div class="hero-eyebrow text-slate-400">Modern Secure Quiz app Experience</div>
+          <h1 class="text-5xl md:text-6xl font-semibold tracking-tight leading-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent" style="font-size:clamp(2.4rem,6vw,4.8rem);">Secure Quiz app - Smart &amp; Secure Quiz Platform</h1>
+          <div class="landing-actions" style="justify-content:flex-start;">
+            <a href="create" class="btn-primary relative overflow-hidden px-4 py-2 rounded-xl bg-indigo-500 transition-all duration-300 ease-out hover:-translate-y-1 hover:brightness-110 hover:scale-[1.01] shadow-[0_0_30px_rgba(99,102,241,0.5)] hover:shadow-[0_0_50px_rgba(99,102,241,0.7)] before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700" style="text-decoration:none;">Create a Quiz</a>
+            <a href="#how-it-works" class="btn-secondary relative overflow-hidden px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 hover:text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 hover:scale-[1.01] before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700" style="text-decoration:none;">How it Works</a>
+          </div>
+        </div>
+
+        <div class="landing-proof reveal-up">
+          <span>Invite-only access</span>
+          <span>Live dashboard analytics</span>
+          <span>Works on mobile + desktop</span>
+          <span>Share link in seconds</span>
+        </div>
+
+        <div id="about" class="card bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.4),0_0_25px_rgba(99,102,241,0.2)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-2xl before:border before:border-white/5 transition-all duration-300 ease-out hover:-translate-y-1 hover:brightness-110 hover:scale-[1.01] opacity-0 translate-y-3 animate-[fadeIn_0.5s_ease-out_forwards] landing-card reveal-up" style="max-width:980px;">
+          <h2 class="card-title text-3xl font-semibold tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">About SecureQuiz</h2>
+          <p class="card-subtitle text-slate-400 leading-relaxed">Secure Quiz app built for anyone who wants to run or take quizzes quickly and securely.</p>
+
+          <div class="landing-about-grid">
+            <div class="notice-box" style="margin-bottom:0;">
+              <div class="about-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></div>
+              <span>Create quizzes in minutes with simple question and option inputs. No coding needed.</span>
+            </div>
+            <div class="notice-box" style="margin-bottom:0;">
+              <div class="about-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></div>
+              <span>Generate a quiz link instantly and share it with your audience, class, or team.</span>
+            </div>
+            <div class="notice-box" style="margin-bottom:0;">
+              <div class="about-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
+              <span>View submissions and scores in real time using the dashboard link.</span>
+            </div>
+            <div class="notice-box" style="margin-bottom:0;">
+              <div class="about-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
+              <span>Built-in monitoring helps discourage cheating through tab-switch and fullscreen tracking.</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="features" class="card bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.4),0_0_25px_rgba(99,102,241,0.2)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-2xl before:border before:border-white/5 transition-all duration-300 ease-out hover:-translate-y-1 hover:brightness-110 hover:scale-[1.01] opacity-0 translate-y-3 animate-[fadeIn_0.5s_ease-out_forwards] landing-card reveal-up" style="max-width:980px;">
+          <h2 class="card-title text-3xl font-semibold tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Features</h2>
+          <p class="card-subtitle text-slate-400 leading-relaxed">Everything you need for secure, fast, and modern quiz experiences.</p>
+
+          <div class="features-grid" style="max-width:none;padding:0;margin:0;">
+            <article class="feature-card bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.4),0_0_25px_rgba(99,102,241,0.2)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-2xl before:border before:border-white/5 transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-2xl hover:brightness-110 hover:scale-[1.01] group group-hover:shadow-[0_0_40px_rgba(99,102,241,0.4)]" style="padding:1.4rem;">
+              <div class="feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>
+              <h3>Secure Attempt Mode</h3>
+              <p>Protect quiz sessions with anti-cheat tracking and secure flow controls.</p>
+            </article>
+
+            <article class="feature-card bg-white/5 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_0_40px_rgba(99,102,241,0.15)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-xl before:border before:border-white/5 transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-2xl hover:brightness-110 hover:scale-[1.01] group group-hover:shadow-[0_0_40px_rgba(99,102,241,0.4)]" style="padding:1.4rem;">
+              <div class="feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>
+              <h3>Instant Results</h3>
+              <p>Get submission data quickly and review performance through a live dashboard.</p>
+            </article>
+
+            <article class="feature-card bg-white/5 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_0_40px_rgba(99,102,241,0.15)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-xl before:border before:border-white/5 transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-2xl hover:brightness-110 hover:scale-[1.01] group group-hover:shadow-[0_0_40px_rgba(99,102,241,0.4)]" style="padding:1.4rem;">
+              <div class="feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg></div>
+              <h3>Works on Mobile &amp; Desktop</h3>
+              <p>Responsive interface designed for phones, tablets, laptops, and desktops.</p>
+            </article>
+
+            <article class="feature-card bg-white/5 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_0_40px_rgba(99,102,241,0.15)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-xl before:border before:border-white/5 transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-2xl hover:brightness-110 hover:scale-[1.01] group group-hover:shadow-[0_0_40px_rgba(99,102,241,0.4)]" style="padding:1.4rem;">
+              <div class="feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></div>
+              <h3>Fast &amp; Lightweight</h3>
+              <p>Runs with minimal overhead for quick loading and smooth interaction.</p>
+            </article>
+
+            <article class="feature-card bg-white/5 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_0_40px_rgba(99,102,241,0.15)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-xl before:border before:border-white/5 transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-2xl hover:brightness-110 hover:scale-[1.01] group group-hover:shadow-[0_0_40px_rgba(99,102,241,0.4)]" style="padding:1.4rem;">
+              <div class="feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg></div>
+              <h3>Smart Tracking</h3>
+              <p>Tab switches and fullscreen exits are monitored during attempts for better integrity.</p>
+            </article>
+          </div>
+        </div>
+
+        <div id="how-it-works" class="card bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.4),0_0_25px_rgba(99,102,241,0.2)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-2xl before:border before:border-white/5 transition-all duration-300 ease-out hover:-translate-y-1 hover:brightness-110 hover:scale-[1.01] opacity-0 translate-y-3 animate-[fadeIn_0.5s_ease-out_forwards] landing-card reveal-up" style="max-width:980px;">
+          <h2 class="card-title text-3xl font-semibold tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">How to Use SecureQuiz</h2>
+          <p class="card-subtitle text-slate-400 leading-relaxed">Follow these steps to create, host, and share your quiz.</p>
+
+          <div class="landing-steps">
+            <article class="step-item">
+              <span class="step-index">1</span>
+              <div>
+                <h3>Enter Your Details</h3>
+                <p>Open the creator page and fill in basic quiz details like title and time limit.</p>
+              </div>
+            </article>
+
+            <article class="step-item">
+              <span class="step-index">2</span>
+              <div>
+                <h3>Add Quiz Questions</h3>
+                <p>Type questions, options, and select the correct answer for each one.</p>
+              </div>
+            </article>
+
+            <article class="step-item">
+              <span class="step-index">3</span>
+              <div>
+                <h3>Generate Quiz Link</h3>
+                <p>Press Start Quiz to generate a unique link for participants.</p>
+              </div>
+            </article>
+
+            <article class="step-item">
+              <span class="step-index">4</span>
+              <div>
+                <h3>Share with Others</h3>
+                <p>Send the participant link to your class, audience, or team.</p>
+              </div>
+            </article>
+
+            <article class="step-item">
+              <span class="step-index">5</span>
+              <div>
+                <h3>View Results Instantly</h3>
+                <p>Open dashboard link to monitor submissions, scores, and integrity events in real time.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="card bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.4),0_0_25px_rgba(99,102,241,0.2)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-2xl before:border before:border-white/5 transition-all duration-300 ease-out hover:-translate-y-1 hover:brightness-110 hover:scale-[1.01] opacity-0 translate-y-3 animate-[fadeIn_0.5s_ease-out_forwards] landing-card landing-cta reveal-up" style="max-width:980px;">
+          <h2 class="card-title text-3xl font-semibold tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Ready to Start?</h2>
+          <p class="card-subtitle text-slate-400 leading-relaxed">Create your first secure quiz now and share it in seconds.</p>
+          <div style="display:flex;gap:0.8rem;flex-wrap:wrap;justify-content:center;">
+            <a href="create" class="btn-primary relative overflow-hidden px-4 py-2 rounded-xl bg-indigo-500 transition-all duration-300 ease-out hover:-translate-y-1 hover:brightness-110 hover:scale-[1.01] shadow-[0_0_30px_rgba(99,102,241,0.5)] hover:shadow-[0_0_50px_rgba(99,102,241,0.7)] before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700" style="text-decoration:none;">Start Creating Your Quiz</a>
+            <a href="setup" class="btn-secondary relative overflow-hidden px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 hover:text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 hover:scale-[1.01] before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700" style="text-decoration:none;">Setup Guide</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <div class="footer-brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="footer-brand-text">The SecureQuiz Project</div>
+          <div class="footer-brand-tagline">Smart &amp; Secure Quiz Platform</div>
+        </div>
+      </div>
+
+      <div class="footer-connect">
+        <span class="footer-connect-label">Connect</span>
+        <div class="footer-links">
+          <a href="https://github.com/GOWTHAM-314" target="_blank" rel="noopener noreferrer" class="footer-link">
+            <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            GitHub
+          </a>
+          <a href="https://www.linkedin.com/in/gowtham-gowda-c-b-a29727353/" target="_blank" rel="noopener noreferrer" class="footer-link">
+            <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            LinkedIn
+          </a>
+          <a href="https://www.instagram.com/gowtham_gowda_c_b" target="_blank" rel="noopener noreferrer" class="footer-link">
+            <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+            Instagram
+          </a>
+          <a href="mailto:gowdagowtham7930@gmail.com" class="footer-link">
+            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+            Contact
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-copy">&copy; 2026 The SecureQuiz Project. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <script defer src="/assets/js/background.js"></script>
+  <script>
+    document.querySelectorAll('a[href^="#"]').forEach((link) => {
+      link.addEventListener("click", (event) => {
+        const targetId = link.getAttribute("href");
+        const target = targetId ? document.querySelector(targetId) : null;
+        if (!target) return;
+        event.preventDefault();
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.18 });
+
+    document.querySelectorAll(".reveal-up").forEach((item) => observer.observe(item));
+  </script>
+</body>
+</html>

@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="theme-color" content="#050508" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SecureQuiz — Secure Quiz Dashboard</title>
+  <meta name="description" content="Teacher dashboard for SecureQuiz to view quiz submissions, scores, and proctoring logs." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/png" href="/assets/SecureQuizIcon.png" />
+  <link rel="stylesheet" href="/assets/css/style.css" />
+  <link rel="stylesheet" href="/assets/css/minimal.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@400;500;700;900&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    .dashboard-page { min-height: 100vh; }
+    .dashboard-meta {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .export-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .dash-search-container {
+      position: relative;
+      max-width: 100%;
+      width: 280px;
+    }
+    .dash-search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--text-3);
+      pointer-events: none;
+    }
+    .dash-search-input {
+      width: 100%;
+      background: var(--surface-1);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 1rem 0.65rem 2.4rem;
+      color: var(--text-1);
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    .dash-search-input::placeholder {
+      color: var(--text-3);
+    }
+    .dash-search-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .export-btn {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .export-btn:hover {
+      background: rgba(16, 185, 129, 0.3);
+    }
+    .dashboard-meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .meta-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-3);
+    }
+    .dashboard-table-wrap {
+      overflow-x: auto;
+      margin: 0 -0.5rem;
+      padding: 0 0.5rem;
+    }
+    table.dashboard-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    table.dashboard-table thead th {
+      text-align: left;
+      padding: 0.7rem 0.8rem;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-3);
+      border-bottom: 1px solid var(--glass-border);
+      white-space: nowrap;
+    }
+    table.dashboard-table tbody td {
+      padding: 0.7rem 0.8rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      vertical-align: middle;
+    }
+    table.dashboard-table tbody tr {
+      transition: background 0.2s;
+    }
+    table.dashboard-table tbody tr:hover {
+      background: rgba(255,255,255,0.03);
+    }
+    .score-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+    .score-badge.good {
+      background: rgba(16,185,129,0.12);
+      color: var(--success);
+      border: 1px solid rgba(16,185,129,0.3);
+    }
+    .score-badge.ok {
+      background: rgba(245,158,11,0.12);
+      color: var(--warning);
+      border: 1px solid rgba(245,158,11,0.3);
+    }
+    .score-badge.bad {
+      background: rgba(244,63,94,0.12);
+      color: var(--danger);
+      border: 1px solid rgba(244,63,94,0.3);
+    }
+    .integrity-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+    }
+    .integrity-pill.clean {
+      background: rgba(16,185,129,0.1);
+      color: var(--success);
+    }
+    .integrity-pill.flagged {
+      background: rgba(244,63,94,0.12);
+      color: var(--danger);
+    }
+    .auto-submit-tag {
+      font-size: 0.65rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 999px;
+      background: rgba(244,63,94,0.15);
+      color: var(--danger);
+      border: 1px solid rgba(244,63,94,0.25);
+    }
+    .violation-cell {
+      font-size: 0.82rem;
+      color: var(--text-2);
+    }
+    .violation-cell .warn { color: var(--warning); }
+    .violation-cell .danger { color: var(--danger); }
+    .time-cell {
+      color: var(--text-3);
+      font-size: 0.8rem;
+    }
+    .dashboard-empty {
+      text-align: center;
+      padding: 2.5rem 1rem !important;
+      color: var(--text-3);
+    }
+    .dashboard-empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .dashboard-empty h3 { font-size: 1rem; color: var(--text-2); margin-bottom: 0.3rem; }
+    .dashboard-empty p { font-size: 0.85rem; }
+    .dash-live-dot {
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--success);
+      animation: live-pulse 1.5s infinite;
+      margin-right: 0.3rem;
+      vertical-align: middle;
+    }
+    @keyframes live-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .quizzes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+    .quiz-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .quiz-card:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    }
+    .quiz-card h3 { margin: 0; font-size: 1.1rem; color: var(--text-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .quiz-card-meta { font-size: 0.8rem; color: var(--text-3); display: flex; justify-content: space-between; }
+  </style>
+  <script src="/assets/js/theme.js"></script>
+</head>
+<body class="page-with-footer bg-slate-950 text-white relative overflow-hidden bg-[radial-gradient(circle_at_50%_20%,rgba(99,102,241,0.25),transparent_50%)] before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_80%_0%,rgba(168,85,247,0.2),transparent_40%)] before:pointer-events-none font-inter tracking-tight">
+  <canvas id="canvas" class="absolute w-96 h-96 bg-indigo-500/10 blur-[140px] rounded-full"></canvas>
+  <div id="cursor" class="absolute w-96 h-96 bg-pink-500/10 blur-[140px] rounded-full"></div>
+
+  <main class="dashboard-page">
+    <section class="screen active">
+      <div class="screen-inner" style="justify-content:flex-start;padding-top:2.5rem;padding-bottom:2.5rem;">
+        <div class="hero" style="margin-top:0;">
+          <div class="hero-eyebrow text-slate-400">Quiz Analytics</div>
+          <h1 class="text-5xl md:text-6xl font-semibold tracking-tight leading-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent" style="font-size:clamp(2.2rem,5vw,4rem);">Dashboard</h1>
+          <p id="dash-subtitle">Loading quiz details...</p>
+        </div>
+
+        <!-- Auth Card -->
+        <div class="card bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.4),0_0_25px_rgba(99,102,241,0.2)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-2xl before:border before:border-white/5 transition-all duration-300 ease-out hover:-translate-y-1 hover:brightness-110 hover:scale-[1.01] opacity-0 translate-y-3 animate-[fadeIn_0.5s_ease-out_forwards]" style="max-width: 400px; margin: 0 auto; margin-bottom: 2rem;" id="login-card">
+          <h2 class="card-title text-3xl font-semibold tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Creator Login</h2>
+          <p class="card-subtitle text-slate-400 leading-relaxed">Please sign in with Google to view dashboard analytics.</p>
+          
+          <button type="button" id="btn-google-login" class="btn-secondary relative overflow-hidden px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 hover:scale-[1.01] before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700 btn-full" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: #ffffff; color: #000000; border-color: #cccccc;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            Sign in with Google
+          </button>
+          
+          <div id="auth-error" class="error-msg hidden" style="margin-top:1rem;"></div>
+        </div>
+
+        <div class="card bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.4),0_0_25px_rgba(99,102,241,0.2)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-2xl before:border before:border-white/5 transition-all duration-300 ease-out hover:-translate-y-1 hover:brightness-110 hover:scale-[1.01] opacity-0 translate-y-3 animate-[fadeIn_0.5s_ease-out_forwards] hidden" style="max-width:1100px;" id="dashboard-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+            <a href="dashboard" id="btn-back-overview" class="btn-secondary relative overflow-hidden px-4 py-2 rounded-xl bg-white/5 border border-white/10 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700 hidden" style="padding:0.4rem 0.8rem; font-size:0.8rem; text-decoration:none;">← Back to My Quizzes</a>
+            <div style="margin-left:auto;">
+              <button type="button" id="btn-logout" class="btn-secondary relative overflow-hidden px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 hover:text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 hover:scale-[1.01] before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700" style="padding:0.4rem 0.8rem; font-size:0.8rem;">Log Out</button>
+            </div>
+          </div>
+
+          <!-- OVERVIEW VIEW -->
+          <div id="overview-view">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h2 class="card-title text-3xl font-semibold tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">My Quizzes</h2>
+              <a href="create" class="btn-primary relative overflow-hidden px-4 py-2 rounded-xl bg-indigo-500 transition-all duration-300 ease-out hover:-translate-y-1 hover:brightness-110 hover:scale-[1.01] shadow-[0_0_30px_rgba(99,102,241,0.5)] hover:shadow-[0_0_50px_rgba(99,102,241,0.7)] before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700" style="padding:0.5rem 1rem; font-size:0.8rem; text-decoration:none;">+ Create Quiz</a>
+            </div>
+            <p class="card-subtitle text-slate-400 leading-relaxed">Select a quiz to view live submissions.</p>
+            <div class="quizzes-grid" id="quizzes-grid">
+              <!-- Quizzes will be injected here -->
+            </div>
+          </div>
+
+          <!-- SINGLE QUIZ VIEW -->
+          <div id="single-quiz-view" class="hidden">
+            <div class="export-header">
+              <div class="dashboard-meta">
+                <div class="dashboard-meta-item">
+                  <span class="meta-label">Quiz ID</span>
+                  <strong id="quiz-id">--</strong>
+                </div>
+                <div class="dashboard-meta-item">
+                  <span class="meta-label">Quiz Title</span>
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <strong id="quiz-title">--</strong>
+                    <button id="btn-copy-link" class="btn-icon-ghost" style="padding: 0.1rem 0.5rem; font-size: 0.75rem; background: rgba(99,102,241,0.1); color: var(--accent); border: 1px solid rgba(99,102,241,0.2); border-radius: 4px; cursor: pointer; transition: all 0.2s;">🔗 Copy Invite Link</button>
+                  </div>
+                </div>
+                <div class="dashboard-meta-item">
+                  <span class="meta-label">Submissions</span>
+                  <strong id="sub-count">0</strong>
+                </div>
+              </div>
+              <button id="btn-export" class="export-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="16" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                Export to Excel
+              </button>
+            </div>
+
+            <div id="dash-error" class="error-msg hidden"></div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+              <div class="dashboard-filters" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0;">
+                <button class="btn-filter active bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 transition-all duration-300 ease-out hover:-translate-y-0.5" data-filter="all">All Submissions</button>
+                <button class="btn-filter text-slate-400 hover:text-white hover:bg-white/5 transition-all duration-300 ease-out hover:-translate-y-0.5" data-filter="auto">Auto-Submitted</button>
+                <button class="btn-filter text-slate-400 hover:text-white hover:bg-white/5 transition-all duration-300 ease-out hover:-translate-y-0.5" data-filter="perfect">Out of out</button>
+              </div>
+              
+              <div class="dash-search-container">
+                <svg class="dash-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="dash-search" class="dash-search-input" placeholder="Search by Name or ID..." autocomplete="off" />
+              </div>
+            </div>
+
+          <div class="dashboard-table-wrap">
+            <table class="dashboard-table" aria-label="Quiz submissions table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Student Name</th>
+                  <th>Student ID</th>
+                  <th>Score</th>
+                  <th>Tab Switches</th>
+                  <th>FS Exits</th>
+                  <th>Screenshots</th>
+                  <th>Device</th>
+                  <th>Status</th>
+                  <th>Submitted At</th>
+                </tr>
+              </thead>
+              <tbody id="submission-rows">
+                <tr>
+                  <td colspan="10" class="dashboard-empty">
+                    <div class="dashboard-empty-icon">📋</div>
+                    <h3>No submissions yet</h3>
+                    <p>Share the quiz link with students. Submissions will appear here in real-time.</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <div class="footer-brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="footer-brand-text">The SecureQuiz Project</div>
+          <div class="footer-brand-tagline">Smart &amp; Secure Quiz Platform</div>
+        </div>
+      </div>
+      <div class="footer-connect">
+        <span class="footer-connect-label">Connect</span>
+        <div class="footer-links">
+          <a href="https://github.com/GOWTHAM-314" target="_blank" rel="noopener noreferrer" class="footer-link"><svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>GitHub</a>
+          <a href="https://www.linkedin.com/in/gowtham-gowda-c-b-a29727353/" target="_blank" rel="noopener noreferrer" class="footer-link"><svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>LinkedIn</a>
+          <a href="https://www.instagram.com/gowtham_gowda_c_b" target="_blank" rel="noopener noreferrer" class="footer-link"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>Instagram</a>
+          <a href="mailto:gowdagowtham7930@gmail.com" class="footer-link"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>Contact</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">&copy; 2026 The SecureQuiz Project. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+  <script defer src="/assets/js/background.js"></script>
+  <script type="module" src="/assets/js/dashboard.js"></script>
+</body>
+</html>

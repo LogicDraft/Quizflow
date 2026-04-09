@@ -1,0 +1,60 @@
+{
+  "redirects": [
+    {
+      "source": "/home",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/home.html",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/create.html",
+      "destination": "/create",
+      "permanent": false
+    },
+    {
+      "source": "/setup.html",
+      "destination": "/setup",
+      "permanent": false
+    },
+    {
+      "source": "/index.html",
+      "destination": "/quiz",
+      "permanent": false
+    },
+    {
+      "source": "/dashboard.html",
+      "destination": "/dashboard",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/pages/home.html"
+    },
+    {
+      "source": "/home",
+      "destination": "/pages/home.html"
+    },
+    {
+      "source": "/create",
+      "destination": "/pages/create.html"
+    },
+    {
+      "source": "/setup",
+      "destination": "/pages/setup.html"
+    },
+    {
+      "source": "/quiz",
+      "destination": "/pages/index.html"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/pages/dashboard.html"
+    }
+  ]
+}
