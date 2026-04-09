@@ -534,7 +534,7 @@ function launchConfetti() {
 function initPlayAgain() {
   $('btn-play-again').addEventListener('click', () => {
     sessionStorage.clear();
-    window.location.href = '/pages/index.html';
+    window.location.href = '/join';
   });
 }
 

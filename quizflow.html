@@ -1,0 +1,2077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>QuizFlow — Live Quiz Game</title>
+  <meta name="description" content="Play live multiplayer quiz games with friends. Enter a PIN and compete!" />
+  <meta name="theme-color" content="#0f0c29" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+/* ══════════════════════════════════════════════════════════════
+   QuizFlow — Single-File Live Quiz Game
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Design Tokens ── */
+:root {
+  --ql-primary: #6366f1;
+  --ql-primary-soft: #eef2ff;
+  --ql-secondary: #0ea5e9;
+  --ql-accent: #f43f5e;
+  --ql-bg: #ffffff;
+  --ql-surface: #f8fafc;
+  --ql-border: #e2e8f0;
+  --ql-text: #0f172a;
+  --ql-muted: #64748b;
+  --ans-red: #E21B3C;
+  --ans-blue: #1368CE;
+  --ans-yellow: #D89E00;
+  --ans-green: #26890C;
+  --ans-red-glow: rgba(226, 27, 60, 0.35);
+  --ans-blue-glow: rgba(19, 104, 206, 0.35);
+  --ans-yellow-glow: rgba(216, 158, 0, 0.35);
+  --ans-green-glow: rgba(38, 137, 12, 0.35);
+  --game-bg: #0f0c29;
+}
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'Ubuntu', 'Outfit', sans-serif;
+  background: var(--game-bg);
+  color: #fff;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ── Animated Background ── */
+.bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  overflow: hidden;
+}
+.bg-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.18;
+}
+.bg-blob-1 { width: 600px; height: 600px; top: -150px; right: -150px; background: var(--ql-primary); }
+.bg-blob-2 { width: 500px; height: 500px; bottom: -100px; left: -100px; background: var(--ql-secondary); }
+.bg-blob-3 { width: 350px; height: 350px; top: 40%; left: 40%; background: var(--ql-accent); }
+
+/* ── Host Light Theme ── */
+.host-theme { background: var(--ql-surface); color: var(--ql-text); }
+.host-theme .bg { background: #f8fafc; }
+.host-theme .bg-blob { opacity: 0.1; }
+.host-theme .bg-blob-1 { background: var(--ql-primary); }
+.host-theme .bg-blob-2 { background: var(--ql-secondary); }
+
+/* ── Screen System ── */
+.screen { display: none; min-height: 100vh; width: 100%; }
+.screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; animation: screenIn 0.35s ease; }
+@keyframes screenIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── Host Screen System ── */
+.host-screen { display: none; }
+.host-screen.active { display: block; animation: screenIn 0.3s ease; }
+
+/* ══════════════════════════════════════════════════════════════
+   PLAYER STYLES
+   ══════════════════════════════════════════════════════════════ */
+
+.game-content { position: relative; z-index: 1; }
+
+/* ── Brand ── */
+.logo {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 900;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, #a78bfa, #60a5fa, #f472b6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.25rem;
+}
+.logo-sub {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+}
+
+/* ── Card ── */
+.card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 420px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+}
+.card-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 0.4rem;
+}
+.card-sub {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.55);
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Inputs ── */
+.input {
+  width: 100%;
+  background: rgba(255,255,255,0.08);
+  border: 1.5px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  padding: 0.9rem 1.1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+  outline: none;
+  text-align: center;
+  letter-spacing: 0.05em;
+  transition: border-color 0.2s, background 0.2s;
+  margin-bottom: 1rem;
+}
+.input::placeholder { color: rgba(255,255,255,0.3); }
+.input:focus { border-color: var(--ql-primary); background: rgba(99,102,241,0.1); }
+#inp-pin { font-size: 2rem; font-weight: 900; letter-spacing: 0.18em; font-family: 'Outfit', monospace; }
+
+/* ── Buttons ── */
+.btn {
+  width: 100%;
+  padding: 0.95rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: 'Outfit', sans-serif;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, opacity 0.2s;
+  position: relative;
+}
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+.btn-primary {
+  background: linear-gradient(135deg, var(--ql-primary), #818cf8);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(99,102,241,0.4);
+}
+.btn-primary:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(99,102,241,0.55); }
+.btn-primary:not(:disabled):active { transform: translateY(0); }
+.btn-secondary {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.7);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.btn-secondary:hover { background: rgba(255,255,255,0.14); }
+
+/* ── Error ── */
+.error {
+  display: none;
+  color: #fca5a5;
+  font-size: 0.85rem;
+  text-align: center;
+  margin-top: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: rgba(239,68,68,0.12);
+  border-radius: 8px;
+  border: 1px solid rgba(239,68,68,0.25);
+}
+.error.visible { display: block; }
+
+/* ── Spinner ── */
+.spinner {
+  display: inline-block;
+  width: 18px; height: 18px;
+  border: 2.5px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Lobby ── */
+.lobby-welcome {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
+  font-weight: 900;
+  text-align: center;
+}
+.lobby-nickname-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1rem auto;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 999px;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.lobby-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; font-weight: 700;
+}
+.lobby-waiting {
+  text-align: center;
+  color: rgba(255,255,255,0.5);
+  font-size: 0.9rem;
+  margin-top: 1.5rem;
+}
+.lobby-waiting-dots::after { content: ''; animation: dots 1.5s infinite; }
+@keyframes dots {
+  0%, 20%  { content: '.'; }
+  40%, 60% { content: '..'; }
+  80%, 100%{ content: '...'; }
+}
+.lobby-pulse {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: rgba(99,102,241,0.2);
+  border: 2px solid var(--ql-primary);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem;
+  margin: 1.5rem auto;
+  animation: pulse-ring 2s ease infinite;
+}
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(99,102,241,0.5); }
+  70%  { box-shadow: 0 0 0 20px rgba(99,102,241,0); }
+  100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); }
+}
+
+/* ── Answer Screen ── */
+.answering-header {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.answering-question-num {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.timer-ring-wrap {
+  position: relative;
+  width: 60px; height: 60px;
+  flex-shrink: 0;
+}
+.timer-ring-svg { transform: rotate(-90deg); }
+.timer-ring-track { fill: none; stroke: rgba(255,255,255,0.15); stroke-width: 5; }
+.timer-ring-fill { fill: none; stroke: #a78bfa; stroke-width: 5; stroke-linecap: round; transition: stroke-dashoffset 1s linear, stroke 0.5s; }
+.timer-ring-num {
+  position: absolute;
+  inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Outfit', monospace;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+.timer-ring-num.urgent { color: #fca5a5; }
+.timer-ring-fill.urgent { stroke: #ef4444; }
+
+.answer-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem 1.5rem;
+  flex: 1;
+  align-content: stretch;
+}
+.answer-btn {
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  font-size: clamp(0.95rem, 2.5vw, 1.2rem);
+  font-weight: 700;
+  font-family: 'Ubuntu', sans-serif;
+  color: #fff;
+  min-height: clamp(80px, 18vh, 140px);
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s, opacity 0.2s;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  padding: 0.75rem 1rem;
+}
+.answer-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0);
+  transition: background 0.2s;
+}
+.answer-btn:hover::before { background: rgba(255,255,255,0.08); }
+.answer-btn:active { transform: scale(0.97); }
+.answer-btn:not(:disabled):hover { transform: translateY(-3px) scale(1.01); }
+.answer-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+.answer-btn-red    { background: var(--ans-red); box-shadow: 0 6px 20px var(--ans-red-glow); }
+.answer-btn-blue   { background: var(--ans-blue); box-shadow: 0 6px 20px var(--ans-blue-glow); }
+.answer-btn-yellow { background: var(--ans-yellow); box-shadow: 0 6px 20px var(--ans-yellow-glow); }
+.answer-btn-green  { background: var(--ans-green); box-shadow: 0 6px 20px var(--ans-green-glow); }
+.answer-btn.selected { transform: scale(0.96); opacity: 0.7; }
+.answer-btn.correct  { animation: correctBounce 0.5s cubic-bezier(0.34,1.56,0.64,1); border: 3px solid #fff; }
+.answer-btn.wrong    { opacity: 0.4; }
+@keyframes correctBounce {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+.answer-shape { font-size: 1.5rem; flex-shrink: 0; }
+
+/* ── Result Screen ── */
+.result-icon-large {
+  font-size: 5rem;
+  text-align: center;
+  animation: resultPop 0.5s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes resultPop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.result-verdict {
+  font-family: 'Outfit', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 900;
+  text-align: center;
+  margin: 0.5rem 0;
+}
+.result-verdict.correct { color: #4ade80; }
+.result-verdict.wrong   { color: #f87171; }
+.result-points {
+  font-family: 'Outfit', monospace;
+  font-size: 3.5rem;
+  font-weight: 900;
+  text-align: center;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: countUp 0.6s ease;
+}
+@keyframes countUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.result-points-label { font-size: 0.85rem; color: rgba(255,255,255,0.5); text-align: center; }
+.result-rank-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1.2rem;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+/* ── Final Screen ── */
+.final-trophy { font-size: 5rem; text-align: center; animation: trophyDrop 0.8s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes trophyDrop { from { transform: translateY(-60px) rotate(-15deg); opacity: 0; } to { transform: none; opacity: 1; } }
+.final-rank {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(4rem, 12vw, 7rem);
+  font-weight: 900;
+  text-align: center;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b, #ef4444);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+.final-score-value {
+  font-family: 'Outfit', monospace;
+  font-size: 2.5rem;
+  font-weight: 800;
+  text-align: center;
+  color: #fff;
+}
+
+/* ── Confetti ── */
+.confetti-particle {
+  position: fixed;
+  top: -10px;
+  border-radius: 2px;
+  animation: confettiFall linear forwards;
+  pointer-events: none;
+  z-index: 9999;
+}
+@keyframes confettiFall {
+  to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+
+/* ── Avatar Picker ── */
+.avatar-pick-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #fff;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.avatar-pick-btn.selected { border-color: #fff; transform: scale(1.1); }
+.av-0 { background: #6366f1; }
+.av-1 { background: #ec4899; }
+.av-2 { background: #0ea5e9; }
+.av-3 { background: #10b981; }
+.av-4 { background: #f59e0b; }
+.av-5 { background: #ef4444; }
+.av-6 { background: #8b5cf6; }
+.av-7 { background: #14b8a6; }
+
+/* ══════════════════════════════════════════════════════════════
+   HOST STYLES
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Nav ── */
+.host-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--ql-border);
+  padding: 0.85rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+.host-brand {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, var(--ql-primary), var(--ql-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.host-nav-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--ql-muted);
+}
+.host-status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: pulse-dot 2s infinite;
+}
+@keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+/* ── Host Card ── */
+.host-card {
+  background: var(--ql-bg);
+  border: 1px solid var(--ql-border);
+  border-radius: 16px;
+  padding: 1.75rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  margin-bottom: 1rem;
+}
+.host-card-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--ql-text);
+  margin-bottom: 0.25rem;
+}
+.host-card-sub {
+  font-size: 0.875rem;
+  color: var(--ql-muted);
+  margin-bottom: 1.25rem;
+}
+
+/* ── PIN Display ── */
+.pin-display {
+  font-family: 'Outfit', monospace;
+  font-size: clamp(3rem, 10vw, 5.5rem);
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-align: center;
+  background: linear-gradient(135deg, var(--ql-primary), var(--ql-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  padding: 0.5rem 0;
+  filter: drop-shadow(0 0 20px rgba(99,102,241,0.3));
+}
+.pin-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ql-muted);
+  text-align: center;
+  margin-bottom: 0.25rem;
+}
+.pin-card {
+  background: var(--ql-primary-soft);
+  border: 2px dashed var(--ql-primary);
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-align: center;
+  margin: 1rem 0;
+}
+
+/* ── Player List ── */
+.player-list-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  min-height: 60px;
+  padding: 0.75rem;
+  background: var(--ql-surface);
+  border: 1px solid var(--ql-border);
+  border-radius: 12px;
+  align-content: flex-start;
+}
+.player-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.7rem;
+  background: #fff;
+  border: 1px solid var(--ql-border);
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ql-text);
+  animation: chipSlideIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+@keyframes chipSlideIn { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.player-chip-avatar {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 800; color: #fff;
+}
+.player-count-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.75rem;
+  background: var(--ql-primary-soft);
+  border: 1px solid var(--ql-primary);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ql-primary);
+  margin-bottom: 0.5rem;
+}
+
+/* ── Host Buttons ── */
+.host-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.75rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: 'Ubuntu', sans-serif;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.15s;
+}
+.host-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+.host-btn-primary {
+  background: linear-gradient(135deg, var(--ql-primary), #818cf8);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(99,102,241,0.35);
+}
+.host-btn-primary:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(99,102,241,0.45); }
+.host-btn-secondary {
+  background: var(--ql-surface);
+  color: var(--ql-text);
+  border: 1px solid var(--ql-border);
+}
+.host-btn-secondary:hover { background: var(--ql-border); }
+.host-btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+.host-btn-danger:hover { background: #fecaca; }
+.host-btn-full { width: 100%; }
+.host-btn-large { padding: 1rem 2rem; font-size: 1.1rem; }
+
+/* ── Quiz Select ── */
+.quiz-select {
+  width: 100%;
+  background: var(--ql-bg);
+  border: 1.5px solid var(--ql-border);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  font-family: 'Ubuntu', sans-serif;
+  color: var(--ql-text);
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  margin-bottom: 1rem;
+}
+.quiz-select:focus { border-color: var(--ql-primary); }
+
+/* ── Question Bar ── */
+.host-question-bar {
+  background: var(--ql-bg);
+  border: 1px solid var(--ql-border);
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  margin-bottom: 1rem;
+}
+.host-question-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.host-q-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ql-primary);
+}
+.host-marks-badge {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #166534;
+  background: #dcfce7;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+}
+.host-question-text {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--ql-text);
+  line-height: 1.4;
+  margin-bottom: 1rem;
+}
+.host-timer-bar-track {
+  height: 8px;
+  background: var(--ql-border);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+.host-timer-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--ql-primary), var(--ql-secondary));
+  border-radius: 999px;
+  transition: width 1s linear;
+}
+.host-timer-num {
+  font-family: 'Outfit', monospace;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--ql-primary);
+}
+
+/* ── Host Answer Tiles ── */
+.host-answers-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+.host-answer-tile {
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.host-answer-tile-red    { background: var(--ans-red); }
+.host-answer-tile-blue   { background: var(--ans-blue); }
+.host-answer-tile-yellow { background: var(--ans-yellow); }
+.host-answer-tile-green  { background: var(--ans-green); }
+.host-answer-bar {
+  height: 6px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 4px;
+  margin-top: 0.5rem;
+  overflow: hidden;
+}
+.host-answer-bar-fill {
+  height: 100%;
+  background: rgba(255,255,255,0.8);
+  border-radius: 4px;
+  transition: width 0.6s ease;
+}
+.host-answer-count {
+  font-size: 0.75rem;
+  opacity: 0.85;
+  margin-top: 0.25rem;
+}
+
+/* ── Responses Bar ── */
+.host-responses-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--ql-surface);
+  border: 1px solid var(--ql-border);
+  border-radius: 10px;
+  font-size: 0.82rem;
+  color: var(--ql-muted);
+}
+.host-responses-count { font-weight: 700; color: var(--ql-primary); font-size: 1rem; }
+
+/* ── Leaderboard ── */
+.leaderboard-wrap { width: 100%; max-width: 560px; margin: 0 auto; }
+.leaderboard-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 900;
+  text-align: center;
+  color: var(--ql-text);
+  margin-bottom: 1.25rem;
+}
+.leaderboard-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.1rem;
+  border-radius: 12px;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  border: 1px solid var(--ql-border);
+  background: var(--ql-bg);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
+  animation: rowSlide 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.leaderboard-row:nth-child(1) { animation-delay: 0s; }
+.leaderboard-row:nth-child(2) { animation-delay: 0.06s; }
+.leaderboard-row:nth-child(3) { animation-delay: 0.12s; }
+.leaderboard-row:nth-child(4) { animation-delay: 0.18s; }
+.leaderboard-row:nth-child(5) { animation-delay: 0.24s; }
+@keyframes rowSlide { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+.leaderboard-row:hover { transform: translateX(4px); }
+.leaderboard-row.rank-1 { background: linear-gradient(135deg, #fef9c3, #fef3c7); border-color: #fbbf24; }
+.leaderboard-row.rank-2 { background: linear-gradient(135deg, #f1f5f9, #e2e8f0); border-color: #94a3b8; }
+.leaderboard-row.rank-3 { background: linear-gradient(135deg, #fff7ed, #fed7aa); border-color: #f97316; }
+.leaderboard-rank {
+  font-family: 'Outfit', monospace;
+  font-size: 1.1rem;
+  font-weight: 900;
+  width: 28px;
+  text-align: center;
+  color: var(--ql-muted);
+}
+.leaderboard-row.rank-1 .leaderboard-rank { color: #d97706; font-size: 1.4rem; }
+.leaderboard-row.rank-2 .leaderboard-rank { color: #64748b; font-size: 1.3rem; }
+.leaderboard-row.rank-3 .leaderboard-rank { color: #ea580c; font-size: 1.2rem; }
+.leaderboard-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem; font-weight: 800; color: #fff;
+  flex-shrink: 0;
+}
+.leaderboard-name {
+  flex: 1;
+  font-size: 0.95rem;
+  color: var(--ql-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.leaderboard-score {
+  font-family: 'Outfit', monospace;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--ql-primary);
+}
+.rank-change {
+  font-size: 0.9rem;
+  margin-left: 0.25rem;
+}
+.rank-change.up { color: #22c55e; }
+.rank-change.down { color: #ef4444; }
+.rank-change.same { color: #94a3b8; }
+
+/* ── Podium ── */
+.podium-container {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+.podium-place {
+  text-align: center;
+  animation: podiumRise 0.8s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.podium-place:nth-child(1) { animation-delay: 0.2s; }
+.podium-place:nth-child(2) { animation-delay: 0s; }
+.podium-place:nth-child(3) { animation-delay: 0.4s; }
+@keyframes podiumRise { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.podium-avatar {
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; font-weight: 800; color: #fff;
+  margin: 0 auto 0.5rem;
+  border: 3px solid rgba(255,255,255,0.5);
+}
+.podium-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--ql-text);
+  margin-bottom: 0.25rem;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.podium-score {
+  font-family: 'Outfit', monospace;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--ql-muted);
+}
+.podium-stand {
+  width: 80px;
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 900;
+  color: #fff;
+  margin-top: 0.5rem;
+}
+.podium-place:nth-child(1) .podium-stand { height: 80px; background: linear-gradient(180deg, #fbbf24, #f59e0b); }
+.podium-place:nth-child(2) .podium-stand { height: 100px; background: linear-gradient(180deg, #cbd5e1, #94a3b8); }
+.podium-place:nth-child(3) .podium-stand { height: 60px; background: linear-gradient(180deg, #fdba74, #f97316); }
+
+/* ── Mini Leaderboard ── */
+.mini-leaderboard {
+  background: var(--ql-surface);
+  border: 1px solid var(--ql-border);
+  border-radius: 10px;
+  padding: 0.75rem;
+  margin-top: 1rem;
+}
+.mini-leaderboard-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ql-muted);
+  margin-bottom: 0.5rem;
+}
+
+/* ── Get Ready Screen ── */
+.get-ready-countdown {
+  font-family: 'Outfit', monospace;
+  font-size: 8rem;
+  font-weight: 900;
+  color: #a78bfa;
+  animation: countPop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes countPop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* ── Utility ── */
+.text-center  { text-align: center; }
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.d-flex { display: flex; }
+.align-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-1 { gap: 0.5rem; }
+.gap-2 { gap: 1rem; }
+.flex-col { flex-direction: column; }
+.w-full { width: 100%; }
+.max-w-420 { max-width: 420px; }
+.max-w-560 { max-width: 560px; }
+.p-1 { padding: 0.5rem; }
+.p-2 { padding: 1rem; }
+.p-3 { padding: 1.5rem; }
+.container { width: 100%; max-width: 800px; margin: 0 auto; padding: 1rem 1.5rem; }
+.host-bg-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.12;
+}
+.host-bg-blob-1 { width: 700px; height: 700px; top: -200px; right: -200px; background: var(--ql-primary); }
+.host-bg-blob-2 { width: 500px; height: 500px; bottom: -150px; left: -150px; background: var(--ql-secondary); }
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .card { padding: 1.25rem; border-radius: 16px; }
+  .answer-grid { gap: 0.5rem; }
+  .answer-btn { border-radius: 12px; min-height: 70px; font-size: 0.9rem; }
+  .host-answers-grid { grid-template-columns: 1fr 1fr; }
+  .podium-avatar { width: 50px; height: 50px; font-size: 1.2rem; }
+  .podium-stand { width: 60px; }
+}
+@media (min-width: 768px) {
+  .answer-btn { font-size: 1.3rem; }
+  .answer-shape { font-size: 1.8rem; }
+}
+  </style>
+</head>
+<body class="host-theme">
+
+<!-- Background -->
+<div class="bg">
+  <div class="bg-blob bg-blob-1"></div>
+  <div class="bg-blob bg-blob-2"></div>
+  <div class="bg-blob bg-blob-3"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     ROLE SELECTOR
+══════════════════════════════════════════════════════════ -->
+<div id="screen-role" class="screen active">
+  <div class="game-content">
+    <div style="width:100%;max-width:420px;padding:1.5rem;text-align:center;">
+      <div class="logo">QuizFlow</div>
+      <div class="logo-sub">Live Quiz Gaming</div>
+      
+      <div class="card">
+        <div class="card-title">Choose Your Role</div>
+        <div class="card-sub">Host a game or join as a player</div>
+        
+        <button id="btn-become-host" class="btn btn-primary mt-2">
+          <i class="bi bi-display"></i> Host Game
+        </button>
+        
+        <button id="btn-join-player" class="btn btn-secondary mt-1">
+          <i class="bi bi-person"></i> Join as Player
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     HOST FLOW
+══════════════════════════════════════════════════════════ -->
+
+<!-- Host Nav -->
+<nav class="host-nav" id="host-nav" style="display:none;">
+  <div class="host-brand">QuizFlow</div>
+  <div class="host-nav-status">
+    <div class="host-status-dot"></div>
+    <span id="nav-status-text">Connected</span>
+  </div>
+  <button id="btn-logout" class="host-btn host-btn-secondary" style="display:none;padding:0.5rem 1rem;font-size:0.8rem;">
+    Logout
+  </button>
+</nav>
+
+<!-- Host: Auth Screen -->
+<div id="host-screen-auth" class="host-screen">
+  <div class="container">
+    <div style="max-width:420px;margin:2rem auto;">
+      <div class="logo" style="margin-bottom:0.5rem;">Host a Game</div>
+      <div class="card-sub" style="margin-bottom:2rem;">Sign in to create and manage quiz games</div>
+      
+      <div class="host-card">
+        <div class="host-card-title">Welcome Back</div>
+        <div class="host-card-sub">Enter your credentials to continue</div>
+        
+        <input id="auth-email" class="quiz-select" type="email" placeholder="Email address" style="text-align:left;" />
+        <input id="auth-password" class="quiz-select" type="password" placeholder="Password" style="text-align:left;" />
+        
+        <div id="auth-error" class="error"></div>
+        
+        <button id="btn-auth-login" class="host-btn host-btn-primary host-btn-full mt-2">
+          <span id="btn-auth-text">Sign In</span>
+          <span id="btn-auth-spinner" class="spinner" style="display:none;"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Host: Quiz Selection Screen -->
+<div id="host-screen-select" class="host-screen">
+  <div class="container">
+    <div style="max-width:560px;margin:1rem auto;">
+      <div class="host-card">
+        <div class="host-card-title">Select a Quiz</div>
+        <div class="host-card-sub">Choose a quiz to start a live game</div>
+        
+        <select id="quiz-select" class="quiz-select">
+          <option value="">— Loading quizzes… —</option>
+        </select>
+        <div id="select-error" class="error"></div>
+        
+        <div id="quiz-preview" style="display:none;margin-top:1rem;">
+          <div style="font-size:0.85rem;color:var(--ql-muted);margin-bottom:0.5rem;">
+            <strong id="preview-title"></strong>
+          </div>
+          <div style="font-size:0.8rem;color:var(--ql-muted);">
+            <span id="preview-q-count">0</span> questions · <span id="preview-timer">20</span>s per question
+          </div>
+        </div>
+        
+        <div style="margin-top:1.25rem;">
+          <div style="font-size:0.8rem;font-weight:600;color:var(--ql-muted);margin-bottom:0.5rem;">Timer Duration</div>
+          <div style="display:flex;gap:0.5rem;">
+            <button class="timer-preset-btn host-btn host-btn-secondary" data-secs="10" style="flex:1;padding:0.6rem;">10s</button>
+            <button class="timer-preset-btn host-btn host-btn-primary" data-secs="20" style="flex:1;padding:0.6rem;">20s ✓</button>
+            <button class="timer-preset-btn host-btn host-btn-secondary" data-secs="30" style="flex:1;padding:0.6rem;">30s</button>
+          </div>
+        </div>
+        
+        <button id="btn-launch" class="host-btn host-btn-primary host-btn-full mt-2" disabled>
+          <span id="btn-launch-text"><i class="bi bi-rocket-takeoff"></i> Launch Game</span>
+          <span id="btn-launch-spinner" class="spinner" style="display:none;"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Host: Lobby Screen -->
+<div id="host-screen-lobby" class="host-screen">
+  <div class="container">
+    <div style="max-width:560px;margin:1rem auto;">
+      <div class="host-card" style="text-align:center;">
+        <div class="pin-label">Game PIN</div>
+        <div id="host-pin-display" class="pin-display">------</div>
+        <div id="lobby-quiz-title" style="font-weight:700;font-size:1.1rem;margin:0.5rem 0;">Quiz Title</div>
+        <div id="lobby-quiz-meta" style="font-size:0.85rem;color:var(--ql-muted);">X questions · Ys per question</div>
+      </div>
+      
+      <div class="host-card">
+        <div class="d-flex justify-between align-center mb-1">
+          <div class="host-card-title" style="margin-bottom:0;">Players</div>
+          <div id="lobby-count" class="player-count-badge">0</div>
+        </div>
+        <div id="host-player-list" class="player-list-grid">
+          <div id="lobby-empty-state" style="font-size:0.82rem;color:#94a3b8;padding:0.25rem;">No players yet — share the PIN!</div>
+        </div>
+      </div>
+      
+      <div style="display:flex;gap:0.75rem;margin-top:1rem;">
+        <button id="btn-start-game" class="host-btn host-btn-primary host-btn-large" style="flex:2;" disabled>
+          <i class="bi bi-play-fill"></i> Start Game
+        </button>
+        <button id="btn-cancel-lobby" class="host-btn host-btn-danger" style="flex:1;">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Host: Question Screen -->
+<div id="host-screen-question" class="host-screen">
+  <div class="container">
+    <div style="max-width:560px;margin:1rem auto;">
+      <div class="host-question-bar">
+        <div class="host-question-meta">
+          <div id="host-q-label" class="host-q-label">Question 1 of 10</div>
+          <div id="host-marks-badge" class="host-marks-badge">+1000 pts</div>
+        </div>
+        <div id="host-question-text" class="host-question-text">Loading question...</div>
+        <div class="host-timer-bar-track">
+          <div id="host-timer-bar" class="host-timer-bar-fill" style="width:100%;"></div>
+        </div>
+        <div id="host-timer-num" class="host-timer-num">20</div>
+      </div>
+      
+      <div class="host-answers-grid">
+        <div id="host-ans-0" class="host-answer-tile host-answer-tile-red">
+          <span id="host-ans-0-text">Answer A</span>
+        </div>
+        <div id="host-ans-1" class="host-answer-tile host-answer-tile-blue">
+          <span id="host-ans-1-text">Answer B</span>
+        </div>
+        <div id="host-ans-2" class="host-answer-tile host-answer-tile-yellow">
+          <span id="host-ans-2-text">Answer C</span>
+        </div>
+        <div id="host-ans-3" class="host-answer-tile host-answer-tile-green">
+          <span id="host-ans-3-text">Answer D</span>
+        </div>
+      </div>
+      
+      <div style="margin-top:0.75rem;">
+        <div id="host-ans-0-bar" class="host-answer-bar"><div class="host-answer-bar-fill" style="width:0%;"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:0.25rem;">
+          <span id="host-ans-0-count" class="host-answer-count" style="color:var(--ans-red);">0 answers</span>
+        </div>
+        <div id="host-ans-1-bar" class="host-answer-bar mt-1"><div class="host-answer-bar-fill" style="width:0%;"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:0.25rem;">
+          <span id="host-ans-1-count" class="host-answer-count" style="color:var(--ans-blue);">0 answers</span>
+        </div>
+        <div id="host-ans-2-bar" class="host-answer-bar mt-1"><div class="host-answer-bar-fill" style="width:0%;"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:0.25rem;">
+          <span id="host-ans-2-count" class="host-answer-count" style="color:var(--ans-yellow);">0 answers</span>
+        </div>
+        <div id="host-ans-3-bar" class="host-answer-bar mt-1"><div class="host-answer-bar-fill" style="width:0%;"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:0.25rem;">
+          <span id="host-ans-3-count" class="host-answer-count" style="color:var(--ans-green);">0 answers</span>
+        </div>
+      </div>
+      
+      <div class="host-responses-bar mt-2">
+        <span>Responses:</span>
+        <span id="host-response-count" class="host-responses-count">0</span>
+        <span>/</span>
+        <span id="host-total-players">0</span>
+        <div style="flex:1;height:6px;background:var(--ql-border);border-radius:3px;overflow:hidden;">
+          <div id="host-response-bar" style="height:100%;background:var(--ql-primary);border-radius:3px;width:0%;transition:width 0.3s;"></div>
+        </div>
+      </div>
+      
+      <div class="mini-leaderboard">
+        <div class="mini-leaderboard-title">Top Scores</div>
+        <div id="host-mini-leaderboard"></div>
+      </div>
+      
+      <div style="display:flex;gap:0.75rem;margin-top:1.5rem;">
+        <button id="btn-end-question" class="host-btn host-btn-primary host-btn-large" style="flex:1;">
+          <i class="bi bi-stop-fill"></i> End Question
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Host: Leaderboard Screen -->
+<div id="host-screen-leaderboard" class="host-screen">
+  <div class="container">
+    <div class="leaderboard-wrap">
+      <div id="lb-title" class="leaderboard-title">After Q1</div>
+      <div id="host-leaderboard-list"></div>
+      <div style="display:flex;gap:0.75rem;margin-top:1.5rem;">
+        <button id="btn-lb-next" class="host-btn host-btn-primary host-btn-large" style="flex:2;">
+          <i class="bi bi-arrow-right"></i> Next Question
+        </button>
+        <button id="btn-lb-finish" class="host-btn host-btn-secondary" style="flex:1;">
+          <i class="bi bi-flag-fill"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Host: Final Screen -->
+<div id="host-screen-final" class="host-screen">
+  <div class="container">
+    <div style="max-width:560px;margin:1rem auto;text-align:center;">
+      <div style="font-size:5rem;margin-bottom:1rem;animation:trophyDrop 0.8s cubic-bezier(0.34,1.56,0.64,1);">🏆</div>
+      <div style="font-family:'Outfit',sans-serif;font-size:2rem;font-weight:900;color:var(--ql-text);margin-bottom:2rem;">Game Complete!</div>
+      
+      <div class="podium-container">
+        <div class="podium-place">
+          <div id="podium-2-avatar" class="podium-avatar" style="background:var(--ql-primary);">?</div>
+          <div id="podium-2-name" class="podium-name">Player</div>
+          <div id="podium-2-score" class="podium-score">0</div>
+          <div class="podium-stand">🥈</div>
+        </div>
+        <div class="podium-place">
+          <div id="podium-1-avatar" class="podium-avatar" style="background:var(--ql-primary);">?</div>
+          <div id="podium-1-name" class="podium-name">Player</div>
+          <div id="podium-1-score" class="podium-score">0</div>
+          <div class="podium-stand">🥇</div>
+        </div>
+        <div class="podium-place">
+          <div id="podium-3-avatar" class="podium-avatar" style="background:var(--ql-primary);">?</div>
+          <div id="podium-3-name" class="podium-name">Player</div>
+          <div id="podium-3-score" class="podium-score">0</div>
+          <div class="podium-stand">🥉</div>
+        </div>
+      </div>
+      
+      <div class="host-card mt-2">
+        <div class="host-card-title">Full Rankings</div>
+        <div id="host-final-leaderboard"></div>
+      </div>
+      
+      <div style="display:flex;gap:0.75rem;margin-top:1.5rem;">
+        <button id="btn-export-results" class="host-btn host-btn-secondary" style="flex:1;">
+          <i class="bi bi-clipboard"></i> Copy Results
+        </button>
+        <button id="btn-play-again-host" class="host-btn host-btn-primary" style="flex:1;">
+          <i class="bi bi-arrow-repeat"></i> Play Again
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     PLAYER FLOW
+══════════════════════════════════════════════════════════ -->
+
+<!-- Player: PIN Entry -->
+<div id="screen-pin" class="screen">
+  <div class="game-content">
+    <div style="width:100%;max-width:420px;padding:1.5rem;">
+      <div class="text-center mb-2">
+        <div class="logo">QuizFlow</div>
+        <div class="logo-sub">Live Quiz Gaming</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🎮 Enter Game PIN</div>
+        <div class="card-sub">Ask your host for the 6-digit PIN</div>
+
+        <input id="inp-pin" class="input" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="000000" autocomplete="off" />
+
+        <div id="pin-error" class="error" role="alert"></div>
+
+        <button id="btn-join-pin" class="btn btn-primary mt-1" disabled>
+          <span id="btn-join-pin-text">Join Game →</span>
+          <span id="btn-join-pin-spinner" class="spinner" style="display:none;"></span>
+        </button>
+
+        <div style="text-align:center;margin-top:1.25rem;font-size:0.8rem;color:rgba(255,255,255,0.35);">
+          Want to host?
+          <a href="#" id="link-host" style="color:rgba(167,139,250,0.8);text-decoration:none;font-weight:600;">Open Host View →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Player: Nickname Entry -->
+<div id="screen-nickname" class="screen">
+  <div class="game-content">
+    <div style="width:100%;max-width:420px;padding:1.5rem;">
+      <div class="text-center mb-2">
+        <div style="font-size:3rem;">👤</div>
+        <div class="card-title">What's your name?</div>
+        <div class="card-sub">This will be shown on the leaderboard</div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;margin-bottom:1rem;">
+          <button class="avatar-pick-btn av-0 selected" data-av="0" style="width:36px;height:36px;border-radius:50%;border:3px solid white;cursor:pointer;font-size:0.85rem;font-weight:800;color:#fff;">A</button>
+          <button class="avatar-pick-btn av-1" data-av="1" style="width:36px;height:36px;border-radius:50%;border:3px solid transparent;cursor:pointer;font-size:0.85rem;font-weight:800;color:#fff;">B</button>
+          <button class="avatar-pick-btn av-2" data-av="2" style="width:36px;height:36px;border-radius:50%;border:3px solid transparent;cursor:pointer;font-size:0.85rem;font-weight:800;color:#fff;">C</button>
+          <button class="avatar-pick-btn av-3" data-av="3" style="width:36px;height:36px;border-radius:50%;border:3px solid transparent;cursor:pointer;font-size:0.85rem;font-weight:800;color:#fff;">D</button>
+          <button class="avatar-pick-btn av-4" data-av="4" style="width:36px;height:36px;border-radius:50%;border:3px solid transparent;cursor:pointer;font-size:0.85rem;font-weight:800;color:#fff;">E</button>
+          <button class="avatar-pick-btn av-5" data-av="5" style="width:36px;height:36px;border-radius:50%;border:3px solid transparent;cursor:pointer;font-size:0.85rem;font-weight:800;color:#fff;">F</button>
+          <button class="avatar-pick-btn av-6" data-av="6" style="width:36px;height:36px;border-radius:50%;border:3px solid transparent;cursor:pointer;font-size:0.85rem;font-weight:800;color:#fff;">G</button>
+          <button class="avatar-pick-btn av-7" data-av="7" style="width:36px;height:36px;border-radius:50%;border:3px solid transparent;cursor:pointer;font-size:0.85rem;font-weight:800;color:#fff;">H</button>
+        </div>
+
+        <input id="inp-nickname" class="input" type="text" maxlength="20" placeholder="Your nickname…" autocomplete="off" />
+
+        <div id="nickname-error" class="error" role="alert"></div>
+
+        <button id="btn-join-nickname" class="btn btn-primary mt-1" disabled>
+          <span id="btn-join-nick-text">Let's Go! 🚀</span>
+          <span id="btn-join-nick-spinner" class="spinner" style="display:none;"></span>
+        </button>
+
+        <button id="btn-back-pin" class="btn btn-secondary mt-1">← Back</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Player: Waiting Lobby -->
+<div id="screen-lobby" class="screen" aria-live="polite">
+  <div class="game-content">
+    <div style="width:100%;max-width:420px;padding:1.5rem;text-align:center;">
+      <div class="lobby-pulse">🎮</div>
+      <div class="lobby-welcome">You're in!<br><span id="lobby-nickname-display">Player</span></div>
+
+      <div class="lobby-nickname-tag" style="margin:1rem auto;display:inline-flex;">
+        <div id="lobby-avatar-badge" class="lobby-avatar av-0">P</div>
+        <span id="lobby-game-title">Waiting for quiz…</span>
+      </div>
+
+      <div class="card" style="margin-top:1rem;">
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.35rem;">Game PIN</div>
+        <div id="lobby-pin-display" style="font-family:'Outfit',monospace;font-size:2.5rem;font-weight:900;letter-spacing:0.2em;background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">------</div>
+
+        <div style="margin-top:1rem;padding:0.75rem;background:rgba(255,255,255,0.05);border-radius:10px;">
+          <div style="font-size:0.8rem;color:rgba(255,255,255,0.5);">Players joined</div>
+          <div id="lobby-player-count" style="font-family:'Outfit',monospace;font-size:2rem;font-weight:900;color:#a78bfa;">0</div>
+        </div>
+      </div>
+
+      <div class="lobby-waiting mt-2">
+        Waiting for host to start<span class="lobby-waiting-dots"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Player: Get Ready -->
+<div id="screen-get-ready" class="screen">
+  <div class="game-content">
+    <div style="text-align:center;padding:1.5rem;">
+      <div id="get-ready-countdown" class="get-ready-countdown">3</div>
+      <div style="font-size:1.1rem;color:rgba(255,255,255,0.6);">Get ready…</div>
+      <div id="get-ready-q-num" style="margin-top:0.5rem;font-size:0.85rem;color:rgba(255,255,255,0.4);"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Player: Answering -->
+<div id="screen-answering" class="screen" style="padding:0;">
+  <div class="game-content" style="height:100vh;justify-content:flex-start;">
+    <div class="answering-header">
+      <div id="ans-q-label" class="answering-question-num">Question 1</div>
+      <div class="timer-ring-wrap">
+        <svg class="timer-ring-svg" width="60" height="60" viewBox="0 0 60 60" aria-hidden="true">
+          <circle class="timer-ring-track" cx="30" cy="30" r="25"/>
+          <circle id="timer-ring-fill" class="timer-ring-fill" cx="30" cy="30" r="25" stroke-dasharray="157" stroke-dashoffset="0"/>
+        </svg>
+        <div id="timer-ring-num" class="timer-ring-num">20</div>
+      </div>
+    </div>
+
+    <div class="answer-grid" id="answer-grid" role="group" aria-label="Answer choices" style="flex:1;">
+      <button id="ans-0" class="answer-btn answer-btn-red" data-idx="0" aria-label="Answer A">
+        <span class="answer-shape">▲</span>
+        <span id="ans-0-text">Option A</span>
+      </button>
+      <button id="ans-1" class="answer-btn answer-btn-blue" data-idx="1" aria-label="Answer B">
+        <span class="answer-shape">◆</span>
+        <span id="ans-1-text">Option B</span>
+      </button>
+      <button id="ans-2" class="answer-btn answer-btn-yellow" data-idx="2" aria-label="Answer C">
+        <span class="answer-shape">●</span>
+        <span id="ans-2-text">Option C</span>
+      </button>
+      <button id="ans-3" class="answer-btn answer-btn-green" data-idx="3" aria-label="Answer D">
+        <span class="answer-shape">■</span>
+        <span id="ans-3-text">Option D</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Player: Answer Result -->
+<div id="screen-answer-result" class="screen">
+  <div class="game-content">
+    <div style="text-align:center;padding:2rem 1.5rem;width:100%;max-width:400px;">
+      <div id="result-icon" class="result-icon-large">🎉</div>
+      <div id="result-verdict" class="result-verdict correct">Correct!</div>
+      <div style="margin-top:1.5rem;">
+        <div id="result-points" class="result-points">+1000</div>
+        <div class="result-points-label">points earned</div>
+      </div>
+      <div id="result-rank-badge" class="result-rank-badge" style="margin:1.5rem auto;display:inline-flex;">
+        <i class="bi bi-trophy-fill" style="color:#fbbf24;"></i>
+        <span id="result-rank-text">Rank —</span>
+      </div>
+      <div style="font-size:0.8rem;color:rgba(255,255,255,0.35);margin-top:1rem;">
+        Waiting for next question<span class="lobby-waiting-dots"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Player: Final Score -->
+<div id="screen-final" class="screen">
+  <div class="game-content">
+    <div style="text-align:center;padding:2rem 1.5rem;width:100%;max-width:420px;">
+      <div class="final-trophy">🏆</div>
+      <div style="font-size:1rem;color:rgba(255,255,255,0.5);margin-bottom:0.5rem;">Your final rank</div>
+      <div id="final-rank" class="final-rank">#1</div>
+
+      <div class="card" style="margin:1.5rem 0;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div style="text-align:center;">
+            <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;">Score</div>
+            <div id="final-score" class="final-score-value">0</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;">Correct</div>
+            <div id="final-correct" class="final-score-value" style="color:#4ade80;">0</div>
+          </div>
+        </div>
+      </div>
+
+      <button id="btn-play-again" class="btn btn-primary">
+        Play Again 🎮
+      </button>
+      <div style="margin-top:0.75rem;">
+        <a href="#" id="link-back-home" style="font-size:0.8rem;color:rgba(255,255,255,0.35);text-decoration:none;">← Back to Home</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+const SUPABASE_URL = 'https://qhbolldymcvjqjfneipv.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFoYm9sbGR5bWN2anFqZm5laXB2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA5NzcxNjAsImV4cCI6MjA0NjU1MzE2MH0.W7Xv3t3G6TbmLRs2x2J9Fz6k5sJnqP3v8YQ9yLr1b0E';
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { persistSession: true, autoRefreshToken: true }
+});
+
+const AVATAR_BG = ['#6366f1','#ec4899','#0ea5e9','#10b981','#f59e0b','#ef4444','#8b5cf6','#14b8a6'];
+const AVATAR_LTRS = ['A','B','C','D','E','F','G','H'];
+const ANSWER_COLORS = ['#E21B3C','#1368CE','#D89E00','#26890C'];
+const ANSWER_SHAPES = ['▲','◆','●','■'];
+
+const $ = id => document.getElementById(id);
+const show = id => { document.querySelectorAll('.screen,.host-screen').forEach(s => s.classList.remove('active')); const el = $(id); if(el) el.classList.add('active'); };
+
+let state = {
+  role: null,
+  user: null,
+  selectedQuizId: null,
+  selectedQuiz: null,
+  questionDuration: 20,
+  roomId: null,
+  roomPin: null,
+  players: [],
+  playerId: null,
+  currentQuestionIdx: -1,
+  timerInterval: null,
+  timerSecondsLeft: 20,
+  realtimeChannel: null,
+  answerChannel: null,
+  answerCounts: [0, 0, 0, 0],
+  responsesTotal: 0,
+  questionEndAt: null,
+  gameOver: false,
+  myAnswer: null,
+  myPoints: 0,
+  myRank: 0,
+  correctCount: 0
+};
+
+function escapeHTML(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showError(el, msg) {
+  const errEl = $(el);
+  if (errEl) { errEl.textContent = msg; errEl.classList.add('visible'); }
+}
+function hideError(el) {
+  const errEl = $(el);
+  if (errEl) { errEl.textContent = ''; errEl.classList.remove('visible'); }
+}
+
+function launchConfetti(count = 80) {
+  const colors = ['#f43f5e','#6366f1','#0ea5e9','#fbbf24','#10b981','#ec4899'];
+  for (let i = 0; i < count; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti-particle';
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.width = (Math.random() * 8 + 4) + 'px';
+    c.style.height = (Math.random() * 8 + 4) + 'px';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDuration = (Math.random() * 2 + 2) + 's';
+    c.style.animationDelay = (Math.random() * 0.5) + 's';
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 4000);
+  }
+}
+
+function showRoleScreen() {
+  state.role = null;
+  $('host-nav').style.display = 'none';
+  show('screen-role');
+}
+
+function initHost() {
+  state.role = 'host';
+  $('host-nav').style.display = 'flex';
+  initAuth();
+}
+
+function initAuth() {
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    if (session?.user) {
+      onUserLoggedIn(session.user);
+    } else {
+      show('host-screen-auth');
+      setupAuthForm();
+    }
+    supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user && !state.user) onUserLoggedIn(session.user);
+      else if (!session) { state.user = null; show('host-screen-auth'); }
+    });
+  });
+}
+
+function setupAuthForm() {
+  $('btn-auth-login').onclick = handleLogin;
+  $('auth-password').onkeydown = e => { if (e.key === 'Enter') $('btn-auth-login').click(); };
+}
+
+async function handleLogin() {
+  const email = $('auth-email').value.trim();
+  const password = $('auth-password').value;
+  hideError('auth-error');
+  const btn = $('btn-auth-login');
+  const txt = $('btn-auth-text');
+  const spin = $('btn-auth-spinner');
+  btn.disabled = true; txt.style.display = 'none'; spin.style.display = 'inline-block';
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  btn.disabled = false; txt.style.display = ''; spin.style.display = 'none';
+  if (error) showError('auth-error', error.message);
+}
+
+async function onUserLoggedIn(user) {
+  state.user = user;
+  $('btn-logout').style.display = 'inline'; $('btn-logout').onclick = () => supabase.auth.signOut();
+  await loadQuizzes();
+  show('host-screen-select');
+  initSelectScreen();
+}
+
+async function loadQuizzes() {
+  const sel = $('quiz-select');
+  const { data: quizzes, error } = await supabase.from('quizzes').select('id, title, questions, timer').eq('host_id', state.user.id).order('created_at', { ascending: false });
+  if (error || !quizzes || quizzes.length === 0) {
+    sel.innerHTML = '<option value="">— No quizzes found. Create one first. —</option>';
+    return;
+  }
+  sel.innerHTML = '<option value="">— Select a quiz —</option>' + quizzes.map(q => `<option value="${q.id}">${q.title} (${q.questions?.length || 0} Qs)</option>`).join('');
+}
+
+function initSelectScreen() {
+  const sel = $('quiz-select');
+  sel.onchange = () => {
+    hideError('select-error');
+    state.selectedQuizId = sel.value;
+    const btn = $('btn-launch');
+    if (!sel.value) { btn.disabled = true; $('quiz-preview').style.display = 'none'; return; }
+    showQuizPreview(sel.value);
+    btn.disabled = false;
+  };
+  $('btn-launch').onclick = handleLaunch;
+  document.querySelectorAll('.timer-preset-btn').forEach(b => {
+    b.onclick = () => {
+      document.querySelectorAll('.timer-preset-btn').forEach(x => { x.classList.remove('host-btn-primary'); x.classList.add('host-btn-secondary'); x.textContent = x.dataset.secs + 's'; });
+      b.classList.remove('host-btn-secondary'); b.classList.add('host-btn-primary'); b.textContent = b.dataset.secs + 's ✓';
+      state.questionDuration = parseInt(b.dataset.secs);
+    };
+  });
+}
+
+async function showQuizPreview(quizId) {
+  const preview = $('quiz-preview');
+  preview.style.display = 'block';
+  const { data: quiz } = await supabase.from('quizzes').select('title, questions, timer').eq('id', quizId).single();
+  if (quiz) {
+    state.selectedQuiz = quiz;
+    $('preview-title').textContent = quiz.title;
+    $('preview-q-count').textContent = quiz.questions?.length || 0;
+    $('preview-timer').textContent = quiz.timer || state.questionDuration;
+    if (quiz.timer) state.questionDuration = quiz.timer;
+  }
+}
+
+async function handleLaunch() {
+  if (!state.selectedQuizId) { showError('select-error', 'Please select a quiz first.'); return; }
+  const btn = $('btn-launch'); const txt = $('btn-launch-text'); const spin = $('btn-launch-spinner');
+  btn.disabled = true; txt.style.display = 'none'; spin.style.display = 'inline-block';
+  try {
+    const pin = String(Math.floor(100000 + Math.random() * 900000));
+    if (!state.selectedQuiz) {
+      const { data: quiz } = await supabase.from('quizzes').select('title, questions, timer').eq('id', state.selectedQuizId).single();
+      state.selectedQuiz = quiz;
+    }
+    const { data: room, error: roomErr } = await supabase.from('game_rooms').insert([{ quiz_id: state.selectedQuizId, host_id: state.user.id, pin, status: 'waiting', current_question_index: 0 }]).select().single();
+    if (roomErr) throw roomErr;
+    state.roomId = room.id; state.roomPin = pin; state.currentQuestionIdx = -1; state.players = [];
+    showLobby();
+  } catch (err) {
+    showError('select-error', err.message || 'Failed to create game room. Try again.');
+    btn.disabled = false; txt.style.display = ''; spin.style.display = 'none';
+  }
+}
+
+function showLobby() {
+  $('host-pin-display').textContent = state.roomPin;
+  $('lobby-quiz-title').textContent = state.selectedQuiz?.title || 'Quiz';
+  $('lobby-quiz-meta').textContent = `${state.selectedQuiz?.questions?.length || 0} questions · ${state.questionDuration}s per question`;
+  show('host-screen-lobby');
+  $('btn-start-game').onclick = handleStartGame;
+  $('btn-cancel-lobby').onclick = async () => { if (confirm('Cancel and delete this game room?')) { await supabase.from('game_rooms').update({ status: 'finished' }).eq('id', state.roomId); showRoleScreen(); } };
+  subscribeToPlayers();
+  refreshPlayerList();
+}
+
+function subscribeToPlayers() {
+  if (state.realtimeChannel) supabase.removeChannel(state.realtimeChannel);
+  const channel = supabase.channel(`lobby-players-${state.roomId}`).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'players', filter: `room_id=eq.${state.roomId}` }, payload => {
+    state.players.push(payload.new);
+    renderPlayerChip(payload.new);
+    updateLobbyPlayerCount();
+  }).subscribe();
+  state.realtimeChannel = channel;
+}
+
+async function refreshPlayerList() {
+  const { data: players } = await supabase.from('players').select('*').eq('room_id', state.roomId).order('joined_at');
+  if (!players) return;
+  state.players = players;
+  const list = $('host-player-list');
+  list.innerHTML = '';
+  if (players.length === 0) list.innerHTML = '<div id="lobby-empty-state" style="font-size:0.82rem;color:#94a3b8;padding:0.25rem;">No players yet — share the PIN!</div>';
+  else players.forEach(renderPlayerChip);
+  updateLobbyPlayerCount();
+}
+
+function renderPlayerChip(player) {
+  const emptyState = $('lobby-empty-state');
+  if (emptyState) emptyState.remove();
+  const chip = document.createElement('div');
+  chip.className = 'player-chip';
+  chip.id = `chip-${player.id}`;
+  const av = document.createElement('div');
+  av.className = `player-chip-avatar av-${player.avatar_idx % 8}`;
+  av.textContent = player.nickname[0].toUpperCase();
+  chip.appendChild(av);
+  chip.appendChild(document.createTextNode(player.nickname));
+  $('host-player-list').appendChild(chip);
+}
+
+function updateLobbyPlayerCount() {
+  const count = state.players.length;
+  $('lobby-count').textContent = count;
+  $('btn-start-game').disabled = count < 1;
+}
+
+async function handleStartGame() {
+  $('btn-start-game').disabled = true;
+  if (state.realtimeChannel) supabase.removeChannel(state.realtimeChannel);
+  await launchQuestion(0);
+}
+
+async function launchQuestion(qIdx) {
+  state.currentQuestionIdx = qIdx;
+  state.answerCounts = [0, 0, 0, 0];
+  state.responsesTotal = 0;
+  const questions = state.selectedQuiz?.questions;
+  if (!questions || qIdx >= questions.length) { await endGame(); return; }
+  const q = questions[qIdx];
+  const endAt = new Date(Date.now() + state.questionDuration * 1000);
+  state.questionEndAt = endAt;
+  await supabase.from('game_rooms').update({ status: 'playing', current_question_index: qIdx, question_end_at: endAt.toISOString() }).eq('id', state.roomId);
+  populateHostQuestion(q, qIdx);
+  show('host-screen-question');
+  subscribeToAnswers(qIdx);
+  startHostTimer(endAt, () => onQuestionTimeUp(qIdx));
+}
+
+function populateHostQuestion(q, qIdx) {
+  const questions = state.selectedQuiz?.questions || [];
+  $('host-q-label').textContent = `Question ${qIdx + 1} of ${questions.length}`;
+  $('host-marks-badge').textContent = '+1000 pts';
+  $('host-question-text').textContent = q.question || q.text || '';
+  const opts = q.options || q.choices || [];
+  for (let i = 0; i < 4; i++) {
+    $(`host-ans-${i}-text`).textContent = opts[i] || '';
+    $(`host-ans-${i}-bar`).querySelector('.host-answer-bar-fill').style.width = '0%';
+    $(`host-ans-${i}-count`).textContent = '0 answers';
+  }
+  $('host-response-count').textContent = '0';
+  $('host-total-players').textContent = state.players.length;
+  $('host-response-bar').style.width = '0%';
+  $('btn-end-question').style.display = '';
+  $('btn-end-question').onclick = () => onQuestionTimeUp(qIdx);
+  updateMiniLeaderboard();
+}
+
+function startHostTimer(endAt, onTimeUp) {
+  clearInterval(state.timerInterval);
+  const track = $('host-timer-bar');
+  const numEl = $('host-timer-num');
+  const duration = state.questionDuration;
+  let fired = false;
+  function tick() {
+    const now = Date.now();
+    const left = Math.max(0, (endAt - now) / 1000);
+    const pct = (left / duration) * 100;
+    if (numEl) numEl.textContent = Math.ceil(left);
+    if (track) track.style.width = `${pct}%`;
+    if (track) track.style.background = left <= 5 ? 'linear-gradient(90deg, #ef4444, #f97316)' : 'linear-gradient(90deg, var(--ql-primary), var(--ql-secondary))';
+    if (left <= 0 && !fired) { fired = true; clearInterval(state.timerInterval); onTimeUp(); }
+  }
+  tick();
+  state.timerInterval = setInterval(tick, 500);
+}
+
+function subscribeToAnswers(qIdx) {
+  if (state.answerChannel) supabase.removeChannel(state.answerChannel);
+  const ch = supabase.channel(`answers-${state.roomId}-${qIdx}`).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'player_answers', filter: `room_id=eq.${state.roomId}` }, payload => {
+    const ans = payload.new;
+    if (ans.question_index !== qIdx) return;
+    const idx = ans.answer_index;
+    if (idx !== null && idx >= 0 && idx < 4) state.answerCounts[idx]++;
+    state.responsesTotal++;
+    updateAnswerBars();
+  }).subscribe();
+  state.answerChannel = ch;
+}
+
+function updateAnswerBars() {
+  const total = state.responsesTotal;
+  const playerCount = state.players.length;
+  for (let i = 0; i < 4; i++) {
+    const cnt = state.answerCounts[i];
+    const pct = total > 0 ? Math.round((cnt / Math.max(playerCount, total)) * 100) : 0;
+    $(`host-ans-${i}-bar`).querySelector('.host-answer-bar-fill').style.width = `${pct}%`;
+    $(`host-ans-${i}-count`).textContent = `${cnt} ${cnt === 1 ? 'answer' : 'answers'}`;
+  }
+  const pct = playerCount > 0 ? Math.min(100, Math.round((total / playerCount) * 100)) : 0;
+  $('host-response-count').textContent = total;
+  $('host-response-bar').style.width = `${pct}%`;
+}
+
+async function onQuestionTimeUp(qIdx) {
+  clearInterval(state.timerInterval);
+  if (state.answerChannel) supabase.removeChannel(state.answerChannel);
+  $('btn-end-question').style.display = 'none';
+  await supabase.from('game_rooms').update({ status: 'results' }).eq('id', state.roomId);
+  await supabase.rpc('grade_question', { p_room_id: state.roomId, p_question_index: qIdx });
+  const { data: players } = await supabase.from('players').select('*').eq('room_id', state.roomId).order('total_score', { ascending: false });
+  state.players = players || [];
+  const questions = state.selectedQuiz?.questions || [];
+  const hasNextQ = qIdx + 1 < questions.length;
+  $('lb-title').textContent = hasNextQ ? `After Q${qIdx + 1}` : 'Final Leaderboard';
+  renderLeaderboard('host-leaderboard-list', state.players.slice(0, 8));
+  $('btn-lb-next').style.display = hasNextQ ? '' : 'none';
+  $('btn-lb-next').onclick = () => launchQuestion(qIdx + 1);
+  $('btn-lb-finish').textContent = hasNextQ ? 'End Game Early' : 'See Final Results';
+  $('btn-lb-finish').onclick = () => endGame();
+  show('host-screen-leaderboard');
+}
+
+async function endGame() {
+  clearInterval(state.timerInterval);
+  if (state.realtimeChannel) supabase.removeChannel(state.realtimeChannel);
+  if (state.answerChannel) supabase.removeChannel(state.answerChannel);
+  state.gameOver = true;
+  await supabase.from('game_rooms').update({ status: 'finished' }).eq('id', state.roomId);
+  const { data: players } = await supabase.from('players').select('*').eq('room_id', state.roomId).order('total_score', { ascending: false });
+  state.players = players || [];
+  renderFinalPodium();
+  renderLeaderboard('host-final-leaderboard', state.players);
+  show('host-screen-final');
+  launchConfetti(100);
+  $('btn-play-again-host').onclick = () => { state.roomId = null; state.roomPin = null; state.selectedQuiz = null; state.selectedQuizId = null; showRoleScreen(); };
+  $('btn-export-results').onclick = () => {
+    const text = state.players.map((p, i) => `#${i+1} ${p.nickname} - ${p.total_score} pts`).join('\n');
+    navigator.clipboard.writeText(`QuizFlow Results\n${text}`);
+    alert('Results copied to clipboard!');
+  };
+}
+
+function renderFinalPodium() {
+  const top3 = state.players.slice(0, 3);
+  const positions = [
+    { el: 'podium-2', idx: 1 },
+    { el: 'podium-1', idx: 0 },
+    { el: 'podium-3', idx: 2 }
+  ];
+  positions.forEach(pos => {
+    const p = top3[pos.idx];
+    if (p) {
+      $(`${pos.el}-avatar`).textContent = p.nickname[0].toUpperCase();
+      $(`${pos.el}-avatar`).style.background = AVATAR_BG[p.avatar_idx % 8];
+      $(`${pos.el}-name`).textContent = p.nickname;
+      $(`${pos.el}-score`).textContent = p.total_score.toLocaleString() + ' pts';
+    }
+  });
+}
+
+function renderLeaderboard(containerId, players) {
+  const container = $(containerId);
+  if (!container) return;
+  const medals = ['🥇', '🥈', '🥉'];
+  container.innerHTML = '';
+  if (players.length === 0) { container.innerHTML = '<div style="text-align:center;color:#94a3b8;font-size:0.9rem;padding:1rem;">No players yet.</div>'; return; }
+  players.forEach((p, idx) => {
+    const row = document.createElement('div');
+    const rankClass = idx < 3 ? `rank-${idx + 1}` : '';
+    row.className = `leaderboard-row ${rankClass}`;
+    const color = AVATAR_BG[p.avatar_idx % 8];
+    row.innerHTML = `<div class="leaderboard-rank">${medals[idx] || (idx + 1)}</div><div class="leaderboard-avatar" style="background:${color};">${p.nickname[0].toUpperCase()}</div><div class="leaderboard-name">${escapeHTML(p.nickname)}</div><div class="leaderboard-score">${(p.total_score || 0).toLocaleString()}</div>`;
+    container.appendChild(row);
+  });
+}
+
+function updateMiniLeaderboard() {
+  const container = $('host-mini-leaderboard');
+  if (!container) return;
+  const sorted = [...state.players].sort((a, b) => b.total_score - a.total_score).slice(0, 5);
+  if (sorted.length === 0) { container.innerHTML = '<div style="font-size:0.8rem;color:#94a3b8;">No scores yet.</div>'; return; }
+  container.innerHTML = sorted.map((p, i) => {
+    const color = AVATAR_BG[p.avatar_idx % 8];
+    return `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0;border-bottom:1px solid #f1f5f9;"><span style="font-size:0.75rem;font-weight:700;color:#94a3b8;width:20px;">#${i+1}</span><div style="width:24px;height:24px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;color:#fff;">${p.nickname[0].toUpperCase()}</div><span style="flex:1;font-size:0.82rem;font-weight:600;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHTML(p.nickname)}</span><span style="font-size:0.8rem;font-weight:700;color:#6366f1;">${(p.total_score || 0).toLocaleString()}</span></div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+// PLAYER FLOW
+// ══════════════════════════════════════════════════════════
+
+function initPlayer() {
+  state.role = 'player';
+  $('host-nav').style.display = 'none';
+  show('screen-pin');
+  setupPinScreen();
+  setupNicknameScreen();
+  setupLinks();
+}
+
+function setupLinks() {
+  $('link-host').onclick = e => { e.preventDefault(); showRoleScreen(); };
+  $('link-back-home').onclick = e => { e.preventDefault(); location.reload(); };
+  $('btn-become-host').onclick = initHost;
+  $('btn-join-player').onclick = initPlayer;
+  $('btn-play-again').onclick = () => location.reload();
+}
+
+function setupPinScreen() {
+  const inp = $('inp-pin');
+  inp.oninput = () => {
+    inp.value = inp.value.replace(/\D/g, '').slice(0, 6);
+    $('btn-join-pin').disabled = inp.value.length !== 6;
+    hideError('pin-error');
+  };
+  $('btn-join-pin').onclick = async () => {
+    const pin = inp.value;
+    if (pin.length !== 6) return;
+    const btn = $('btn-join-pin');
+    const txt = $('btn-join-pin-text');
+    const spin = $('btn-join-pin-spinner');
+    btn.disabled = true; txt.style.display = 'none'; spin.style.display = 'inline-block';
+    const { data: room, error } = await supabase.from('game_rooms').select('*').eq('pin', pin).neq('status', 'finished').single();
+    btn.disabled = false; txt.style.display = ''; spin.style.display = 'none';
+    if (error || !room) { showError('pin-error', 'Game not found. Check the PIN and try again.'); return; }
+    state.roomId = room.id;
+    state.roomPin = pin;
+    show('screen-nickname');
+    setupAvatarPicker();
+  };
+}
+
+function setupNicknameScreen() {
+  const inp = $('inp-nickname');
+  inp.oninput = () => {
+    $('btn-join-nickname').disabled = inp.value.trim().length < 1;
+    hideError('nickname-error');
+  };
+  $('btn-join-nickname').onclick = async () => {
+    const nickname = $('inp-nickname').value.trim();
+    if (!nickname) return;
+    const btn = $('btn-join-nickname');
+    const txt = $('btn-join-nick-text');
+    const spin = $('btn-join-nick-spinner');
+    btn.disabled = true; txt.style.display = 'none'; spin.style.display = 'inline-block';
+    try {
+      const { data: player, error } = await supabase.from('players').insert([{ room_id: state.roomId, nickname, avatar_idx: state.selectedAvatar || 0, total_score: 0 }]).select().single();
+      if (error) throw error;
+      state.playerId = player.id;
+      state.nickname = nickname;
+      state.selectedAvatar = player.avatar_idx;
+      showPlayerLobby();
+      subscribeToRoom();
+    } catch (err) {
+      showError('nickname-error', err.message || 'Failed to join. Try again.');
+      btn.disabled = false; txt.style.display = ''; spin.style.display = 'none';
+    }
+  };
+  $('btn-back-pin').onclick = () => show('screen-pin');
+}
+
+function setupAvatarPicker() {
+  document.querySelectorAll('.avatar-pick-btn').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.avatar-pick-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      state.selectedAvatar = parseInt(btn.dataset.av);
+    };
+  });
+}
+
+function showPlayerLobby() {
+  $('lobby-nickname-display').textContent = state.nickname;
+  $('lobby-avatar-badge').textContent = state.nickname[0].toUpperCase();
+  $('lobby-avatar-badge').className = `lobby-avatar av-${state.selectedAvatar % 8}`;
+  $('lobby-pin-display').textContent = state.roomPin;
+  show('screen-lobby');
+  refreshPlayerCount();
+}
+
+async function refreshPlayerCount() {
+  const { data: players } = await supabase.from('players').select('id').eq('room_id', state.roomId);
+  $('lobby-player-count').textContent = players?.length || 0;
+}
+
+function subscribeToRoom() {
+  if (state.realtimeChannel) supabase.removeChannel(state.realtimeChannel);
+  const channel = supabase.channel(`room-${state.roomId}`).on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'game_rooms', filter: `id=eq.${state.roomId}` }, payload => {
+    const room = payload.new;
+    if (room.status === 'playing') startGetReady(room.current_question_index);
+    else if (room.status === 'results') showPlayerResult();
+    else if (room.status === 'finished') showPlayerFinal();
+  }).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'players', filter: `room_id=eq.${state.roomId}` }, () => refreshPlayerCount()).subscribe();
+  state.realtimeChannel = channel;
+}
+
+async function startGetReady(qIdx) {
+  state.currentQuestionIdx = qIdx;
+  state.myAnswer = null;
+  show('screen-get-ready');
+  const { data: quiz } = await supabase.from('quizzes').select('questions').eq('id', (await supabase.from('game_rooms').select('quiz_id').eq('id', state.roomId).single()).data.quiz_id).single();
+  state.currentQuiz = quiz;
+  const questions = quiz.questions || [];
+  $('get-ready-q-num').textContent = `Question ${qIdx + 1} of ${questions.length}`;
+  let count = 3;
+  const countdown = setInterval(() => {
+    $('get-ready-countdown').textContent = count;
+    if (count === 0) {
+      clearInterval(countdown);
+      showQuestionScreen();
+    }
+    count--;
+  }, 1000);
+}
+
+async function showQuestionScreen() {
+  const questions = state.currentQuiz?.questions || [];
+  const q = questions[state.currentQuestionIdx];
+  if (!q) return;
+  state.questionEndAt = new Date((await supabase.from('game_rooms').select('question_end_at').eq('id', state.roomId).single()).data.question_end_at);
+  $('ans-q-label').textContent = `Question ${state.currentQuestionIdx + 1}`;
+  const opts = q.options || q.choices || [];
+  for (let i = 0; i < 4; i++) {
+    $(`ans-${i}-text`).textContent = opts[i] || '';
+    const btn = $(`ans-${i}`);
+    btn.classList.remove('selected', 'correct', 'wrong');
+    btn.disabled = false;
+  }
+  show('screen-answering');
+  startPlayerTimer();
+}
+
+function startPlayerTimer() {
+  clearInterval(state.timerInterval);
+  const ring = $('timer-ring-fill');
+  const num = $('timer-ring-num');
+  const circumference = 2 * Math.PI * 25;
+  const duration = state.questionDuration || 20;
+  let fired = false;
+  function tick() {
+    const now = Date.now();
+    const left = Math.max(0, (state.questionEndAt - now) / 1000);
+    const pct = left / duration;
+    ring.style.strokeDashoffset = circumference * (1 - pct);
+    num.textContent = Math.ceil(left);
+    if (left <= 5) { ring.classList.add('urgent'); num.classList.add('urgent'); }
+    else { ring.classList.remove('urgent'); num.classList.remove('urgent'); }
+    if (left <= 0 && !fired) {
+      fired = true;
+      clearInterval(state.timerInterval);
+      if (state.myAnswer === null) submitAnswer(-1);
+    }
+  }
+  tick();
+  state.timerInterval = setInterval(tick, 100);
+}
+
+async function submitAnswer(answerIdx) {
+  if (state.myAnswer !== null) return;
+  state.myAnswer = answerIdx;
+  clearInterval(state.timerInterval);
+  for (let i = 0; i < 4; i++) {
+    const btn = $(`ans-${i}`);
+    btn.disabled = true;
+    if (i === answerIdx) btn.classList.add('selected');
+  }
+  await supabase.from('player_answers').insert([{ room_id: state.roomId, player_id: state.playerId, question_index: state.currentQuestionIdx, answer_index: answerIdx }]);
+}
+
+async function showPlayerResult() {
+  clearInterval(state.timerInterval);
+  const questions = state.currentQuiz?.questions || [];
+  const q = questions[state.currentQuestionIdx];
+  const correctIdx = q?.correct ?? -1;
+  const wasCorrect = state.myAnswer === correctIdx && state.myAnswer >= 0;
+  const { data: answer } = await supabase.from('player_answers').select('*').eq('player_id', state.playerId).eq('question_index', state.currentQuestionIdx).single();
+  const points = answer?.points_earned || 0;
+  if (wasCorrect) state.correctCount++;
+  state.myPoints = (state.myPoints || 0) + points;
+  const { data: players } = await supabase.from('players').select('*').eq('room_id', state.roomId).order('total_score', { ascending: false });
+  const rank = (players?.findIndex(p => p.id === state.playerId) ?? -1) + 1;
+  state.myRank = rank;
+  for (let i = 0; i < 4; i++) {
+    const btn = $(`ans-${i}`);
+    btn.disabled = true;
+    btn.classList.remove('selected');
+    if (i === correctIdx) btn.classList.add('correct');
+    else if (i === state.myAnswer && i !== correctIdx) btn.classList.add('wrong');
+  }
+  $('result-icon').textContent = wasCorrect ? '✅' : '❌';
+  $('result-verdict').textContent = wasCorrect ? 'Correct!' : 'Wrong!';
+  $('result-verdict').className = `result-verdict ${wasCorrect ? 'correct' : 'wrong'}`;
+  $('result-points').textContent = `+${points}`;
+  $('result-rank-text').textContent = `Rank #${rank}`;
+  show('screen-answer-result');
+}
+
+async function showPlayerFinal() {
+  const { data: players } = await supabase.from('players').select('*').eq('room_id', state.roomId).order('total_score', { ascending: false });
+  const myPlayer = players?.find(p => p.id === state.playerId);
+  const rank = (players?.findIndex(p => p.id === state.playerId) ?? -1) + 1;
+  $('final-rank').textContent = `#${rank}`;
+  $('final-score').textContent = (myPlayer?.total_score || 0).toLocaleString();
+  $('final-correct').textContent = state.correctCount;
+  show('screen-final');
+  launchConfetti(80);
+}
+
+// Answer button clicks
+for (let i = 0; i < 4; i++) {
+  $(`ans-${i}`).onclick = () => submitAnswer(i);
+}
+
+// Initialize
+showRoleScreen();
+</script>
+</body>
+</html>
