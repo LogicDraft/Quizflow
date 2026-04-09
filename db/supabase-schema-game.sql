@@ -119,9 +119,29 @@ end $$;
 -- ─── 5. Enable Supabase Realtime ─────────────────────────
 -- Run in Supabase SQL editor — this adds the tables to
 -- the realtime publication so clients get live updates.
-alter publication supabase_realtime add table public.game_rooms;
-alter publication supabase_realtime add table public.players;
-alter publication supabase_realtime add table public.player_answers;
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'game_rooms'
+  ) then
+    alter publication supabase_realtime add table public.game_rooms;
+  end if;
+
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'players'
+  ) then
+    alter publication supabase_realtime add table public.players;
+  end if;
+
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'player_answers'
+  ) then
+    alter publication supabase_realtime add table public.player_answers;
+  end if;
+end $$;
 
 -- ─── 6. Helper: generate 6-char numeric PIN ──────────────
 create or replace function public.generate_game_pin()
