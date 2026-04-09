@@ -83,18 +83,25 @@ async function initAuth() {
 }
 
 function setupAuthForm() {
-  const btn = $('btn-auth-login');
-  btn.addEventListener('click', handleLogin);
-
-  $('auth-password').addEventListener('keydown', e => {
-    if (e.key === 'Enter') btn.click();
-  });
+  const formEmail = $('form-email-login');
+  if (formEmail) {
+    formEmail.addEventListener('submit', handleLogin);
+  }
 }
 
-async function handleLogin() {
-  const email = $('auth-email').value.trim();
-  const password = $('auth-password').value;
-  const errEl = $('auth-error');
+async function handleLogin(e) {
+  if (e) e.preventDefault();
+  
+  const email = $('inp-login-email').value.trim();
+  const password = $('inp-login-password').value;
+  let errEl = document.getElementById('auth-error');
+  if (!errEl) {
+    errEl = document.createElement('div');
+    errEl.id = 'auth-error';
+    errEl.style.cssText = 'color:#dc2626;font-size:0.85rem;margin-bottom:0.75rem;padding:0.5rem 0.75rem;background:#fee2e2;border-radius:8px;display:none;';
+    $('form-email-login').insertAdjacentElement('afterend', errEl);
+  }
+  
   errEl.style.display = 'none';
 
   if (!email || !password) {
@@ -103,18 +110,28 @@ async function handleLogin() {
     return;
   }
 
-  const btn = $('btn-auth-login');
+  const btn = $('btn-email-login');
   const txt = $('btn-auth-text');
   const spin = $('btn-auth-spinner');
   btn.disabled = true;
-  txt.style.display = 'none';
-  spin.style.display = 'inline-block';
+  if(txt) txt.style.display = 'none';
+  if(spin) spin.style.display = 'inline-block';
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  let { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error && error.message.includes("Invalid login credentials")) {
+    const res = await supabase.auth.signUp({ email, password });
+    error = res.error;
+    if (!error && res.data.user && res.data.user.identities && res.data.user.identities.length === 0) {
+      error = { message: "Email already exists. Incorrect password." };
+    } else if (!error && !res.data.session) {
+      error = { message: "Please check your email to confirm your account." };
+    }
+  }
 
   btn.disabled = false;
-  txt.style.display = '';
-  spin.style.display = 'none';
+  if(txt) txt.style.display = '';
+  if(spin) spin.style.display = 'none';
 
   if (error) {
     errEl.textContent = error.message;

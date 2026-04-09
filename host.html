@@ -53,19 +53,14 @@
           <div class="host-card-title">Host Sign In</div>
           <div class="host-card-sub">Sign in with your teacher account to host games.</div>
 
-          <input id="auth-email" type="email" placeholder="Email address"
-            style="width:100%;padding:0.75rem 1rem;border:1.5px solid #e2e8f0;border-radius:10px;font-size:0.95rem;font-family:'Ubuntu',sans-serif;color:#0f172a;outline:none;margin-bottom:0.75rem;transition:border-color 0.2s;"
-            aria-label="Email" />
-          <input id="auth-password" type="password" placeholder="Password"
-            style="width:100%;padding:0.75rem 1rem;border:1.5px solid #e2e8f0;border-radius:10px;font-size:0.95rem;font-family:'Ubuntu',sans-serif;color:#0f172a;outline:none;margin-bottom:1rem;transition:border-color 0.2s;"
-            aria-label="Password" />
-
-          <div id="auth-error" style="display:none;color:#dc2626;font-size:0.85rem;margin-bottom:0.75rem;padding:0.5rem 0.75rem;background:#fee2e2;border-radius:8px;" role="alert"></div>
-
-          <button id="btn-auth-login" class="host-btn host-btn-primary host-btn-full">
-            <span id="btn-auth-text"><i class="bi bi-box-arrow-in-right"></i> Sign In</span>
-            <span id="btn-auth-spinner" style="display:none;" class="game-spinner" style="border-color:rgba(255,255,255,0.3);border-top-color:#fff;"></span>
-          </button>
+          <form id="form-email-login" style="display:flex; flex-direction:column; gap:0.75rem;">
+            <input type="email" id="inp-login-email" placeholder="Email address" class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500" required />
+            <input type="password" id="inp-login-password" placeholder="Password" class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500" required />
+            <button type="submit" id="btn-email-login" class="host-btn host-btn-primary host-btn-full" style="justify-content:center;">
+              <span id="btn-auth-text"><i class="bi bi-box-arrow-in-right"></i> Sign In / Sign Up</span>
+              <span id="btn-auth-spinner" style="display:none;" class="game-spinner" style="border-color:rgba(255,255,255,0.3);border-top-color:#fff;"></span>
+            </button>
+          </form>
 
           <div style="margin-top:1rem;font-size:0.8rem;color:#94a3b8;">
             Don't have an account?

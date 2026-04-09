@@ -489,6 +489,43 @@ DOM.btnGoogleLogin.addEventListener("click", async () => {
   }
 });
 
+const formEmail = document.getElementById("form-email-login");
+if (formEmail) {
+  formEmail.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    DOM.authError.classList.add("hidden");
+    const btn = document.getElementById("btn-email-login");
+    const email = document.getElementById("inp-login-email").value;
+    const password = document.getElementById("inp-login-password").value;
+    
+    btn.textContent = "Processing...";
+    btn.disabled = true;
+
+    // Try to login first
+    let { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    
+    // If invalid credentials, attempt sign up
+    if (error && error.message.includes("Invalid login credentials")) {
+      const res = await supabase.auth.signUp({ email, password });
+      error = res.error;
+      if (!error && res.data.user && res.data.user.identities && res.data.user.identities.length === 0) {
+        // If identities is empty, the email already exists but they typed the wrong password
+        error = { message: "Email already exists. Incorrect password." };
+      } else if (!error && res.data.session) {
+         // Auto logged in
+      } else if (!error) {
+         error = { message: "Please check your email to confirm your account." };
+      }
+    }
+
+    if (error) {
+      showAuthError(error.message);
+    }
+    btn.textContent = "Sign In / Sign Up";
+    btn.disabled = false;
+  });
+}
+
 DOM.btnAccountLogout.addEventListener("click", async () => {
   await supabase.auth.signOut();
   state.accountCache = null;
