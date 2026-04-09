@@ -516,6 +516,10 @@ if (formEmail) {
     if (error && error.message.includes("Invalid login credentials")) {
       const res = await supabase.auth.signUp({ email, password, options: { data: { full_name: name } } });
       error = res.error;
+      
+      if (!error && !res.data.session) {
+        error = { message: "⚠️ Action Required: Go to Supabase Settings -> Authentication -> Providers -> Email, and turn OFF 'Confirm email'. Then try again." };
+      }
     }
 
     if (error) {
