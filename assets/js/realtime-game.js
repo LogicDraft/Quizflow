@@ -558,8 +558,14 @@ function escapeHtml(v) {
 }
 
 function wireEvents() {
-  $("switch-player").addEventListener("click", () => showRole("player"));
-  $("switch-host").addEventListener("click", () => showRole("host"));
+  $("switch-player").addEventListener("click", (event) => {
+    event.preventDefault();
+    showRole("player");
+  });
+  $("switch-host").addEventListener("click", (event) => {
+    event.preventDefault();
+    showRole("host");
+  });
 
   const pinInput = $("player-pin-input");
   const pinContinue = $("player-pin-continue");
