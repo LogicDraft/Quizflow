@@ -570,7 +570,9 @@ function wireEvents() {
 
 async function init() {
   wireEvents();
-  showRole("player");
+  const params = new URLSearchParams(window.location.search);
+  const wantedRole = (params.get("role") || "").toLowerCase();
+  showRole(wantedRole === "host" ? "host" : "player");
   await loadHostQuizzes();
 }
 
