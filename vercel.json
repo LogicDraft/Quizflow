@@ -1,60 +1,44 @@
 {
   "redirects": [
-    {
-      "source": "/home",
-      "destination": "/",
-      "permanent": false
-    },
-    {
-      "source": "/home.html",
-      "destination": "/",
-      "permanent": false
-    },
-    {
-      "source": "/create.html",
-      "destination": "/create",
-      "permanent": false
-    },
-    {
-      "source": "/setup.html",
-      "destination": "/setup",
-      "permanent": false
-    },
-    {
-      "source": "/index.html",
-      "destination": "/quiz",
-      "permanent": false
-    },
-    {
-      "source": "/dashboard.html",
-      "destination": "/dashboard",
-      "permanent": false
-    }
+    { "source": "/home.html",      "destination": "/",         "permanent": true },
+    { "source": "/create.html",    "destination": "/create",   "permanent": true },
+    { "source": "/setup.html",     "destination": "/setup",    "permanent": true },
+    { "source": "/dashboard.html", "destination": "/dashboard","permanent": true },
+    { "source": "/index.html",     "destination": "/join",     "permanent": true },
+    { "source": "/host.html",      "destination": "/host",     "permanent": true },
+    { "source": "/quiz",           "destination": "/join",     "permanent": true }
   ],
   "rewrites": [
+    { "source": "/",          "destination": "/pages/home.html"      },
+    { "source": "/home",      "destination": "/pages/home.html"      },
+    { "source": "/join",      "destination": "/pages/index.html"     },
+    { "source": "/host",      "destination": "/pages/host.html"      },
+    { "source": "/create",    "destination": "/pages/create.html"    },
+    { "source": "/dashboard", "destination": "/pages/dashboard.html" },
+    { "source": "/setup",     "destination": "/pages/setup.html"     }
+  ],
+  "headers": [
     {
-      "source": "/",
-      "destination": "/pages/home.html"
+      "source": "/assets/js/(.*)\\.js",
+      "headers": [
+        { "key": "Content-Type", "value": "application/javascript" },
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
     },
     {
-      "source": "/home",
-      "destination": "/pages/home.html"
+      "source": "/assets/css/(.*)\\.css",
+      "headers": [
+        { "key": "Content-Type", "value": "text/css" },
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
     },
     {
-      "source": "/create",
-      "destination": "/pages/create.html"
-    },
-    {
-      "source": "/setup",
-      "destination": "/pages/setup.html"
-    },
-    {
-      "source": "/quiz",
-      "destination": "/pages/index.html"
-    },
-    {
-      "source": "/dashboard",
-      "destination": "/pages/dashboard.html"
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options",        "value": "SAMEORIGIN" },
+        { "key": "Referrer-Policy",        "value": "strict-origin-when-cross-origin" }
+      ]
     }
   ]
 }
