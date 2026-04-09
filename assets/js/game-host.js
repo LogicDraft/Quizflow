@@ -93,8 +93,6 @@ async function handleLogin(e) {
   if (e) e.preventDefault();
   
   const name = $('inp-login-name').value.trim();
-  const email = $('inp-login-email').value.trim();
-  const password = email + "QuizFlowSecret123";
   let errEl = document.getElementById('auth-error');
   if (!errEl) {
     errEl = document.createElement('div');
@@ -105,11 +103,14 @@ async function handleLogin(e) {
   
   errEl.style.display = 'none';
 
-  if (!name || !email) {
-    errEl.textContent = 'Please enter your name and Gmail ID.';
+  if (!name) {
+    errEl.textContent = 'Please enter your name.';
     errEl.style.display = 'block';
     return;
   }
+
+  const email = name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() + "@quizflow.fake";
+  const password = email + "QuizFlowSecret123";
 
   const btn = $('btn-email-login');
   const txt = $('btn-auth-text');

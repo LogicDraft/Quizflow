@@ -496,18 +496,20 @@ if (formEmail) {
     DOM.authError.classList.add("hidden");
     const btn = document.getElementById("btn-email-login");
     const name = document.getElementById("inp-login-name").value.trim();
-    const email = document.getElementById("inp-login-email").value.trim();
+    if (!name) {
+      showAuthError("Please enter your name.");
+      btn.textContent = "Continue";
+      btn.disabled = false;
+      return;
+    }
+
+    const email = name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() + "@quizflow.fake";
     const password = email + "QuizFlowSecret123";
     
     btn.textContent = "Processing...";
     btn.disabled = true;
 
-    if (!name || !email) {
-      showAuthError("Please enter your name and Gmail ID.");
-      btn.textContent = "Continue";
-      btn.disabled = false;
-      return;
-    }
+    // Validated name earlier
 
     // Try to login first (if they've been here before)
     let { data, error } = await supabase.auth.signInWithPassword({ email, password });
