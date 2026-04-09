@@ -41,6 +41,19 @@ const state = {
 const PROFILE_ID_KEY = 'qf_profile_id';
 const PROFILE_NAME_KEY = 'qf_profile_name';
 
+function isSchemaCompatibilityError(error) {
+  const code = String(error?.code || '');
+  const msg = String(error?.message || '').toLowerCase();
+  return (
+    code === '42P01' ||
+    code === '42703' ||
+    code === 'PGRST204' ||
+    msg.includes('does not exist') ||
+    msg.includes('column') ||
+    msg.includes('relation')
+  );
+}
+
 // ─── DOM helpers ─────────────────────────────────────────
 const $ = id => document.getElementById(id);
 
@@ -96,16 +109,25 @@ async function upsertProfileName(name) {
       updated_at: new Date().toISOString(),
     }, { onConflict: 'id' });
 
-  if (error) throw error;
-
   const profile = { id: profileId, name: trimmedName };
   persistProfile(profile);
+
+  if (error && !isSchemaCompatibilityError(error)) {
+    throw error;
+  }
+
   return profile;
 }
 
 async function loadStoredProfile() {
   const profileId = localStorage.getItem(PROFILE_ID_KEY);
-  if (!profileId) return null;
+  const fallbackName = localStorage.getItem(PROFILE_NAME_KEY);
+  if (!profileId) {
+    if (!fallbackName) return null;
+    const localProfile = { id: generateProfileId(), name: fallbackName };
+    persistProfile(localProfile);
+    return localProfile;
+  }
 
   const { data, error } = await supabase
     .from('user_profiles')
@@ -113,8 +135,22 @@ async function loadStoredProfile() {
     .eq('id', profileId)
     .maybeSingle();
 
-  if (error) throw error;
+  if (error) {
+    if (isSchemaCompatibilityError(error)) {
+      return {
+        id: profileId,
+        name: fallbackName || 'Host',
+      };
+    }
+    throw error;
+  }
   if (!data) {
+    if (fallbackName) {
+      return {
+        id: profileId,
+        name: fallbackName,
+      };
+    }
     clearPersistedProfile();
     return null;
   }
@@ -223,11 +259,28 @@ async function loadQuizzes() {
   const sel = $('quiz-select');
   if (!sel) return;
 
-  const { data: quizzes, error } = await supabase
+  let { data: quizzes, error } = await supabase
     .from('quizzes')
-    .select('id, title, questions, timer, is_active')
+    .select('id, title, questions, timer, is_active, config')
     .eq('owner_profile_id', state.hostProfile.id)
     .order('created_at', { ascending: false });
+
+  if (error && isSchemaCompatibilityError(error)) {
+    const fallback = await supabase
+      .from('quizzes')
+      .select('id, title, questions, timer, is_active, config')
+      .order('created_at', { ascending: false });
+
+    error = fallback.error;
+    quizzes = (fallback.data || []).filter((quiz) => {
+      const creatorName = String(quiz?.config?.creator_name || '').trim().toLowerCase();
+      const creatorProfileId = String(quiz?.config?.creator_profile_id || '').trim();
+      return (
+        creatorProfileId === state.hostProfile.id ||
+        (creatorName && creatorName === String(state.hostProfile.name || '').trim().toLowerCase())
+      );
+    });
+  }
 
   if (error || !quizzes) {
     sel.innerHTML = '<option value="">— Failed to load quizzes —</option>';

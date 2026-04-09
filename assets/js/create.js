@@ -54,6 +54,19 @@ const ACCOUNT_CACHE_TTL_MS = 30 * 1000;
 const PROFILE_ID_KEY = "qf_profile_id";
 const PROFILE_NAME_KEY = "qf_profile_name";
 
+function isSchemaCompatibilityError(error) {
+  const code = String(error?.code || "");
+  const msg = String(error?.message || "").toLowerCase();
+  return (
+    code === "42P01" ||
+    code === "42703" ||
+    code === "PGRST204" ||
+    msg.includes("does not exist") ||
+    msg.includes("column") ||
+    msg.includes("relation")
+  );
+}
+
 function generateProfileId() {
   if (window.crypto && typeof window.crypto.randomUUID === "function") {
     return window.crypto.randomUUID();
@@ -86,16 +99,26 @@ async function upsertProfileName(name) {
       updated_at: new Date().toISOString(),
     }, { onConflict: "id" });
 
-  if (error) throw error;
-
   const profile = { id: profileId, name: trimmedName };
   persistProfile(profile);
+
+  // If user_profiles table is not yet migrated, allow flow to continue using local profile.
+  if (error && !isSchemaCompatibilityError(error)) {
+    throw error;
+  }
+
   return profile;
 }
 
 async function loadStoredProfile() {
   const profileId = localStorage.getItem(PROFILE_ID_KEY);
-  if (!profileId) return null;
+  const fallbackName = localStorage.getItem(PROFILE_NAME_KEY);
+  if (!profileId) {
+    if (!fallbackName) return null;
+    const localProfile = { id: generateProfileId(), name: fallbackName };
+    persistProfile(localProfile);
+    return localProfile;
+  }
 
   const { data, error } = await supabase
     .from("user_profiles")
@@ -103,8 +126,22 @@ async function loadStoredProfile() {
     .eq("id", profileId)
     .maybeSingle();
 
-  if (error) throw error;
+  if (error) {
+    if (isSchemaCompatibilityError(error)) {
+      return {
+        id: profileId,
+        name: fallbackName || "Creator",
+      };
+    }
+    throw error;
+  }
   if (!data) {
+    if (fallbackName) {
+      return {
+        id: profileId,
+        name: fallbackName,
+      };
+    }
     clearPersistedProfile();
     return null;
   }
@@ -371,11 +408,35 @@ async function loadPersonalAccountData({ force = false } = {}) {
 
   state.accountLoadPromise = (async () => {
 
-  const { data: quizzes, error: quizzesError } = await supabase
+  let quizzes = [];
+  let quizzesError = null;
+
+  const ownerQuery = await supabase
     .from("quizzes")
-    .select("id, title, created_at, questions")
+    .select("id, title, created_at, questions, config")
     .eq("owner_profile_id", state.currentProfile.id)
     .order("created_at", { ascending: false });
+
+  quizzes = ownerQuery.data || [];
+  quizzesError = ownerQuery.error;
+
+  // Backward compatibility when owner_profile_id does not exist in older schemas.
+  if (quizzesError && isSchemaCompatibilityError(quizzesError)) {
+    const allQuery = await supabase
+      .from("quizzes")
+      .select("id, title, created_at, questions, config")
+      .order("created_at", { ascending: false });
+
+    quizzesError = allQuery.error;
+    quizzes = (allQuery.data || []).filter((quiz) => {
+      const creatorName = String(quiz?.config?.creator_name || "").trim().toLowerCase();
+      const creatorProfileId = String(quiz?.config?.creator_profile_id || "").trim();
+      return (
+        creatorProfileId === state.currentProfile.id ||
+        (creatorName && creatorName === String(state.currentProfile.name || "").trim().toLowerCase())
+      );
+    });
+  }
 
     if (quizzesError) {
       DOM.accountSubtitle.textContent = "Could not load your quiz history.";
@@ -669,16 +730,35 @@ if (DOM.btnPublish) DOM.btnPublish.addEventListener("click", async () => {
   setLoading(true);
 
   try {
-    const { data, error } = await supabase
+    const payload = {
+      owner_profile_id: state.currentProfile.id,
+      title,
+      config: {
+        timeLimit,
+        maxViolations,
+        creator_name: state.currentProfile.name,
+        creator_profile_id: state.currentProfile.id,
+      },
+      questions,
+    };
+
+    let insertRes = await supabase
       .from("quizzes")
-      .insert({
-        owner_profile_id: state.currentProfile.id,
-        title,
-        config: { timeLimit, maxViolations },
-        questions,
-      })
+      .insert(payload)
       .select("id")
       .single();
+
+    // Backward compatibility when owner_profile_id column is not present yet.
+    if (insertRes.error && isSchemaCompatibilityError(insertRes.error)) {
+      const { owner_profile_id, ...fallbackPayload } = payload;
+      insertRes = await supabase
+        .from("quizzes")
+        .insert(fallbackPayload)
+        .select("id")
+        .single();
+    }
+
+    const { data, error } = insertRes;
 
     if (error) throw error;
 
