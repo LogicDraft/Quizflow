@@ -1,22 +1,11 @@
 {
   "cleanUrls": true,
-  "rewrites": [
-    { "source": "/",          "destination": "/pages/home.html"      },
-    { "source": "/home",      "destination": "/pages/home.html"      },
-    { "source": "/join",      "destination": "/pages/index.html"     },
-    { "source": "/host",      "destination": "/pages/host.html"      },
-    { "source": "/create",    "destination": "/pages/create.html"    },
-    { "source": "/dashboard", "destination": "/pages/dashboard.html" },
-    { "source": "/setup",     "destination": "/pages/setup.html"     }
-  ],
   "redirects": [
-    { "source": "/home.html",      "destination": "/",          "permanent": true },
-    { "source": "/index.html",     "destination": "/join",      "permanent": true },
+    { "source": "/index.html",     "destination": "/",          "permanent": true },
+    { "source": "/home",           "destination": "/",          "permanent": true },
+    { "source": "/join",           "destination": "/",          "permanent": true },
     { "source": "/host.html",      "destination": "/host",      "permanent": true },
-    { "source": "/create.html",    "destination": "/create",    "permanent": true },
-    { "source": "/dashboard.html", "destination": "/dashboard", "permanent": true },
-    { "source": "/setup.html",     "destination": "/setup",     "permanent": true },
-    { "source": "/quiz",           "destination": "/join",      "permanent": true }
+    { "source": "/create.html",    "destination": "/create",    "permanent": true }
   ],
   "headers": [
     {
