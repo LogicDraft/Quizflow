@@ -14,6 +14,7 @@ const state = {
   hostName: "",
   hostQuiz: null,
   hostQuestions: [],
+  availableQuizzes: [],
 
   questionTimerId: null,
   questionEndAtMs: null,
@@ -112,13 +113,15 @@ async function loadHostQuizzes() {
     return;
   }
 
+  state.availableQuizzes = data || [];
+
   const hostName = String($("host-name-input").value || "").trim().toLowerCase();
   const filtered = hostName
-    ? (data || []).filter((q) => {
+    ? state.availableQuizzes.filter((q) => {
         const owner = String(q?.config?.creator_name || "").trim().toLowerCase();
         return owner === hostName;
       })
-    : (data || []);
+    : state.availableQuizzes;
 
   const list = filtered.length ? filtered : (data || []);
 
@@ -135,18 +138,39 @@ async function loadHostQuizzes() {
     state.hostQuiz = chosen || null;
     state.hostQuestions = Array.isArray(chosen?.questions) ? chosen.questions : [];
   };
+
+  const current = list.find((q) => q.id === select.value) || list[0] || null;
+  if (current) {
+    state.hostQuiz = current;
+    state.hostQuestions = Array.isArray(current.questions) ? current.questions : [];
+  }
+}
+
+function resolveSelectedQuiz() {
+  const selectedId = String($("host-quiz-select")?.value || "").trim();
+  if (state.hostQuiz && (!selectedId || state.hostQuiz.id === selectedId)) {
+    return state.hostQuiz;
+  }
+
+  const available = state.availableQuizzes.length ? state.availableQuizzes : [];
+  return available.find((quiz) => quiz.id === selectedId) || null;
 }
 
 async function createRoom() {
   setError("host-setup-error", "");
 
   const hostName = String($("host-name-input").value || "").trim();
-  const quizId = String($("host-quiz-select").value || "").trim();
+  const selectedQuiz = resolveSelectedQuiz();
+  const quizId = String(selectedQuiz?.id || $("host-quiz-select").value || "").trim();
 
   if (!hostName) return setError("host-setup-error", "Enter host name.");
   if (!quizId) return setError("host-setup-error", "Select a quiz.");
 
   state.hostName = hostName;
+  if (selectedQuiz) {
+    state.hostQuiz = selectedQuiz;
+    state.hostQuestions = Array.isArray(selectedQuiz.questions) ? selectedQuiz.questions : [];
+  }
 
   const pinRpc = await supabase.rpc("generate_game_pin");
   const pin = pinRpc.data || String(Math.floor(100000 + Math.random() * 900000));
@@ -262,7 +286,17 @@ function getCorrectAnswerIndex(question) {
 }
 
 async function hostStartGame() {
-  if (!state.room || !state.hostQuestions.length) {
+  if (!state.room) return;
+
+  if (!state.hostQuestions.length) {
+    const quiz = resolveSelectedQuiz();
+    if (quiz) {
+      state.hostQuiz = quiz;
+      state.hostQuestions = Array.isArray(quiz.questions) ? quiz.questions : [];
+    }
+  }
+
+  if (!state.hostQuestions.length) {
     return setError("host-setup-error", "Selected quiz has no questions.");
   }
   await hostActivateQuestion(0);
@@ -587,11 +621,11 @@ function wireEvents() {
   });
 
   $("host-name-input").addEventListener("blur", () => { void loadHostQuizzes(); });
-  $("host-create-room").addEventListener("click", () => { void createRoom(); });
-  $("host-start-game").addEventListener("click", () => { void hostStartGame(); });
-  $("host-end-question").addEventListener("click", () => { void hostEndQuestion(); });
-  $("host-next-question").addEventListener("click", () => { void hostNextQuestion(); });
-  $("host-finish-game").addEventListener("click", () => { void hostFinishGame(); });
+  $("host-create-room").addEventListener("click", (event) => { event.preventDefault(); void createRoom(); });
+  $("host-start-game").addEventListener("click", (event) => { event.preventDefault(); void hostStartGame(); });
+  $("host-end-question").addEventListener("click", (event) => { event.preventDefault(); void hostEndQuestion(); });
+  $("host-next-question").addEventListener("click", (event) => { event.preventDefault(); void hostNextQuestion(); });
+  $("host-finish-game").addEventListener("click", (event) => { event.preventDefault(); void hostFinishGame(); });
 }
 
 async function init() {
