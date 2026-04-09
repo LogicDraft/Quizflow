@@ -115,13 +115,13 @@
             <div class="hero-eyebrow text-slate-400" style="margin: 0;">Creator Portal</div>
             <a href="/" class="btn-secondary relative overflow-hidden px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 hover:text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 hover:scale-[1.01] before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; text-decoration: none;">Back to Game</a>
           </div>
-          <h1 class="text-5xl md:text-6xl font-semibold tracking-tight leading-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent" style="align-self: flex-start; margin: 0;">Personal Account</h1>
+          <h1 class="text-5xl md:text-6xl font-semibold tracking-tight leading-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent" style="align-self: flex-start; margin: 0;">Quiz Builder</h1>
         </div>
 
         <!-- Auth Card -->
         <div class="card bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.4),0_0_25px_rgba(99,102,241,0.2)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-2xl before:border before:border-white/5 transition-all duration-300 ease-out hover:-translate-y-1 hover:brightness-110 hover:scale-[1.01] opacity-0 translate-y-3 animate-[fadeIn_0.5s_ease-out_forwards]" style="max-width: 400px; margin: 0 auto; margin-bottom: 2rem;" id="login-card">
-          <h2 class="card-title text-3xl font-semibold tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Creator Login</h2>
-          <p class="card-subtitle text-slate-400 leading-relaxed">Please sign in with Google to create secure quizzes.</p>
+          <h2 class="card-title text-3xl font-semibold tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Welcome</h2>
+          <p class="card-subtitle text-slate-400 leading-relaxed">Please enter your name to start creating quizzes.</p>
           
           <form id="form-email-login" style="display:flex; flex-direction:column; gap:0.75rem;">
             <input type="text" id="inp-login-name" placeholder="Enter your Name" class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500" required />
@@ -134,8 +134,8 @@
         <!-- Account Card (Personal Dashboard) -->
         <div class="card bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.4),0_0_25px_rgba(99,102,241,0.2)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-2xl before:border before:border-white/5 transition-all duration-300 ease-out hover:-translate-y-1 hover:brightness-110 hover:scale-[1.01] opacity-0 translate-y-3 animate-[fadeIn_0.5s_ease-out_forwards] hidden" style="max-width: 900px; margin: 0 auto; margin-bottom: 2rem;" id="account-card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-            <h2 class="card-title text-3xl font-semibold tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent" style="margin: 0;">Creator Account</h2>
-            <button type="button" id="btn-account-logout" class="btn-secondary relative overflow-hidden px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 hover:text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 hover:scale-[1.01] before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Log Out</button>
+            <h2 class="card-title text-3xl font-semibold tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent" style="margin: 0;">Creator Dashboard</h2>
+            <button type="button" id="btn-account-logout" class="btn-secondary relative overflow-hidden px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 hover:text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 hover:scale-[1.01] before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Change Name</button>
           </div>
 
           <div class="profile-card">
@@ -166,7 +166,7 @@
           <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem; align-items: center;">
             <h2 style="margin:0; font-size:1.4rem;">New Quiz</h2>
             <div style="display: flex; gap: 0.8rem;">
-              <button type="button" id="btn-back-account" class="btn-secondary relative overflow-hidden px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 hover:text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 hover:scale-[1.01] before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Back to Account</button>
+              <button type="button" id="btn-back-account" class="btn-secondary relative overflow-hidden px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 hover:text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 hover:scale-[1.01] before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Back to Dashboard</button>
             </div>
           </div>
 
@@ -260,7 +260,7 @@
 
           <div style="display:flex;gap:1rem;margin-top:1rem;">
             <button type="button" id="btn-new-quiz" class="btn-secondary relative overflow-hidden px-4 py-2 rounded-xl bg-white/5 border border-white/10 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700 btn-full">Create Another Quiz</button>
-            <button type="button" id="btn-go-account" class="btn-primary relative overflow-hidden px-4 py-2 rounded-xl bg-indigo-500 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700 btn-full">Back to Account</button>
+            <button type="button" id="btn-go-account" class="btn-primary relative overflow-hidden px-4 py-2 rounded-xl bg-indigo-500 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700 btn-full">Back to Dashboard</button>
           </div>
         </div>
 
