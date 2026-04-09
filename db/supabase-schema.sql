@@ -3,9 +3,16 @@
 
 create extension if not exists pgcrypto;
 
+create table if not exists public.user_profiles (
+  id uuid primary key,
+  display_name text not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists public.quizzes (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users(id),
+  owner_profile_id uuid references public.user_profiles(id),
   title text not null,
   config jsonb not null default '{}'::jsonb,
   questions jsonb not null default '[]'::jsonb,
@@ -35,7 +42,7 @@ create table if not exists public.submissions (
 
 -- If tables already existed from an older version,
 -- backfill all expected columns used by the current app.
-alter table public.quizzes add column if not exists user_id uuid references auth.users(id);
+alter table public.quizzes add column if not exists owner_profile_id uuid references public.user_profiles(id);
 
 alter table public.submissions add column if not exists quiz_id uuid;
 alter table public.submissions add column if not exists student_name text;
@@ -140,10 +147,12 @@ $$;
 
 grant execute on function public.get_quiz_for_student(uuid) to anon, authenticated;
 
+alter table public.user_profiles enable row level security;
 alter table public.quizzes enable row level security;
 alter table public.submissions enable row level security;
 
 grant usage on schema public to anon, authenticated;
+grant select, insert, update on table public.user_profiles to anon, authenticated;
 grant select, insert on table public.quizzes to anon, authenticated;
 grant select, insert on table public.submissions to anon, authenticated;
 
@@ -163,11 +172,18 @@ begin
     create policy quizzes_select_public on public.quizzes for select using (true);
   end if;
 
-  -- 2. Quizzes: Only authenticated users can insert quizzes, and they own them
+  -- 2. Quizzes: Public insert is allowed for profile-based creator flow
   if not exists (
-    select 1 from pg_policies where policyname = 'quizzes_insert_auth' and tablename = 'quizzes'
+    select 1 from pg_policies where policyname = 'quizzes_insert_public' and tablename = 'quizzes'
   ) then
-    create policy quizzes_insert_auth on public.quizzes for insert to authenticated with check (auth.uid() = user_id);
+    create policy quizzes_insert_public on public.quizzes for insert with check (true);
+  end if;
+
+  -- 2b. Profile table insert/update for name persistence
+  if not exists (
+    select 1 from pg_policies where policyname = 'user_profiles_write_public' and tablename = 'user_profiles'
+  ) then
+    create policy user_profiles_write_public on public.user_profiles for all using (true) with check (true);
   end if;
 
   -- 3. Submissions: Anyone can insert a submission (students taking the quiz)
@@ -177,16 +193,10 @@ begin
     create policy submissions_insert_public on public.submissions for insert with check (true);
   end if;
 
-  -- 4. Submissions: Only the teacher who created the quiz can view its submissions
+  -- 4. Submissions: Public read for profile-based dashboard filtering
   if not exists (
-    select 1 from pg_policies where policyname = 'submissions_select_owner' and tablename = 'submissions'
+    select 1 from pg_policies where policyname = 'submissions_select_public' and tablename = 'submissions'
   ) then
-    create policy submissions_select_owner on public.submissions for select to authenticated using (
-      exists (
-        select 1 from public.quizzes
-        where quizzes.id = submissions.quiz_id
-        and quizzes.user_id = auth.uid()
-      )
-    );
+    create policy submissions_select_public on public.submissions for select using (true);
   end if;
 end $$;

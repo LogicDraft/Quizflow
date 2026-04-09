@@ -8,7 +8,7 @@
 create table if not exists public.game_rooms (
   id                    uuid primary key default gen_random_uuid(),
   quiz_id               uuid not null references public.quizzes(id) on delete cascade,
-  host_id               uuid not null references auth.users(id),
+  host_profile_id       uuid not null references public.user_profiles(id),
   pin                   text not null,
   status                text not null default 'waiting'
                           check (status in ('waiting','playing','results','finished')),
@@ -22,8 +22,11 @@ create unique index if not exists idx_game_rooms_pin
   on public.game_rooms (pin)
   where status <> 'finished';
 
-create index if not exists idx_game_rooms_host_id
-  on public.game_rooms (host_id);
+alter table public.game_rooms
+  add column if not exists host_profile_id uuid references public.user_profiles(id);
+
+create index if not exists idx_game_rooms_host_profile_id
+  on public.game_rooms (host_profile_id);
 
 -- ─── 2. players ──────────────────────────────────────────
 create table if not exists public.players (
@@ -73,16 +76,14 @@ do $$ begin
     create policy gr_select_public on public.game_rooms for select using (true);
   end if;
 
-  -- Only authenticated host can insert their own room
-  if not exists (select 1 from pg_policies where policyname='gr_insert_host' and tablename='game_rooms') then
-    create policy gr_insert_host on public.game_rooms for insert to authenticated
-      with check (auth.uid() = host_id);
+  -- Name profile hosts can create rooms without auth sessions
+  if not exists (select 1 from pg_policies where policyname='gr_insert_public' and tablename='game_rooms') then
+    create policy gr_insert_public on public.game_rooms for insert with check (true);
   end if;
 
-  -- Only the host can update room status / question index
-  if not exists (select 1 from pg_policies where policyname='gr_update_host' and tablename='game_rooms') then
-    create policy gr_update_host on public.game_rooms for update to authenticated
-      using (auth.uid() = host_id);
+  -- Name profile hosts can update room status / question index
+  if not exists (select 1 from pg_policies where policyname='gr_update_public' and tablename='game_rooms') then
+    create policy gr_update_public on public.game_rooms for update using (true);
   end if;
 end $$;
 
@@ -200,4 +201,4 @@ begin
 end;
 $$;
 
-grant execute on function public.grade_question(uuid, integer) to authenticated;
+grant execute on function public.grade_question(uuid, integer) to anon, authenticated;

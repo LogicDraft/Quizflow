@@ -20,7 +20,7 @@ const AVATAR_BG = [
 
 // ─── State ───────────────────────────────────────────────
 const state = {
-  user: null,
+  hostProfile: null,
   selectedQuizId: null,
   selectedQuiz: null,
   questionDuration: DEFAULT_TIMER,
@@ -37,6 +37,9 @@ const state = {
   questionEndAt: null,
   gameOver: false,
 };
+
+const PROFILE_ID_KEY = 'qf_profile_id';
+const PROFILE_NAME_KEY = 'qf_profile_name';
 
 // ─── DOM helpers ─────────────────────────────────────────
 const $ = id => document.getElementById(id);
@@ -61,25 +64,82 @@ function showSelectError(msg) {
   el.style.display = 'block';
 }
 
-// ─── Auth ─────────────────────────────────────────────────
-async function initAuth() {
-  const { data: { session } } = await supabase.auth.getSession();
+function generateProfileId() {
+  if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+    return window.crypto.randomUUID();
+  }
+  return 'p_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+}
 
-  if (session?.user) {
-    await onUserLoggedIn(session.user);
-  } else {
-    showHostScreen('host-screen-auth');
-    setupAuthForm();
+function persistProfile(profile) {
+  localStorage.setItem(PROFILE_ID_KEY, profile.id);
+  localStorage.setItem(PROFILE_NAME_KEY, profile.name);
+}
+
+function clearPersistedProfile() {
+  localStorage.removeItem(PROFILE_ID_KEY);
+  localStorage.removeItem(PROFILE_NAME_KEY);
+}
+
+async function upsertProfileName(name) {
+  const trimmedName = String(name || '').trim();
+  if (!trimmedName) throw new Error('Please enter your name.');
+
+  const existingId = localStorage.getItem(PROFILE_ID_KEY);
+  const profileId = existingId || generateProfileId();
+
+  const { error } = await supabase
+    .from('user_profiles')
+    .upsert({
+      id: profileId,
+      display_name: trimmedName,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'id' });
+
+  if (error) throw error;
+
+  const profile = { id: profileId, name: trimmedName };
+  persistProfile(profile);
+  return profile;
+}
+
+async function loadStoredProfile() {
+  const profileId = localStorage.getItem(PROFILE_ID_KEY);
+  if (!profileId) return null;
+
+  const { data, error } = await supabase
+    .from('user_profiles')
+    .select('id, display_name')
+    .eq('id', profileId)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) {
+    clearPersistedProfile();
+    return null;
   }
 
-  supabase.auth.onAuthStateChange((_event, session) => {
-    if (session?.user && !state.user) {
-      onUserLoggedIn(session.user);
-    } else if (!session) {
-      state.user = null;
-      showHostScreen('host-screen-auth');
+  const profile = {
+    id: data.id,
+    name: data.display_name || localStorage.getItem(PROFILE_NAME_KEY) || 'Host',
+  };
+  persistProfile(profile);
+  return profile;
+}
+
+// ─── Name Profile ─────────────────────────────────────────
+async function initHostProfile() {
+  showHostScreen('host-screen-auth');
+  setupAuthForm();
+
+  try {
+    const profile = await loadStoredProfile();
+    if (profile) {
+      await onProfileReady(profile);
     }
-  });
+  } catch (_err) {
+    // Fall back to name input screen on any profile load error.
+  }
 }
 
 function setupAuthForm() {
@@ -109,9 +169,6 @@ async function handleLogin(e) {
     return;
   }
 
-  const email = name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() + "@quizflow.fake";
-  const password = email + "QuizFlowSecret123";
-
   const btn = $('btn-email-login');
   const txt = $('btn-auth-text');
   const spin = $('btn-auth-spinner');
@@ -119,50 +176,37 @@ async function handleLogin(e) {
   if(txt) txt.style.display = 'none';
   if(spin) spin.style.display = 'inline-block';
 
-  let { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-  if (error && error.message.includes("Invalid login credentials")) {
-    const res = await supabase.auth.signUp({ email, password, options: { data: { full_name: name } } });
-    error = res.error;
-    data = res.data;
-
-    if (!error && !data.session) {
-      error = { message: "⚠️ Action Required: Go to Supabase Settings -> Authentication -> Providers -> Email, and turn OFF 'Confirm email'. Then try again." };
-    }
-  }
-
-  btn.disabled = false;
-  if(txt) txt.style.display = '';
-  if(spin) spin.style.display = 'none';
-
-  if (error) {
-    errEl.textContent = error.message;
+  try {
+    const profile = await upsertProfileName(name);
+    await onProfileReady(profile);
+  } catch (error) {
+    errEl.textContent = error.message || 'Unable to save your name.';
     errEl.style.display = 'block';
-  } else {
-    // Login or signup was successful! Explicitly show the dashboard.
-    const user = data.session?.user || data.user;
-    if (user) {
-        onUserLoggedIn(user);
-    }
-  } else {
-    // Login or signup was successful! Explicitly show the dashboard.
-    if (data.user) {
-        onUserLoggedIn(data.user);
-    }
+  } finally {
+    btn.disabled = false;
+    if (txt) txt.style.display = '';
+    if (spin) spin.style.display = 'none';
   }
 }
 
-async function onUserLoggedIn(user) {
-  state.user = user;
+async function onProfileReady(profile) {
+  state.hostProfile = profile;
   setNavStatus('Connected', true);
 
   const navUser = $('nav-user');
-  if (navUser) navUser.textContent = user.email?.split('@')[0] || 'Host';
+  if (navUser) navUser.textContent = profile.name || 'Host';
 
   const logoutBtn = $('btn-logout');
   if (logoutBtn) {
     logoutBtn.style.display = 'inline';
-    logoutBtn.onclick = () => supabase.auth.signOut();
+    logoutBtn.onclick = () => {
+      clearPersistedProfile();
+      state.hostProfile = null;
+      setNavStatus('Not connected', false);
+      const navUserEl = $('nav-user');
+      if (navUserEl) navUserEl.textContent = '';
+      showHostScreen('host-screen-auth');
+    };
   }
 
   // Set site URL
@@ -182,7 +226,7 @@ async function loadQuizzes() {
   const { data: quizzes, error } = await supabase
     .from('quizzes')
     .select('id, title, questions, timer, is_active')
-    .eq('host_id', state.user.id)
+    .eq('owner_profile_id', state.hostProfile.id)
     .order('created_at', { ascending: false });
 
   if (error || !quizzes) {
@@ -295,7 +339,7 @@ async function handleLaunch() {
       .from('game_rooms')
       .insert([{
         quiz_id: state.selectedQuizId,
-        host_id: state.user.id,
+        host_profile_id: state.hostProfile.id,
         pin,
         status: 'waiting',
         current_question_index: 0,
@@ -744,4 +788,4 @@ function escapeHTML(str) {
 }
 
 // ─── Init ─────────────────────────────────────────────────
-initAuth();
+initHostProfile();

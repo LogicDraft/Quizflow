@@ -44,13 +44,78 @@ const DOM = {
 };
 
 const state = {
-  currentUser: null,
+  currentProfile: null,
   questions: [],
   accountCache: null,
   accountLoadPromise: null,
 };
 
 const ACCOUNT_CACHE_TTL_MS = 30 * 1000;
+const PROFILE_ID_KEY = "qf_profile_id";
+const PROFILE_NAME_KEY = "qf_profile_name";
+
+function generateProfileId() {
+  if (window.crypto && typeof window.crypto.randomUUID === "function") {
+    return window.crypto.randomUUID();
+  }
+  return "p_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+}
+
+function persistProfile(profile) {
+  localStorage.setItem(PROFILE_ID_KEY, profile.id);
+  localStorage.setItem(PROFILE_NAME_KEY, profile.name);
+}
+
+function clearPersistedProfile() {
+  localStorage.removeItem(PROFILE_ID_KEY);
+  localStorage.removeItem(PROFILE_NAME_KEY);
+}
+
+async function upsertProfileName(name) {
+  const trimmedName = String(name || "").trim();
+  if (!trimmedName) throw new Error("Please enter your name.");
+
+  const existingId = localStorage.getItem(PROFILE_ID_KEY);
+  const profileId = existingId || generateProfileId();
+
+  const { error } = await supabase
+    .from("user_profiles")
+    .upsert({
+      id: profileId,
+      display_name: trimmedName,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "id" });
+
+  if (error) throw error;
+
+  const profile = { id: profileId, name: trimmedName };
+  persistProfile(profile);
+  return profile;
+}
+
+async function loadStoredProfile() {
+  const profileId = localStorage.getItem(PROFILE_ID_KEY);
+  if (!profileId) return null;
+
+  const { data, error } = await supabase
+    .from("user_profiles")
+    .select("id, display_name")
+    .eq("id", profileId)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) {
+    clearPersistedProfile();
+    return null;
+  }
+
+  const profile = {
+    id: data.id,
+    name: data.display_name || localStorage.getItem(PROFILE_NAME_KEY) || "Creator",
+  };
+  persistProfile(profile);
+  return profile;
+}
 
 function showLoginView() {
   DOM.loginCard.classList.remove("hidden");
@@ -119,9 +184,8 @@ function formatDate(val) {
   });
 }
 
-function getDisplayName(user) {
-  const metadata = user && user.user_metadata ? user.user_metadata : {};
-  return metadata.full_name || metadata.name || user?.email || "Creator";
+function getDisplayName(profile) {
+  return profile?.name || "Creator";
 }
 
 function getInitials(name) {
@@ -129,11 +193,6 @@ function getInitials(name) {
   if (!safe) return "C";
   const parts = safe.split(/\s+/).slice(0, 2);
   return parts.map((p) => p.charAt(0).toUpperCase()).join("");
-}
-
-function getAvatarUrl(user) {
-  const metadata = user && user.user_metadata ? user.user_metadata : {};
-  return metadata.avatar_url || metadata.picture || "";
 }
 
 function getBaseUrl() {
@@ -286,31 +345,18 @@ function resetQuizBuilderDraft() {
 }
 
 async function loadPersonalAccountData({ force = false } = {}) {
-  if (!state.currentUser) return;
+  if (!state.currentProfile) return;
 
-  const displayName = getDisplayName(state.currentUser);
+  const displayName = getDisplayName(state.currentProfile);
   DOM.profileName.textContent = displayName;
-  DOM.profileEmail.textContent = state.currentUser.email || "--";
-
-  const avatarUrl = getAvatarUrl(state.currentUser);
+  DOM.profileEmail.textContent = "Profile: " + state.currentProfile.id.slice(0, 8);
   DOM.profileInitials.textContent = getInitials(displayName);
-
-  if (avatarUrl) {
-    DOM.profileAvatar.src = avatarUrl;
-    DOM.profileAvatar.classList.remove("hidden");
-    DOM.profileInitials.classList.add("hidden");
-    DOM.profileAvatar.onerror = () => {
-      DOM.profileAvatar.classList.add("hidden");
-      DOM.profileInitials.classList.remove("hidden");
-    };
-  } else {
-    DOM.profileAvatar.classList.add("hidden");
-    DOM.profileInitials.classList.remove("hidden");
-  }
+  DOM.profileAvatar.classList.add("hidden");
+  DOM.profileInitials.classList.remove("hidden");
 
   const now = Date.now();
   const cache = state.accountCache;
-  if (!force && cache && cache.userId === state.currentUser.id && now - cache.fetchedAt < ACCOUNT_CACHE_TTL_MS) {
+  if (!force && cache && cache.profileId === state.currentProfile.id && now - cache.fetchedAt < ACCOUNT_CACHE_TTL_MS) {
     DOM.accountSubtitle.textContent = cache.subtitle;
     DOM.quizzesGrid.innerHTML = cache.html;
     return;
@@ -328,7 +374,7 @@ async function loadPersonalAccountData({ force = false } = {}) {
   const { data: quizzes, error: quizzesError } = await supabase
     .from("quizzes")
     .select("id, title, created_at, questions")
-    .eq("user_id", state.currentUser.id)
+    .eq("owner_profile_id", state.currentProfile.id)
     .order("created_at", { ascending: false });
 
     if (quizzesError) {
@@ -384,7 +430,7 @@ async function loadPersonalAccountData({ force = false } = {}) {
       DOM.accountSubtitle.textContent = subtitle;
       DOM.quizzesGrid.innerHTML = html;
       state.accountCache = {
-        userId: state.currentUser.id,
+        profileId: state.currentProfile.id,
         fetchedAt: Date.now(),
         subtitle,
         html,
@@ -428,7 +474,7 @@ async function loadPersonalAccountData({ force = false } = {}) {
     DOM.accountSubtitle.textContent = subtitle;
     DOM.quizzesGrid.innerHTML = html;
     state.accountCache = {
-      userId: state.currentUser.id,
+      profileId: state.currentProfile.id,
       fetchedAt: Date.now(),
       subtitle,
       html,
@@ -442,39 +488,23 @@ async function loadPersonalAccountData({ force = false } = {}) {
   }
 }
 
-async function syncAuthView() {
-  const { data, error } = await supabase.auth.getSession();
-  if (error) {
-    showLoginView();
-    showAuthError("Unable to read session. Please try login again.");
-    return;
-  }
-
-  if (data?.session?.user) {
-    state.currentUser = data.session.user;
-    showAccountView();
-    void loadPersonalAccountData();
-  } else {
-    state.currentUser = null;
-    showLoginView();
-  }
-}
-
-function wireAuthListeners() {
-  supabase.auth.onAuthStateChange(async (_event, session) => {
-    if (session?.user) {
-      state.currentUser = session.user;
+async function syncProfileView() {
+  try {
+    const profile = await loadStoredProfile();
+    if (profile) {
+      state.currentProfile = profile;
       showAccountView();
       void loadPersonalAccountData();
-    } else {
-      state.currentUser = null;
-      state.accountCache = null;
-      showLoginView();
+      return;
     }
-  });
+    state.currentProfile = null;
+    showLoginView();
+  } catch (err) {
+    state.currentProfile = null;
+    showLoginView();
+    showAuthError(err?.message || "Unable to load your profile name.");
+  }
 }
-
-// Google Login logic removed
 
 const formEmail = document.getElementById("form-email-login");
 if (formEmail) {
@@ -489,44 +519,27 @@ if (formEmail) {
       btn.disabled = false;
       return;
     }
-
-    const email = name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() + "@quizflow.fake";
-    const password = email + "QuizFlowSecret123";
     
-    btn.textContent = "Processing...";
+    btn.textContent = "Saving...";
     btn.disabled = true;
 
-    // Try to login first (if they've been here before)
-    let { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    
-    // If not found, sign up silently
-    if (error && error.message.includes("Invalid login credentials")) {
-      const res = await supabase.auth.signUp({ email, password, options: { data: { full_name: name } } });
-      error = res.error;
-      data = res.data;
-      
-      if (!error && !data.session) {
-        error = { message: "⚠️ Action Required: Go to Supabase Settings -> Authentication -> Providers -> Email, and turn OFF 'Confirm email'. Then try again." };
-      }
-    }
-
-    if (error) {
-      showAuthError(error.message);
-      btn.textContent = "Continue";
-      btn.disabled = false;
-    } else {
-      // Login or signup was successful! 
-      // Explicitly update state and steering.
-      state.currentUser = data.session?.user || data.user;
-      btn.textContent = "Success!";
+    try {
+      state.currentProfile = await upsertProfileName(name);
+      btn.textContent = "Saved";
       showAccountView();
       await loadPersonalAccountData();
+    } catch (error) {
+      showAuthError(error.message || "Unable to save your name.");
+      btn.textContent = "Continue";
+    } finally {
+      btn.disabled = false;
     }
   });
 }
 
 if (DOM.btnAccountLogout) DOM.btnAccountLogout.addEventListener("click", async () => {
-  await supabase.auth.signOut();
+  clearPersistedProfile();
+  state.currentProfile = null;
   state.accountCache = null;
   showLoginView();
 });
@@ -632,7 +645,7 @@ if (DOM.btnPublish) DOM.btnPublish.addEventListener("click", async () => {
   const timeLimit = parseInt(DOM.inpTime.value, 10);
   const maxViolations = parseInt(DOM.inpViolations.value, 10) || 5;
 
-  if (!state.currentUser) return showError("Please sign in before publishing.");
+  if (!state.currentProfile) return showError("Please enter your name before publishing.");
   if (!title) return showError("Please enter a quiz title.");
   if (!timeLimit || timeLimit < 1) return showError("Please enter a valid time limit in minutes.");
   if (!state.questions.length) return showError("Please add at least one question.");
@@ -659,7 +672,7 @@ if (DOM.btnPublish) DOM.btnPublish.addEventListener("click", async () => {
     const { data, error } = await supabase
       .from("quizzes")
       .insert({
-        user_id: state.currentUser.id,
+        owner_profile_id: state.currentProfile.id,
         title,
         config: { timeLimit, maxViolations },
         questions,
@@ -719,5 +732,4 @@ if (DOM.inpTime) DOM.inpTime.addEventListener("input", saveDraft);
 
 loadDraft();
 renderQuestionsList();
-wireAuthListeners();
-syncAuthView();
+syncProfileView();
