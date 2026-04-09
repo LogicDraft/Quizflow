@@ -124,8 +124,9 @@ async function handleLogin(e) {
   if (error && error.message.includes("Invalid login credentials")) {
     const res = await supabase.auth.signUp({ email, password, options: { data: { full_name: name } } });
     error = res.error;
+    data = res.data;
 
-    if (!error && !res.data.session) {
+    if (!error && !data.session) {
       error = { message: "⚠️ Action Required: Go to Supabase Settings -> Authentication -> Providers -> Email, and turn OFF 'Confirm email'. Then try again." };
     }
   }
@@ -137,6 +138,17 @@ async function handleLogin(e) {
   if (error) {
     errEl.textContent = error.message;
     errEl.style.display = 'block';
+  } else {
+    // Login or signup was successful! Explicitly show the dashboard.
+    const user = data.session?.user || data.user;
+    if (user) {
+        onUserLoggedIn(user);
+    }
+  } else {
+    // Login or signup was successful! Explicitly show the dashboard.
+    if (data.user) {
+        onUserLoggedIn(data.user);
+    }
   }
 }
 
@@ -319,7 +331,7 @@ function showLobby() {
   showHostScreen('host-screen-lobby');
 
   // Wire controls
-  $('btn-start-game').addEventListener('click', handleStartGame);
+  if ($('btn-start-game')) $('btn-start-game').addEventListener('click', handleStartGame);
   $('btn-cancel-lobby').addEventListener('click', handleCancelGame);
 
   // Subscribe to player joins

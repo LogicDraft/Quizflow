@@ -503,8 +503,9 @@ if (formEmail) {
     if (error && error.message.includes("Invalid login credentials")) {
       const res = await supabase.auth.signUp({ email, password, options: { data: { full_name: name } } });
       error = res.error;
+      data = res.data;
       
-      if (!error && !res.data.session) {
+      if (!error && !data.session) {
         error = { message: "⚠️ Action Required: Go to Supabase Settings -> Authentication -> Providers -> Email, and turn OFF 'Confirm email'. Then try again." };
       }
     }
@@ -514,7 +515,9 @@ if (formEmail) {
       btn.textContent = "Continue";
       btn.disabled = false;
     } else {
-      // Login or signup was successful! Explicitly show the dashboard.
+      // Login or signup was successful! 
+      // Explicitly update state and steering.
+      state.currentUser = data.session?.user || data.user;
       btn.textContent = "Success!";
       showAccountView();
       await loadPersonalAccountData();
@@ -522,22 +525,22 @@ if (formEmail) {
   });
 }
 
-DOM.btnAccountLogout.addEventListener("click", async () => {
+if (DOM.btnAccountLogout) DOM.btnAccountLogout.addEventListener("click", async () => {
   await supabase.auth.signOut();
   state.accountCache = null;
   showLoginView();
 });
 
-DOM.btnShowCreate.addEventListener("click", () => {
+if (DOM.btnShowCreate) DOM.btnShowCreate.addEventListener("click", () => {
   showCreateView();
 });
 
-DOM.btnBackAccount.addEventListener("click", async () => {
+if (DOM.btnBackAccount) DOM.btnBackAccount.addEventListener("click", async () => {
   await loadPersonalAccountData();
   showAccountView();
 });
 
-DOM.btnAddQuestion.addEventListener("click", () => {
+if (DOM.btnAddQuestion) DOM.btnAddQuestion.addEventListener("click", () => {
   clearError();
 
   const questionText = DOM.inpQuestionText.value.trim();
@@ -566,7 +569,7 @@ DOM.btnAddQuestion.addEventListener("click", () => {
   renderQuestionsList();
 });
 
-DOM.questionsList.addEventListener("click", (event) => {
+if (DOM.questionsList) DOM.questionsList.addEventListener("click", (event) => {
   const target = event.target;
   if (!(target instanceof HTMLElement)) return;
 
@@ -617,7 +620,7 @@ DOM.questionsList.addEventListener("click", (event) => {
   }
 });
 
-DOM.btnPublish.addEventListener("click", async () => {
+if (DOM.btnPublish) DOM.btnPublish.addEventListener("click", async () => {
   clearError();
 
   const isDrafting = DOM.inpQuestionText.value.trim() !== "" || DOM.inpOpt1.value.trim() !== "";
@@ -692,27 +695,27 @@ DOM.btnPublish.addEventListener("click", async () => {
   }
 });
 
-DOM.btnCopyQuiz.addEventListener("click", () => {
+if (DOM.btnCopyQuiz) DOM.btnCopyQuiz.addEventListener("click", () => {
   copyToClipboard(DOM.inpQuizLink.value, DOM.btnCopyQuiz);
 });
 
-DOM.btnCopyDash.addEventListener("click", () => {
+if (DOM.btnCopyDash) DOM.btnCopyDash.addEventListener("click", () => {
   copyToClipboard(DOM.inpDashLink.value, DOM.btnCopyDash);
 });
 
-DOM.btnNewQuiz.addEventListener("click", () => {
+if (DOM.btnNewQuiz) DOM.btnNewQuiz.addEventListener("click", () => {
   resetQuizBuilderDraft();
   showCreateView();
 });
 
-DOM.btnGoAccount.addEventListener("click", async () => {
+if (DOM.btnGoAccount) DOM.btnGoAccount.addEventListener("click", async () => {
   await loadPersonalAccountData({ force: true });
   showAccountView();
 });
 
 // Auto-save input handlers
-DOM.inpTitle.addEventListener("input", saveDraft);
-DOM.inpTime.addEventListener("input", saveDraft);
+if (DOM.inpTitle) DOM.inpTitle.addEventListener("input", saveDraft);
+if (DOM.inpTime) DOM.inpTime.addEventListener("input", saveDraft);
 
 loadDraft();
 renderQuestionsList();
