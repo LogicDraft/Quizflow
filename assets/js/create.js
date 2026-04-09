@@ -3,7 +3,6 @@ import { supabase, isSupabaseConfigured } from "./supabase-config.js";
 const DOM = {
   loginCard: document.getElementById("login-card"),
   authError: document.getElementById("auth-error"),
-  btnGoogleLogin: document.getElementById("btn-google-login"),
 
   accountCard: document.getElementById("account-card"),
   btnAccountLogout: document.getElementById("btn-account-logout"),
@@ -475,19 +474,7 @@ function wireAuthListeners() {
   });
 }
 
-DOM.btnGoogleLogin.addEventListener("click", async () => {
-  DOM.authError.classList.add("hidden");
-
-  const redirectTo = `${window.location.origin}${window.location.pathname}`;
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: { redirectTo },
-  });
-
-  if (error) {
-    showAuthError("Google login failed: " + error.message);
-  }
-});
+// Google Login logic removed
 
 const formEmail = document.getElementById("form-email-login");
 if (formEmail) {
