@@ -1,202 +1,237 @@
--- SecureQuiz Supabase schema
--- Run this in Supabase SQL editor
+-- QuizFlow Realtime Multiplayer Schema (Kahoot-style)
+-- Run in Supabase SQL Editor
 
 create extension if not exists pgcrypto;
 
-create table if not exists public.user_profiles (
-  id uuid primary key,
-  display_name text not null,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
+-- Remove legacy async exam table from previous SecureQuiz architecture
+drop table if exists public.submissions cascade;
 
+-- Core quiz bank
 create table if not exists public.quizzes (
   id uuid primary key default gen_random_uuid(),
-  owner_profile_id uuid references public.user_profiles(id),
   title text not null,
-  config jsonb not null default '{}'::jsonb,
   questions jsonb not null default '[]'::jsonb,
+  config jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
 );
 
-create table if not exists public.submissions (
+-- Live room lifecycle: waiting -> question_active -> leaderboard -> finished
+create table if not exists public.game_rooms (
   id uuid primary key default gen_random_uuid(),
   quiz_id uuid not null references public.quizzes(id) on delete cascade,
-  student_name text,
-  student_id text,
-  email text,
-  device text,
-  auto_submit boolean not null default false,
-  tab_switches integer not null default 0,
-  fullscreen_exits integer not null default 0,
-  screenshot_attempts integer not null default 0,
-  suspicious_events jsonb not null default '[]'::jsonb,
-  answers jsonb not null default '[]'::jsonb,
-  score_correct integer not null default 0,
-  score_total integer not null default 0,
-  score_text text,
-  review_token text,
-  submitted_at_iso text,
+  pin text not null,
+  host_id text not null,
+  status text not null default 'waiting'
+    check (status in ('waiting', 'question_active', 'leaderboard', 'finished')),
+  current_question_index integer not null default -1,
+  question_started_at timestamptz,
+  question_duration_ms integer not null default 20000,
   created_at timestamptz not null default now()
 );
 
--- If tables already existed from an older version,
--- backfill all expected columns used by the current app.
-alter table public.quizzes add column if not exists owner_profile_id uuid references public.user_profiles(id);
+create unique index if not exists idx_game_rooms_pin_active
+  on public.game_rooms(pin)
+  where status <> 'finished';
 
-alter table public.submissions add column if not exists quiz_id uuid;
-alter table public.submissions add column if not exists student_name text;
-alter table public.submissions add column if not exists student_id text;
-alter table public.submissions add column if not exists email text;
-alter table public.submissions add column if not exists device text;
-alter table public.submissions add column if not exists auto_submit boolean;
-alter table public.submissions add column if not exists tab_switches integer;
-alter table public.submissions add column if not exists fullscreen_exits integer;
-alter table public.submissions add column if not exists screenshot_attempts integer;
-alter table public.submissions add column if not exists suspicious_events jsonb;
-alter table public.submissions add column if not exists answers jsonb;
-alter table public.submissions add column if not exists score_correct integer;
-alter table public.submissions add column if not exists score_total integer;
-alter table public.submissions add column if not exists score_text text;
-alter table public.submissions add column if not exists review_token text;
-alter table public.submissions add column if not exists submitted_at_iso text;
-alter table public.submissions add column if not exists created_at timestamptz;
+create index if not exists idx_game_rooms_status on public.game_rooms(status);
 
-alter table public.submissions
-  alter column auto_submit set default false,
-  alter column tab_switches set default 0,
-  alter column fullscreen_exits set default 0,
-  alter column screenshot_attempts set default 0,
-  alter column suspicious_events set default '[]'::jsonb,
-  alter column answers set default '[]'::jsonb,
-  alter column score_correct set default 0,
-  alter column score_total set default 0,
-  alter column created_at set default now();
+-- Players inside a room
+create table if not exists public.players (
+  id uuid primary key default gen_random_uuid(),
+  room_id uuid not null references public.game_rooms(id) on delete cascade,
+  nickname text not null,
+  total_score integer not null default 0,
+  joined_at timestamptz not null default now()
+);
 
-update public.submissions
-set
-  auto_submit = coalesce(auto_submit, false),
-  tab_switches = coalesce(tab_switches, 0),
-  fullscreen_exits = coalesce(fullscreen_exits, 0),
-  screenshot_attempts = coalesce(screenshot_attempts, 0),
-  suspicious_events = coalesce(suspicious_events, '[]'::jsonb),
-  answers = coalesce(answers, '[]'::jsonb),
-  score_correct = coalesce(score_correct, 0),
-  score_total = coalesce(score_total, 0),
-  created_at = coalesce(created_at, now());
+create index if not exists idx_players_room_id on public.players(room_id);
+create unique index if not exists idx_players_room_nickname_unique
+  on public.players(room_id, lower(nickname));
 
-do $$
-begin
-  if not exists (
-    select 1
-    from pg_constraint
-    where conname = 'submissions_quiz_id_fkey'
-      and conrelid = 'public.submissions'::regclass
-  ) then
-    alter table public.submissions
-      add constraint submissions_quiz_id_fkey
-      foreign key (quiz_id) references public.quizzes(id) on delete cascade;
-  end if;
-end $$;
+-- Per-question answer submissions
+create table if not exists public.player_answers (
+  id uuid primary key default gen_random_uuid(),
+  player_id uuid not null references public.players(id) on delete cascade,
+  room_id uuid not null references public.game_rooms(id) on delete cascade,
+  question_index integer not null,
+  answer_index integer,
+  is_correct boolean not null default false,
+  reaction_time_ms integer not null default 0,
+  points_earned integer not null default 0,
+  answered_at timestamptz not null default now()
+);
 
-create index if not exists idx_submissions_quiz_id on public.submissions(quiz_id);
-create index if not exists idx_submissions_created_at on public.submissions(created_at desc);
+create unique index if not exists idx_player_answers_unique_turn
+  on public.player_answers(player_id, question_index);
 
-do $$
-begin
-  if not exists (
-    select 1
-    from pg_indexes
-    where schemaname = 'public'
-      and indexname = 'idx_submissions_quiz_student_unique'
-  ) then
-    if not exists (
-      select 1
-      from public.submissions s
-      where s.student_id is not null
-        and btrim(s.student_id) <> ''
-      group by s.quiz_id, lower(btrim(s.student_id))
-      having count(*) > 1
-    ) then
-      create unique index idx_submissions_quiz_student_unique
-        on public.submissions (quiz_id, lower(btrim(student_id)))
-        where student_id is not null and btrim(student_id) <> '';
-    else
-      raise notice 'Skipping unique index idx_submissions_quiz_student_unique because duplicate historical submissions exist. Deduplicate first, then re-run schema.';
-    end if;
-  end if;
-end $$;
+create index if not exists idx_player_answers_room_q
+  on public.player_answers(room_id, question_index);
 
-create or replace function public.get_quiz_for_student(query_id uuid)
-returns jsonb
-language sql
-stable
-security invoker
+-- Helper: generate unique 6-digit room pin
+create or replace function public.generate_game_pin()
+returns text
+language plpgsql
+security definer
 set search_path = public
 as $$
-  select jsonb_build_object(
-    'id', q.id,
-    'title', q.title,
-    'config', q.config,
-    'questions', q.questions
-  )
-  from public.quizzes q
-  where q.id = query_id
-  limit 1;
+declare
+  v_pin text;
+  v_exists boolean;
+begin
+  loop
+    v_pin := lpad((floor(random() * 900000) + 100000)::text, 6, '0');
+
+    select exists (
+      select 1
+      from public.game_rooms
+      where pin = v_pin and status <> 'finished'
+    ) into v_exists;
+
+    exit when not v_exists;
+  end loop;
+
+  return v_pin;
+end;
 $$;
 
-grant execute on function public.get_quiz_for_student(uuid) to anon, authenticated;
+-- Speed + correctness scoring similar to Kahoot behavior
+create or replace function public.score_answer(
+  p_is_correct boolean,
+  p_reaction_time_ms integer,
+  p_question_duration_ms integer default 20000
+)
+returns integer
+language sql
+immutable
+as $$
+  select case
+    when not p_is_correct then 0
+    else greatest(
+      200,
+      round(1000 * (1 - least(greatest(p_reaction_time_ms, 0), p_question_duration_ms)::numeric / greatest(p_question_duration_ms, 1)))::integer
+    )
+  end;
+$$;
 
-alter table public.user_profiles enable row level security;
+-- Grade all answers for current question and refresh totals
+create or replace function public.grade_current_question(
+  p_room_id uuid,
+  p_question_index integer,
+  p_correct_answer_index integer,
+  p_question_duration_ms integer default 20000
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update public.player_answers
+  set
+    is_correct = (answer_index = p_correct_answer_index),
+    points_earned = public.score_answer(
+      (answer_index = p_correct_answer_index),
+      reaction_time_ms,
+      p_question_duration_ms
+    )
+  where room_id = p_room_id
+    and question_index = p_question_index;
+
+  update public.players p
+  set total_score = coalesce((
+    select sum(pa.points_earned)
+    from public.player_answers pa
+    where pa.player_id = p.id
+  ), 0)
+  where p.room_id = p_room_id;
+end;
+$$;
+
+grant execute on function public.generate_game_pin() to anon, authenticated;
+grant execute on function public.score_answer(boolean, integer, integer) to anon, authenticated;
+grant execute on function public.grade_current_question(uuid, integer, integer, integer) to anon, authenticated;
+
+-- RLS
 alter table public.quizzes enable row level security;
-alter table public.submissions enable row level security;
+alter table public.game_rooms enable row level security;
+alter table public.players enable row level security;
+alter table public.player_answers enable row level security;
 
 grant usage on schema public to anon, authenticated;
-grant select, insert, update on table public.user_profiles to anon, authenticated;
-grant select, insert on table public.quizzes to anon, authenticated;
-grant select, insert on table public.submissions to anon, authenticated;
+grant select, insert on public.quizzes to anon, authenticated;
+grant select, insert, update on public.game_rooms to anon, authenticated;
+grant select, insert, update on public.players to anon, authenticated;
+grant select, insert, update on public.player_answers to anon, authenticated;
 
--- Secure policies enforcing Authentication
+-- Public policies for anonymous realtime gameplay
 do $$
 begin
-  -- Drop existing open policies if they exist
-  drop policy if exists quizzes_select_all on public.quizzes;
-  drop policy if exists quizzes_insert_all on public.quizzes;
-  drop policy if exists submissions_select_all on public.submissions;
-  drop policy if exists submissions_insert_all on public.submissions;
-
-  -- 1. Quizzes: Anyone can read quizzes to take them
-  if not exists (
-    select 1 from pg_policies where policyname = 'quizzes_select_public' and tablename = 'quizzes'
-  ) then
+  if not exists (select 1 from pg_policies where tablename = 'quizzes' and policyname = 'quizzes_select_public') then
     create policy quizzes_select_public on public.quizzes for select using (true);
   end if;
 
-  -- 2. Quizzes: Public insert is allowed for profile-based creator flow
-  if not exists (
-    select 1 from pg_policies where policyname = 'quizzes_insert_public' and tablename = 'quizzes'
-  ) then
+  if not exists (select 1 from pg_policies where tablename = 'quizzes' and policyname = 'quizzes_insert_public') then
     create policy quizzes_insert_public on public.quizzes for insert with check (true);
   end if;
 
-  -- 2b. Profile table insert/update for name persistence
-  if not exists (
-    select 1 from pg_policies where policyname = 'user_profiles_write_public' and tablename = 'user_profiles'
-  ) then
-    create policy user_profiles_write_public on public.user_profiles for all using (true) with check (true);
+  if not exists (select 1 from pg_policies where tablename = 'game_rooms' and policyname = 'game_rooms_select_public') then
+    create policy game_rooms_select_public on public.game_rooms for select using (true);
   end if;
 
-  -- 3. Submissions: Anyone can insert a submission (students taking the quiz)
-  if not exists (
-    select 1 from pg_policies where policyname = 'submissions_insert_public' and tablename = 'submissions'
-  ) then
-    create policy submissions_insert_public on public.submissions for insert with check (true);
+  if not exists (select 1 from pg_policies where tablename = 'game_rooms' and policyname = 'game_rooms_insert_public') then
+    create policy game_rooms_insert_public on public.game_rooms for insert with check (true);
   end if;
 
-  -- 4. Submissions: Public read for profile-based dashboard filtering
+  if not exists (select 1 from pg_policies where tablename = 'game_rooms' and policyname = 'game_rooms_update_public') then
+    create policy game_rooms_update_public on public.game_rooms for update using (true) with check (true);
+  end if;
+
+  if not exists (select 1 from pg_policies where tablename = 'players' and policyname = 'players_select_public') then
+    create policy players_select_public on public.players for select using (true);
+  end if;
+
+  if not exists (select 1 from pg_policies where tablename = 'players' and policyname = 'players_insert_public') then
+    create policy players_insert_public on public.players for insert with check (true);
+  end if;
+
+  if not exists (select 1 from pg_policies where tablename = 'players' and policyname = 'players_update_public') then
+    create policy players_update_public on public.players for update using (true) with check (true);
+  end if;
+
+  if not exists (select 1 from pg_policies where tablename = 'player_answers' and policyname = 'answers_select_public') then
+    create policy answers_select_public on public.player_answers for select using (true);
+  end if;
+
+  if not exists (select 1 from pg_policies where tablename = 'player_answers' and policyname = 'answers_insert_public') then
+    create policy answers_insert_public on public.player_answers for insert with check (true);
+  end if;
+
+  if not exists (select 1 from pg_policies where tablename = 'player_answers' and policyname = 'answers_update_public') then
+    create policy answers_update_public on public.player_answers for update using (true) with check (true);
+  end if;
+end $$;
+
+-- Supabase realtime publication (idempotent)
+do $$
+begin
   if not exists (
-    select 1 from pg_policies where policyname = 'submissions_select_public' and tablename = 'submissions'
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'game_rooms'
   ) then
-    create policy submissions_select_public on public.submissions for select using (true);
+    alter publication supabase_realtime add table public.game_rooms;
+  end if;
+
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'players'
+  ) then
+    alter publication supabase_realtime add table public.players;
+  end if;
+
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'player_answers'
+  ) then
+    alter publication supabase_realtime add table public.player_answers;
   end if;
 end $$;

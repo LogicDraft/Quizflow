@@ -1,77 +1,54 @@
-💡 Suggestions for Conversion
-1. Shift from Asynchronous to Synchronous (Real-time)
+Act as an Expert Full-Stack Developer specializing in real-time web applications using Vanilla HTML/JS, Tailwind CSS, and Supabase. 
 
-Current: Students log in asynchronously, and the app relies on quizzes and submissions to track individual performance.
+I am providing you with the codebase for my current web application, "SecureQuiz". Currently, it is an asynchronous, highly secure examination platform with strict anti-cheat features (tab monitoring, fullscreen enforcement). 
 
-Kahoot Model: You need a Host (Teacher) who creates a live "Room" with a PIN, and Players (Students) who join that room simultaneously. You will need to heavily utilize Supabase Realtime so the Host can push the "Next Question" state to all connected player devices instantly.
+**Your Objective:** I want you to completely refactor and rewrite this codebase to convert it into a synchronous, live multiplayer quiz game exactly like **Kahoot.it**.
 
-2. Redesign the Database Schema
+Please read my provided files and generate the new code following these strict requirements:
 
-Current: Your submissions table tracks anti-cheat metrics like tab_switches, fullscreen_exits, and screenshot_attempts.
+### 1. Database Redesign (Supabase SQL)
+Completely rewrite `supabase-schema.sql`.
+* **Remove:** All anti-cheat metrics (tab switches, fullscreen exits, etc.) and the current `submissions` table.
+* **Create `game_rooms` table:** Columns for `id`, `quiz_id` (references quizzes), `pin` (a unique 6-digit string), `host_id`, `status` (waiting, question_active, leaderboard, finished), and `current_question_index`.
+* **Create `players` table:** Columns for `id`, `room_id`, `nickname`, and `total_score`.
+* **Create `player_answers` table:** Columns for `id`, `player_id`, `room_id`, `question_index`, `is_correct`, `reaction_time_ms`, and `points_earned`.
+* **Realtime & Security:** Enable Supabase Realtime for all these tables. Set up appropriate Row Level Security (RLS) policies (e.g., players can insert answers and read room status; hosts can update room status).
 
-Kahoot Model: Drop the anti-cheat columns. You need to introduce a game_rooms table (with columns for pin, host_id, current_question_index, status) and a players table (with room_id, nickname, score).
+### 2. Architecture & State Management (JavaScript)
+Rewrite the frontend logic to use **Supabase Realtime Channels** for synchronous gameplay. The game is entirely driven by the Host.
+* **Host Logic:** The host creates a room, generates a PIN, and controls the flow (Start Game -> Show Question -> Time Up -> Show Leaderboard -> Next Question).
+* **Player Logic:** The player joins via PIN. Their screen is a "dumb client" that only updates when the `game_rooms` status or `current_question_index` changes via Realtime subscriptions.
+* **Scoring Logic:** Points should be awarded based on both correctness and speed (reaction time), just like Kahoot.
 
-3. Split the UI into Host vs. Player Views
+### 3. Split Frontend Views (HTML/JS)
+Remove all existing proctoring, registration forms, and lockdown overlays. The UI must be split into two distinct user flows. You can handle this via dynamic DOM manipulation or separate HTML files.
 
-Current: Your index.html displays the question, options, and a progress bar all on one screen for the student.
+**A. The Player View (Mobile-First)**
+* Screen 1: Big input field for Game PIN.
+* Screen 2: Input field for Nickname.
+* Screen 3: "You're in! See your nickname on screen" (Waiting Lobby).
+* Screen 4: Active Question. **Crucial:** The player screen must NOT show the question text or the answer text. It should ONLY display a 2x2 grid of massive buttons: 
+   * Red Triangle (Top Left)
+   * Blue Diamond (Top Right)
+   * Yellow Circle (Bottom Left)
+   * Green Square (Bottom Right)
+* Screen 5: Result (Big green screen for "Correct!" + Points earned, or red screen for "Incorrect").
 
-Kahoot Model: * The Player View: Should only have a PIN entry screen, a Nickname screen, and then a screen displaying 4 massive, colored buttons (Red Triangle, Blue Diamond, Yellow Circle, Green Square) without the actual question text.
+**B. The Host View (Desktop/Projector)**
+* Screen 1: Lobby showing the massive Game PIN and a live-updating grid of player nicknames as they join.
+* Screen 2: Active Question. Shows the timer counting down, the question text at the top, an optional image in the middle, and the 4 answers mapped to the Red, Blue, Yellow, and Green shapes at the bottom.
+* Screen 3: Top 5 Leaderboard (Bar chart or podium style) shown after every question.
 
-The Host View: Displayed on a projector. Shows the PIN, the active question, the answers mapped to colors/shapes, and the live leaderboard.
+### 4. UI/UX Design (Tailwind CSS / Custom CSS)
+* Completely strip away the dark, slate "hacker" theme (`bg-slate-950`, glassmorphism, etc.).
+* Implement a bright, vibrant, gamified aesthetic. 
+* Use stark, bold primary colors for the interactive elements (Red `#E21B3C`, Blue `#1368CE`, Yellow `#D89E00`, Green `#26890C`).
+* Add playful CSS animations (e.g., pulsing buttons, slide-in transitions, bouncy score popups).
+* Ensure the UI is highly responsive. The Player view must be perfectly optimized for tapping on mobile phones.
 
-4. Overhaul the UI/UX Design
-
-Current: The app uses a dark, "hacker/security" aesthetic with glassmorphism (bg-white/5, backdrop-blur-md), dark backgrounds (bg-slate-950), and "Lockdown Mode" warnings.
-
-Kahoot Model: Strip out the "Fullscreen Required" and "Suspicious Activity" overlays. Replace the dark styling with bright, solid primary colors, bouncy CSS animations, and gamified elements (e.g., "Points based on speed!").
-
-🚀 The AI Conversion Prompt
-Copy and paste the prompt below into your preferred AI coding assistant alongside your current files to generate the new code.
-
-Copy this prompt:
-
-"I want to completely refactor my current 'SecureQuiz' web application into a synchronous, live multiplayer quiz game identical to Kahoot.it.
-
-Please rewrite my HTML, CSS, JS, and Supabase SQL schema based on the following requirements:
-
-1. Database Schema Redesign (Supabase SQL):
-
-Remove all anti-cheat columns (tab_switches, fullscreen_exits, etc.) from the submissions table.
-
-Create a new game_rooms table with fields: id, quiz_id, pin (6-digit unique code), host_id, status (waiting, playing, finished), and current_question_index.
-
-Create a new players table with fields: id, room_id, nickname, and total_score.
-
-Create a player_answers table to track the speed and correctness of each click.
-
-Ensure row-level security (RLS) is updated to allow players to join via PIN and Hosts to update room status. Enable Supabase Realtime publication for game_rooms and players.
-
-2. Frontend Restructuring (HTML/JS):
-
-Completely remove the anti-cheat overlays, lockdown mode, registration forms, and proctoring status bars.
-
-Implement a split-view logic. I need two distinct flows:
-
-Player Flow (Mobile First): >      1. Enter Game PIN.
-2. Enter Nickname.
-3. "You're in! See your nickname on screen" waiting lobby.
-4. Answering screen: Displays ONLY 4 large, colored buttons (Red, Blue, Yellow, Green) matching the Host's screen.
-5. Result screen: Shows "Correct/Incorrect" and points earned (calculated by speed).
-
-Host Flow (Desktop/Projector):
-
-Lobby screen displaying the massive Game PIN and a live-updating list of joined player nicknames.
-
-Question screen displaying the Timer, Question Text, an Image, and 4 colored answer choices.
-
-Top 5 Leaderboard screen shown between questions.
-
-3. UI/CSS Overhaul (Tailwind/Custom CSS):
-
-Replace the dark, slate glassmorphic theme with a bright, vibrant, gamified aesthetic.
-
-Use solid, bold colors for the answer options (e.g., Red #E21B3C, Blue #1368CE, Yellow #D89E00, Green #26890C).
-
-Add playful, bouncy CSS animations for buttons and transitions.
-
-Please output the updated supabase-schema.sql first, followed by the new index.html (which should include routing or dynamic DOM replacement for Host/Player views), and finally the corresponding app.js logic to handle the Supabase Realtime subscriptions."
+### Output Instructions
+Please provide the updated code in the following order:
+1. The completely new `supabase-schema.sql`.
+2. The new `index.html` structure accommodating the Host and Player views.
+3. The CSS styles (Tailwind classes + custom animations).
+4. The JavaScript logic demonstrating the Supabase Realtime connection and game state management.

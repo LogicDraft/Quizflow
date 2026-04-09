@@ -8,7 +8,7 @@
 create table if not exists public.game_rooms (
   id                    uuid primary key default gen_random_uuid(),
   quiz_id               uuid not null references public.quizzes(id) on delete cascade,
-  host_profile_id       uuid not null references public.user_profiles(id),
+  host_id               text not null,
   pin                   text not null,
   status                text not null default 'waiting'
                           check (status in ('waiting','playing','results','finished')),
@@ -23,10 +23,10 @@ create unique index if not exists idx_game_rooms_pin
   where status <> 'finished';
 
 alter table public.game_rooms
-  add column if not exists host_profile_id uuid references public.user_profiles(id);
+  add column if not exists host_id text;
 
-create index if not exists idx_game_rooms_host_profile_id
-  on public.game_rooms (host_profile_id);
+create index if not exists idx_game_rooms_host_id
+  on public.game_rooms (host_id);
 
 -- ─── 2. players ──────────────────────────────────────────
 create table if not exists public.players (
