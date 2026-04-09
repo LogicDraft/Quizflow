@@ -46,6 +46,26 @@ function showRole(role) {
   $("player-view").classList.toggle("active", isPlayer);
   $("host-view").classList.toggle("active", !isPlayer);
   $("host-view").setAttribute("aria-hidden", String(isPlayer));
+
+  // Ensure a valid screen is visible after switching roles.
+  if (isPlayer) {
+    const anyActive = $$("#player-view .screen.active").length > 0;
+    if (!anyActive) showScreen("player-view", "player-screen-pin");
+  } else {
+    const anyActive = $$("#host-view .screen.active").length > 0;
+    if (!anyActive) showScreen("host-view", "host-screen-setup");
+    // Always bring host back to setup when switching from player for clarity.
+    showScreen("host-view", "host-screen-setup");
+  }
+
+  // Keep URL in sync so reload preserves selected role.
+  const url = new URL(window.location.href);
+  if (isPlayer) {
+    url.searchParams.delete("role");
+  } else {
+    url.searchParams.set("role", "host");
+  }
+  window.history.replaceState({}, "", url.toString());
 }
 
 function showScreen(prefix, id) {
@@ -569,11 +589,15 @@ function wireEvents() {
 }
 
 async function init() {
-  wireEvents();
-  const params = new URLSearchParams(window.location.search);
-  const wantedRole = (params.get("role") || "").toLowerCase();
-  showRole(wantedRole === "host" ? "host" : "player");
-  await loadHostQuizzes();
+  try {
+    wireEvents();
+    const params = new URLSearchParams(window.location.search);
+    const wantedRole = (params.get("role") || "").toLowerCase();
+    showRole(wantedRole === "host" ? "host" : "player");
+    await loadHostQuizzes();
+  } catch (err) {
+    console.error("Failed to initialize app:", err);
+  }
 }
 
 void init();
