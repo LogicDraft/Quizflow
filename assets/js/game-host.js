@@ -92,8 +92,9 @@ function setupAuthForm() {
 async function handleLogin(e) {
   if (e) e.preventDefault();
   
+  const name = $('inp-login-name').value.trim();
   const email = $('inp-login-email').value.trim();
-  const password = $('inp-login-password').value;
+  const password = email + "QuizFlowSecret123";
   let errEl = document.getElementById('auth-error');
   if (!errEl) {
     errEl = document.createElement('div');
@@ -104,8 +105,8 @@ async function handleLogin(e) {
   
   errEl.style.display = 'none';
 
-  if (!email || !password) {
-    errEl.textContent = 'Please enter email and password.';
+  if (!name || !email) {
+    errEl.textContent = 'Please enter your name and Gmail ID.';
     errEl.style.display = 'block';
     return;
   }
@@ -120,13 +121,8 @@ async function handleLogin(e) {
   let { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error && error.message.includes("Invalid login credentials")) {
-    const res = await supabase.auth.signUp({ email, password });
+    const res = await supabase.auth.signUp({ email, password, options: { data: { full_name: name } } });
     error = res.error;
-    if (!error && res.data.user && res.data.user.identities && res.data.user.identities.length === 0) {
-      error = { message: "Email already exists. Incorrect password." };
-    } else if (!error && !res.data.session) {
-      error = { message: "Please check your email to confirm your account." };
-    }
   }
 
   btn.disabled = false;
