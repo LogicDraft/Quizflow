@@ -2,400 +2,251 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="theme-color" content="#050508" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Secure Quiz Platform</title>
-  <meta name="description" content="Secure Quiz app for students and teachers with anti-cheating features, fullscreen enforcement, and real-time quiz flow." />
-  <meta name="robots" content="noindex, nofollow" />
-  <meta name="keywords" content="Secure Quiz app, SecureQuiz, secure online quiz, anti-cheat exam, student quiz app" />
+  <title>QuizFlow — Join Live Game</title>
+  <meta name="description" content="Join a live quiz game with a PIN. Fast, fun, and competitive." />
+  <meta name="theme-color" content="#0f0c29" />
   <link rel="icon" type="image/png" href="/assets/SecureQuizIcon.png" />
-  <link rel="stylesheet" href="/assets/css/style.css" />
-  <link rel="stylesheet" href="/assets/css/minimal.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@400;500;700;900&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <script src="/assets/js/theme.js"></script>
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <!-- Game CSS -->
+  <link rel="stylesheet" href="/assets/css/game.css" />
 </head>
-<body class="bg-slate-950 relative overflow-hidden bg-[radial-gradient(circle_at_30%_20%,rgba(99,102,241,0.12),transparent_40%)] font-inter text-white tracking-tight">
-  <header class="login-nav bg-white/5 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_0_40px_rgba(99,102,241,0.15)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-xl before:border before:border-white/5">
-    <button class="btn-theme-switch btn-icon-toggle" title="Toggle UI Mode">
-      <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="5"></circle>
-        <line x1="12" y1="1" x2="12" y2="3"></line>
-        <line x1="12" y1="21" x2="12" y2="23"></line>
-        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-        <line x1="1" y1="12" x2="3" y2="12"></line>
-        <line x1="21" y1="12" x2="23" y2="12"></line>
-        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-      </svg>
-      <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-      </svg>
-    </button>
-  </header>
-  <canvas id="canvas" class="absolute w-96 h-96 bg-indigo-500/10 blur-[140px] rounded-full"></canvas>
-  <div id="cursor" class="absolute w-96 h-96 bg-pink-500/10 blur-[140px] rounded-full"></div>
-  <!-- ═══════════════════════════════════════════
-       OVERLAY: Fullscreen Exit Warning
-  ═══════════════════════════════════════════ -->
-  <div id="overlay-fullscreen" class="overlay hidden" role="alertdialog" aria-modal="true" aria-label="Fullscreen Warning">
-    <div class="overlay-card bg-white/5 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_0_40px_rgba(99,102,241,0.15)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-xl before:border before:border-white/5">
-      <div class="overlay-icon">⚠️</div>
-      <h2>Fullscreen Required</h2>
-      <p id="fullscreen-msg">You exited fullscreen mode. This action has been logged. Please return to fullscreen to continue the quiz.</p>
-      <button id="btn-return-fullscreen" class="btn-primary relative overflow-hidden px-4 py-2 rounded-xl bg-indigo-500 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700">Return to Fullscreen</button>
-    </div>
+<body class="game-page">
+
+  <!-- Animated background -->
+  <div class="game-bg" aria-hidden="true">
+    <div class="game-bg-blob game-bg-blob-1"></div>
+    <div class="game-bg-blob game-bg-blob-2"></div>
+    <div class="game-bg-blob game-bg-blob-3"></div>
   </div>
 
-  <!-- ═══════════════════════════════════════════
-       OVERLAY: Tab Switch Warning
-  ═══════════════════════════════════════════ -->
-  <div id="overlay-tabswitch" class="overlay hidden" role="alertdialog" aria-modal="true" aria-label="Tab Switch Warning">
-    <div class="overlay-card bg-white/5 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_0_40px_rgba(99,102,241,0.15)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-xl before:border before:border-white/5 warning">
-      <div class="overlay-icon">🚨</div>
-      <h2>Tab Switch Detected!</h2>
-      <p id="tabswitch-msg">You switched tabs or minimized the window. This has been recorded.</p>
-      <button id="btn-dismiss-tabswitch" class="btn-primary relative overflow-hidden px-4 py-2 rounded-xl bg-indigo-500 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700">I Understand</button>
-    </div>
-  </div>
+  <div class="game-content" style="width:100%;min-height:100vh;">
 
-  <!-- ═══════════════════════════════════════════
-       OVERLAY: Suspicious Activity Warning
-  ═══════════════════════════════════════════ -->
-  <div id="overlay-suspicious" class="overlay hidden" role="alertdialog" aria-modal="true" aria-label="Suspicious Activity Warning">
-    <div class="overlay-card bg-white/5 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_0_40px_rgba(99,102,241,0.15)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-xl before:border before:border-white/5 warning">
-      <div class="overlay-icon">🕵️</div>
-      <h2>Suspicious Activity Detected!</h2>
-      <p id="suspicious-msg">Suspicious screen activity has been detected and recorded.</p>
-      <button id="btn-dismiss-suspicious" class="btn-primary relative overflow-hidden px-4 py-2 rounded-xl bg-indigo-500 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700">I Understand</button>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════
-       OVERLAY: Submit Confirmation
-  ═══════════════════════════════════════════ -->
-  <div id="overlay-submit" class="overlay hidden" role="dialog" aria-modal="true" aria-label="Submit Confirmation">
-    <div class="overlay-card bg-white/5 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_0_40px_rgba(99,102,241,0.15)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-xl before:border before:border-white/5">
-      <div class="overlay-icon">📋</div>
-      <h2>Submit Quiz?</h2>
-      <p id="submit-unanswered-msg">Are you sure you want to submit? You cannot change answers after submission.</p>
-      <div class="overlay-actions">
-        <button id="btn-cancel-submit" class="btn-secondary relative overflow-hidden px-4 py-2 rounded-xl bg-white/5 border border-white/10 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700">Go Back</button>
-        <button id="btn-confirm-submit" class="btn-primary relative overflow-hidden px-4 py-2 rounded-xl bg-indigo-500 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700">Yes, Submit</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════
-       MAIN APP WRAPPER
-  ═══════════════════════════════════════════ -->
-  <div id="app" class="relative after:absolute after:inset-0 after:bg-[url('/noise.png')] after:opacity-[0.02] after:pointer-events-none">
-
-    <!-- ─── SCREEN 1: Registration ─── -->
-    <section id="screen-registration" class="screen active">
-      <div class="screen-inner">
-        <!-- HERO SECTION (Replaces Logo) -->
-        <div class="hero">
-          <div class="hero-eyebrow text-slate-400">Anti-Cheat Secure Quiz app</div>
-          <h1>SecureQuiz</h1>
+    <!-- ══════════════════════════════════
+         SCREEN 1: Enter PIN
+    ═══════════════════════════════════ -->
+    <section id="screen-pin" class="game-screen active" role="main">
+      <div style="width:100%;max-width:420px;padding:1.5rem;">
+        <div class="text-center mb-2">
+          <div class="game-logo">QuizFlow</div>
+          <div class="game-logo-sub">Live Quiz Gaming</div>
         </div>
 
-        <div class="card bg-white/5 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_0_40px_rgba(99,102,241,0.15)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-xl before:border before:border-white/5 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 opacity-0 translate-y-3 animate-[fadeIn_0.5s_ease-out_forwards]" id="reg-card">
-          <h2 class="card-title text-3xl font-semibold tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Participant Login</h2>
-          <p class="card-subtitle text-slate-400 leading-relaxed">Enter your details to begin the quiz.</p>
+        <div class="game-card">
+          <div class="game-card-title">🎮 Enter Game PIN</div>
+          <div class="game-card-sub">Ask your teacher for the 6-digit PIN</div>
 
-          <div class="form-group">
-            <label for="inp-name">Full Name <span style="color:var(--danger);font-size:0.85em;">*</span></label>
-            <input class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" type="text" id="inp-name" placeholder="e.g. John Doe" autocomplete="off" />
-          </div>
+          <input
+            id="inp-pin"
+            class="game-input"
+            type="tel"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            maxlength="6"
+            placeholder="000000"
+            autocomplete="off"
+            aria-label="Game PIN"
+          />
 
-          <div class="form-group">
-            <label for="inp-usn">Student ID / USN <span style="color:var(--danger);font-size:0.85em;">*</span></label>
-            <input class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" type="text" id="inp-usn" placeholder="e.g. 1AY25AI000" autocomplete="off" />
-          </div>
+          <div id="pin-error" class="game-error" role="alert"></div>
 
-          <div id="reg-error" class="error-msg hidden"></div>
-
-          <div class="notice-box">
-            <span class="notice-icon">📌</span>
-            <span>Enter your name and student ID to begin. Tab switching, fullscreen exit, and copy/paste are monitored and logged.</span>
-          </div>
-
-          <button id="btn-start-quiz" class="btn-primary relative overflow-hidden px-4 py-2 rounded-xl bg-indigo-500 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700 btn-full">
-            <span id="btn-start-text">Start Quiz →</span>
-            <span id="btn-start-spinner" class="spinner hidden"></span>
+          <button id="btn-join-pin" class="game-btn game-btn-primary mt-1" disabled>
+            <span id="btn-join-pin-text">Join Game →</span>
+            <span id="btn-join-pin-spinner" class="game-spinner" style="display:none;"></span>
           </button>
-        </div>
 
-        <!-- HOW IT WORKS SECTION -->
-        <div class="section-header">
-          <div class="section-eyebrow">How It Works</div>
-          <h2>Secure Examination Protocol</h2>
-          <p>Powered by advanced web APIs to ensure absolute academic integrity through strict environmental monitoring.</p>
-        </div>
-
-        <div class="features-grid">
-          <div class="feature-card bg-white/5 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_0_40px_rgba(99,102,241,0.15)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-xl before:border before:border-white/5 transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-2xl hover:brightness-110 hover:scale-[1.01] group group-hover:shadow-[0_0_40px_rgba(99,102,241,0.4)]">
-            <div class="feature-icon">🛡️</div>
-            <h3>Lockdown Mode</h3>
-            <p>Once started, the exam uses strict fullscreen enforcement on supported desktops. On mobile devices, rules may adapt to avoid false violations.</p>
-          </div>
-          <div class="feature-card bg-white/5 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_0_40px_rgba(99,102,241,0.15)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-xl before:border before:border-white/5 transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-2xl hover:brightness-110 hover:scale-[1.01] group group-hover:shadow-[0_0_40px_rgba(99,102,241,0.4)]">
-            <div class="feature-icon">👁️</div>
-            <h3>Tab Monitoring</h3>
-            <p>Our Neural Engine monitors OS-level visibility changes. Switching tabs, opening new windows, or minimizing the browser will trigger a hard violation.</p>
-          </div>
-          <div class="feature-card bg-white/5 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_0_40px_rgba(99,102,241,0.15)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-xl before:border before:border-white/5 transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-2xl hover:brightness-110 hover:scale-[1.01] group group-hover:shadow-[0_0_40px_rgba(99,102,241,0.4)]">
-            <div class="feature-icon">⚡</div>
-            <h3>Auto-Submission</h3>
-            <p>To preserve integrity, crossing the threshold of 5 security violations immediately locks and submits your paper with all recorded inputs.</p>
+          <div style="text-align:center;margin-top:1.25rem;font-size:0.8rem;color:rgba(255,255,255,0.35);">
+            Want to host?
+            <a href="host" style="color:rgba(167,139,250,0.8);text-decoration:none;font-weight:600;">Open Host View →</a>
           </div>
         </div>
-        <!-- END HOW IT WORKS -->
 
+        <!-- How to play -->
+        <div style="text-align:center;margin-top:1.5rem;font-size:0.8rem;color:rgba(255,255,255,0.35);line-height:1.8;">
+          <div>🎯 Enter PIN &nbsp;→&nbsp; 📝 Set Nickname &nbsp;→&nbsp; 🏆 Play!</div>
+        </div>
       </div>
     </section>
 
-    <!-- ─── SCREEN 2: Instructions ─── -->
-    <section id="screen-instructions" class="screen hidden">
-      <div class="screen-inner">
-        <div class="card bg-white/5 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_0_40px_rgba(99,102,241,0.15)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-xl before:border before:border-white/5 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 opacity-0 translate-y-3 animate-[fadeIn_0.5s_ease-out_forwards] glass-card scrollable-card" id="inst-card">
-          <h2 class="card-title text-3xl font-semibold tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Read Carefully</h2>
-          <p class="card-subtitle text-slate-400 leading-relaxed">Please review the rules before starting.</p>
-          
-          <ul class="instruction-list">
-            <li>
-              <span class="icon">🚫</span>
-              <span class="inst-text"><b>Do not Switch Tabs.</b> Switching Tabs will be Recorded.</span>
-            </li>
-            <li>
-              <span class="icon">⏱️</span>
-              <span class="inst-text"><b>The Timer is Strict.</b> Unanswered questions will be auto-submitted if time runs out.</span>
-            </li>
-            <li>
-              <span class="icon">📸</span>
-              <span class="inst-text"><b>Screenshots & Exiting Fullscreen</b> Strictly Prohibited.</span>
-            </li>
-            <li>
-              <span class="icon">⚠️</span>
-              <span class="inst-text">If you Switch Tabs <b>5 or more Times</b> Quiz will Auto-submit Immediately.</span>
-            </li>
-          </ul>
+    <!-- ══════════════════════════════════
+         SCREEN 2: Enter Nickname
+    ═══════════════════════════════════ -->
+    <section id="screen-nickname" class="game-screen" role="main">
+      <div style="width:100%;max-width:420px;padding:1.5rem;">
+        <div class="text-center mb-2">
+          <div style="font-size:3rem;">👤</div>
+          <div class="game-card-title">What's your name?</div>
+          <div class="game-card-sub">This will be shown on the leaderboard</div>
+        </div>
 
-          <div class="agreement-box">
-            <label class="checkbox-container">
-              <input class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" type="checkbox" id="chk-agree">
-              <span class="checkmark"></span>
-              <span class="agree-text">I agree to the terms and conditions</span>
-            </label>
+        <div class="game-card">
+          <!-- Avatar picker -->
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;margin-bottom:1rem;">
+            <button class="avatar-pick-btn av-0 selected" data-av="0"  aria-label="Avatar 0"  style="width:36px;height:36px;border-radius:50%;border:3px solid white;cursor:pointer;font-size:0.85rem;font-weight:800;color:#fff;">A</button>
+            <button class="avatar-pick-btn av-1" data-av="1" aria-label="Avatar 1"  style="width:36px;height:36px;border-radius:50%;border:3px solid transparent;cursor:pointer;font-size:0.85rem;font-weight:800;color:#fff;">B</button>
+            <button class="avatar-pick-btn av-2" data-av="2" aria-label="Avatar 2"  style="width:36px;height:36px;border-radius:50%;border:3px solid transparent;cursor:pointer;font-size:0.85rem;font-weight:800;color:#fff;">C</button>
+            <button class="avatar-pick-btn av-3" data-av="3" aria-label="Avatar 3"  style="width:36px;height:36px;border-radius:50%;border:3px solid transparent;cursor:pointer;font-size:0.85rem;font-weight:800;color:#fff;">D</button>
+            <button class="avatar-pick-btn av-4" data-av="4" aria-label="Avatar 4"  style="width:36px;height:36px;border-radius:50%;border:3px solid transparent;cursor:pointer;font-size:0.85rem;font-weight:800;color:#fff;">E</button>
+            <button class="avatar-pick-btn av-5" data-av="5" aria-label="Avatar 5"  style="width:36px;height:36px;border-radius:50%;border:3px solid transparent;cursor:pointer;font-size:0.85rem;font-weight:800;color:#fff;">F</button>
+            <button class="avatar-pick-btn av-6" data-av="6" aria-label="Avatar 6"  style="width:36px;height:36px;border-radius:50%;border:3px solid transparent;cursor:pointer;font-size:0.85rem;font-weight:800;color:#fff;">G</button>
+            <button class="avatar-pick-btn av-7" data-av="7" aria-label="Avatar 7"  style="width:36px;height:36px;border-radius:50%;border:3px solid transparent;cursor:pointer;font-size:0.85rem;font-weight:800;color:#fff;">H</button>
           </div>
 
-          <button id="btn-proceed-quiz" class="btn-primary relative overflow-hidden px-4 py-2 rounded-xl bg-indigo-500 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700 btn-full locked" disabled>
-            Start Quiz 🚀
+          <input
+            id="inp-nickname"
+            class="game-input"
+            type="text"
+            maxlength="20"
+            placeholder="Your nickname…"
+            autocomplete="off"
+            aria-label="Nickname"
+          />
+
+          <div id="nickname-error" class="game-error" role="alert"></div>
+
+          <button id="btn-join-nickname" class="game-btn game-btn-primary mt-1" disabled>
+            <span id="btn-join-nick-text">Let's Go! 🚀</span>
+            <span id="btn-join-nick-spinner" class="game-spinner" style="display:none;"></span>
           </button>
+
+          <button id="btn-back-pin" class="game-btn game-btn-secondary mt-1">← Back</button>
         </div>
       </div>
     </section>
 
-    <!-- ─── SCREEN 3: Quiz ─── -->
-    <section id="screen-quiz" class="screen hidden">
-      <div class="quiz-header bg-white/5 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_0_40px_rgba(99,102,241,0.15)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-xl before:border before:border-white/5">
-        <div class="quiz-meta">
-          <span id="quiz-student-name" class="student-badge">Participant</span>
-          <span id="quiz-progress-label" class="progress-label">Question 1 of 10</span>
+    <!-- ══════════════════════════════════
+         SCREEN 3: Lobby (Waiting)
+    ═══════════════════════════════════ -->
+    <section id="screen-lobby" class="game-screen" role="main" aria-live="polite">
+      <div style="width:100%;max-width:420px;padding:1.5rem;text-align:center;">
+        <div class="lobby-pulse">🎮</div>
+        <div class="lobby-welcome">You're in!<br><span id="lobby-nickname-display">Player</span></div>
+
+        <div class="lobby-nickname-tag" style="margin:1rem auto;display:inline-flex;">
+          <div id="lobby-avatar-badge" class="lobby-avatar av-0">P</div>
+          <span id="lobby-game-title">Waiting for quiz…</span>
         </div>
-        <div style="display: flex; align-items: center; gap: 1.5rem;">
-          <div id="network-badge" class="network-badge hidden">⚠️ Offline - Reconnect</div>
-          <div class="quiz-timer-wrap">
-            <span class="timer-icon">⏱</span>
-            <span id="quiz-timer" class="quiz-timer">60</span>s
-          </div>
-          <button id="btn-submit-quiz" class="btn-submit btn-sm btn-submit-top">Submit Quiz</button>
-        </div>
-      </div>
 
-      <!-- Progress Bar -->
-      <div class="progress-bar-track">
-        <div id="progress-bar-fill" class="progress-bar-fill" style="width:0%"></div>
-      </div>
+        <div class="game-card" style="margin-top:1rem;">
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.35rem;">Game PIN</div>
+          <div id="lobby-pin-display" style="font-family:'Outfit',monospace;font-size:2.5rem;font-weight:900;letter-spacing:0.2em;background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">------</div>
 
-      <!-- Timer Bar -->
-      <div class="timer-bar-track">
-        <div id="timer-bar-fill" class="timer-bar-fill"></div>
-      </div>
-
-      <!-- Question Card -->
-      <div class="quiz-body">
-        <div class="card bg-white/5 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_0_40px_rgba(99,102,241,0.15)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-xl before:border before:border-white/5 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 opacity-0 translate-y-3 animate-[fadeIn_0.5s_ease-out_forwards] question-card" id="question-card">
-          <p class="question-number" id="question-number">Q1</p>
-          <p class="question-text" id="question-text">Loading question…</p>
-          <div class="options-list" id="options-list">
-            <!-- Options injected by JS -->
+          <div style="margin-top:1rem;padding:0.75rem;background:rgba(255,255,255,0.05);border-radius:10px;">
+            <div style="font-size:0.8rem;color:rgba(255,255,255,0.5);">Players joined</div>
+            <div id="lobby-player-count" style="font-family:'Outfit',monospace;font-size:2rem;font-weight:900;color:#a78bfa;">0</div>
           </div>
         </div>
 
-        <div class="quiz-nav">
-          <button id="btn-prev" class="btn-secondary relative overflow-hidden px-4 py-2 rounded-xl bg-white/5 border border-white/10 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700" disabled>← Previous</button>
-          <div class="nav-dots" id="nav-dots"></div>
-          <button id="btn-next" class="btn-primary relative overflow-hidden px-4 py-2 rounded-xl bg-indigo-500 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700">Next →</button>
-        </div>
-
-
-      </div>
-
-      <!-- Proctoring Status Bar -->
-      <div class="proctor-bar">
-        <span id="stat-tabs" class="proctor-stat">🔁 Tabs: 0</span>
-        <span id="stat-fs" class="proctor-stat">📺 FS Exits: 0</span>
-        <span id="stat-ss" class="proctor-stat">📸 Screenshots: 0</span>
-      </div>
-    </section>
-
-    <!-- ─── SCREEN 4: Result ─── -->
-    <section id="screen-result" class="screen hidden">
-      <div class="screen-inner">
-        <div id="result-card" class="result-card card">
-          <div id="result-icon" class="result-icon">🎉</div>
-          <h2 id="result-title" class="result-title">Quiz Submitted!</h2>
-          <p id="result-subtitle" class="result-subtitle">Your response has been recorded.</p>
-
-          <div id="result-fetching" class="result-fetching hidden" aria-live="polite">
-            <div class="result-fetching-visual" aria-hidden="true">
-              <span class="result-fetching-ring"></span>
-              <span class="result-fetching-ring delay"></span>
-              <span class="result-fetching-core"></span>
-            </div>
-            <div class="result-fetching-copy">
-              <strong>Fetching score from data</strong>
-              <span>This usually takes a few seconds. Please stay on this screen.</span>
-            </div>
-          </div>
-
-          <div class="score-ring-wrap">
-            <svg class="score-ring" viewBox="0 0 120 120">
-              <circle class="score-ring-bg" cx="60" cy="60" r="50" />
-              <circle id="score-ring-fill" class="score-ring-progress" cx="60" cy="60" r="50"
-                      stroke-dasharray="314" stroke-dashoffset="314" />
-            </svg>
-            <div id="result-ring-loader" class="result-ring-loader hidden" aria-hidden="true"></div>
-            <div class="score-center">
-              <span id="result-score-num" class="score-num">0</span>
-              <span id="result-score-total" class="score-total">/10</span>
-            </div>
-          </div>
-
-          <div class="result-stats">
-            <div class="r-stat"><span class="r-label">Tab Switches</span><span id="r-tabs" class="r-value">0</span></div>
-            <div class="r-stat"><span class="r-label">Fullscreen Exits</span><span id="r-fs" class="r-value">0</span></div>
-            <div class="r-stat"><span class="r-label">Screenshot Attempts</span><span id="r-ss" class="r-value">0</span></div>
-            <div class="r-stat"><span class="r-label">Device</span><span id="r-device" class="r-value">—</span></div>
-          </div>
-
-          <p id="result-note" class="result-note">Your results have been recorded.</p>
-          <div class="result-actions">
-            <button id="btn-review-answers" class="btn-primary relative overflow-hidden px-4 py-2 rounded-xl bg-indigo-500 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700" disabled>Review Answers</button>
-            <button id="btn-retry-submit" class="btn-secondary relative overflow-hidden px-4 py-2 rounded-xl bg-white/5 border border-white/10 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700 hidden" type="button">Retry Submission</button>
-            <button id="btn-exit-fullscreen" class="btn-secondary relative overflow-hidden px-4 py-2 rounded-xl bg-white/5 border border-white/10 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700">Exit Fullscreen</button>
-          </div>
-        </div>
-
-        <div class="report-shell card">
-          <div class="report-shell-head">
-            <div>
-              <div class="section-eyebrow">Report Shell</div>
-              <h3 class="report-shell-title">Quiz Performance Report</h3>
-              <p class="report-shell-subtitle">Your marks card appears here automatically once grading is complete.</p>
-            </div>
-          </div>
-
-          <article id="pdf-report-card" class="marks-card is-pending" aria-label="Quiz performance report">
-            <div class="marks-card-orb orb-a" aria-hidden="true"></div>
-            <div class="marks-card-orb orb-b" aria-hidden="true"></div>
-
-            <div class="marks-card-head">
-              <div class="marks-card-brand">
-                <div class="marks-card-kicker">Quiz Performance Report</div>
-                <h3 id="report-student-name" class="marks-card-student">Student Name</h3>
-                <p id="report-student-id" class="marks-card-id">USN: --</p>
-                <div class="marks-card-meta">
-                  <div class="marks-pill">
-                    <span class="marks-pill-icon">QZ</span>
-                    <div>
-                      <span class="marks-pill-label">Quiz Title</span>
-                      <strong id="report-quiz-title">Quantum Quiz</strong>
-                    </div>
-                  </div>
-                  <div class="marks-pill">
-                    <span class="marks-pill-icon">DT</span>
-                    <div>
-                      <span class="marks-pill-label">Date &amp; Time</span>
-                      <strong id="report-generated-at">--</strong>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="marks-score-panel">
-                <div class="marks-score-label">Score</div>
-                <div id="report-score" class="marks-score-value">--</div>
-                <div id="report-score-caption" class="marks-score-caption">Waiting for grading...</div>
-                <div id="report-status" class="marks-status-pill">Awaiting live grading</div>
-              </div>
-            </div>
-
-            <div class="marks-metrics-grid">
-              <div class="marks-metric-card">
-                <span class="marks-metric-icon total">QT</span>
-                <span class="marks-metric-label">Total Questions</span>
-                <strong id="report-total-questions" class="marks-metric-value">0</strong>
-              </div>
-              <div class="marks-metric-card">
-                <span class="marks-metric-icon attempted">AT</span>
-                <span class="marks-metric-label">Attempted Questions</span>
-                <strong id="report-attempted" class="marks-metric-value">0</strong>
-              </div>
-              <div class="marks-metric-card">
-                <span class="marks-metric-icon correct">OK</span>
-                <span class="marks-metric-label">Correct Answers</span>
-                <strong id="report-correct" class="marks-metric-value">--</strong>
-              </div>
-              <div class="marks-metric-card">
-                <span class="marks-metric-icon wrong">WA</span>
-                <span class="marks-metric-label">Wrong Answers</span>
-                <strong id="report-wrong" class="marks-metric-value">--</strong>
-              </div>
-            </div>
-
-            <div class="marks-card-footer">
-              <div id="report-accuracy" class="marks-accuracy"></div>
-              <div class="marks-watermark">Generated by Secure Quiz</div>
-            </div>
-          </article>
+        <div class="lobby-waiting mt-2">
+          Waiting for host to start<span class="lobby-waiting-dots"></span>
         </div>
       </div>
     </section>
 
-    <section id="screen-review" class="screen hidden">
-      <div class="screen-inner review-screen-inner">
-        <div class="card bg-white/5 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_0_40px_rgba(99,102,241,0.15)] hover:shadow-[0_0_60px_rgba(99,102,241,0.25)] relative before:absolute before:inset-0 before:rounded-xl before:border before:border-white/5 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 opacity-0 translate-y-3 animate-[fadeIn_0.5s_ease-out_forwards] review-card">
-          <div class="review-header">
-            <div>
-              <div class="section-eyebrow">Post-Submission Review</div>
-              <h2 class="card-title text-3xl font-semibold tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Review Answers</h2>
-              <p id="review-summary" class="card-subtitle text-slate-400 leading-relaxed">Your graded answers will appear here after submission.</p>
-            </div>
-            <button id="btn-close-review" class="btn-secondary relative overflow-hidden px-4 py-2 rounded-xl bg-white/5 border border-white/10 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:brightness-110 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700">← Back to Results</button>
-          </div>
-          <div id="review-container" class="review-container"></div>
+    <!-- ══════════════════════════════════
+         SCREEN 4: Get Ready
+    ═══════════════════════════════════ -->
+    <section id="screen-get-ready" class="game-screen" role="main">
+      <div style="text-align:center;padding:1.5rem;">
+        <div id="get-ready-countdown" style="font-family:'Outfit',monospace;font-size:8rem;font-weight:900;color:#a78bfa;animation:resultPop 0.4s cubic-bezier(0.34,1.56,0.64,1);">3</div>
+        <div style="font-size:1.1rem;color:rgba(255,255,255,0.6);">Get ready…</div>
+        <div id="get-ready-q-num" style="margin-top:0.5rem;font-size:0.85rem;color:rgba(255,255,255,0.4);"></div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         SCREEN 5: Answering (4 buttons)
+    ═══════════════════════════════════ -->
+    <section id="screen-answering" class="game-screen" style="padding:0;" role="main">
+      <!-- Header: timer + question number -->
+      <div class="answering-header">
+        <div class="answering-question-num" id="ans-q-label">Question 1</div>
+        <div class="timer-ring-wrap">
+          <svg class="timer-ring-svg" width="60" height="60" viewBox="0 0 60 60" aria-hidden="true">
+            <circle class="timer-ring-track" cx="30" cy="30" r="25"/>
+            <circle id="timer-ring-fill" class="timer-ring-fill" cx="30" cy="30" r="25"
+              stroke-dasharray="157" stroke-dashoffset="0"/>
+          </svg>
+          <div id="timer-ring-num" class="timer-ring-num">20</div>
+        </div>
+      </div>
+
+      <!-- 4 answer buttons -->
+      <div class="answer-grid" id="answer-grid" role="group" aria-label="Answer choices">
+        <button id="ans-0" class="answer-btn answer-btn-red"    data-idx="0" aria-label="Answer A">
+          <span class="answer-shape">▲</span>
+          <span id="ans-0-text">Option A</span>
+        </button>
+        <button id="ans-1" class="answer-btn answer-btn-blue"   data-idx="1" aria-label="Answer B">
+          <span class="answer-shape">◆</span>
+          <span id="ans-1-text">Option B</span>
+        </button>
+        <button id="ans-2" class="answer-btn answer-btn-yellow" data-idx="2" aria-label="Answer C">
+          <span class="answer-shape">⬤</span>
+          <span id="ans-2-text">Option C</span>
+        </button>
+        <button id="ans-3" class="answer-btn answer-btn-green"  data-idx="3" aria-label="Answer D">
+          <span class="answer-shape">■</span>
+          <span id="ans-3-text">Option D</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         SCREEN 6: Answer Result
+    ═══════════════════════════════════ -->
+    <section id="screen-answer-result" class="game-screen" role="main" aria-live="assertive">
+      <div style="text-align:center;padding:2rem 1.5rem;width:100%;max-width:400px;">
+        <div id="result-icon" class="result-icon-large">🎉</div>
+        <div id="result-verdict" class="result-verdict correct">Correct!</div>
+        <div style="margin-top:1.5rem;">
+          <div id="result-points" class="result-points">+1000</div>
+          <div class="result-points-label">points earned</div>
+        </div>
+        <div id="result-rank-badge" class="result-rank-badge" style="margin:1.5rem auto;display:inline-flex;">
+          <i class="bi bi-trophy-fill" style="color:#fbbf24;"></i>
+          <span id="result-rank-text">Rank —</span>
+        </div>
+        <div style="font-size:0.8rem;color:rgba(255,255,255,0.35);margin-top:1rem;">
+          Waiting for next question<span class="lobby-waiting-dots"></span>
         </div>
       </div>
     </section>
 
-  </div>
+    <!-- ══════════════════════════════════
+         SCREEN 7: Final Score
+    ═══════════════════════════════════ -->
+    <section id="screen-final" class="game-screen" role="main">
+      <div style="text-align:center;padding:2rem 1.5rem;width:100%;max-width:420px;">
+        <div class="final-trophy">🏆</div>
+        <div style="font-size:1rem;color:rgba(255,255,255,0.5);margin-bottom:0.5rem;">Your final rank</div>
+        <div id="final-rank" class="final-rank">#1</div>
 
-  <script src="/assets/js/background.js"></script>
-  <script type="module" src="/assets/js/script.js"></script>
+        <div class="game-card" style="margin:1.5rem 0;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div style="text-align:center;">
+              <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;">Score</div>
+              <div id="final-score" class="final-score-value">0</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;">Correct</div>
+              <div id="final-correct" class="final-score-value" style="color:#4ade80;">0</div>
+            </div>
+          </div>
+        </div>
+
+        <button id="btn-play-again" class="game-btn game-btn-primary">
+          Play Again 🎮
+        </button>
+        <div style="margin-top:0.75rem;">
+          <a href="home" style="font-size:0.8rem;color:rgba(255,255,255,0.35);text-decoration:none;">← Back to Home</a>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /game-content -->
+
+  <script type="module" src="/assets/js/game-player.js"></script>
 </body>
 </html>
