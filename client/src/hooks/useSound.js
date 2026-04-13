@@ -70,5 +70,29 @@ export function useSound() {
   const setMuted = useCallback((v) => { mutedRef.current = v; }, []);
   const isMuted  = () => mutedRef.current;
 
-  return { playCorrect, playWrong, playTick, playUrgent, playStart, playVictory, playJoin, playCountdown, setMuted, isMuted };
+  const lobbyIntervalRef = useRef(null);
+
+  const playLobbyMusic = useCallback(() => {
+    if (lobbyIntervalRef.current) return;
+    
+    function playProgression() {
+      if (mutedRef.current) return;
+      chord([262,392,523], 4.5, "sine", 0.04, 0);       // C maj pad
+      chord([293,440,587], 4.5, "sine", 0.03, 4);       // D min pad
+      chord([330,493,659], 4.5, "sine", 0.03, 8);       // E min pad
+      chord([262,392,523], 4.5, "sine", 0.04, 12);      // C maj pad
+    }
+    
+    playProgression();
+    lobbyIntervalRef.current = setInterval(playProgression, 16000);
+  }, []);
+
+  const stopLobbyMusic = useCallback(() => {
+    if (lobbyIntervalRef.current) {
+      clearInterval(lobbyIntervalRef.current);
+      lobbyIntervalRef.current = null;
+    }
+  }, []);
+
+  return { playCorrect, playWrong, playTick, playUrgent, playStart, playVictory, playJoin, playCountdown, setMuted, isMuted, playLobbyMusic, stopLobbyMusic };
 }

@@ -120,6 +120,16 @@ function recordAnswer(pin, playerId, answerIndex) {
     player.lastAnswer = answerIndex;
     player.lastCorrect = isCorrect;
     player.lastPoints = points;
+    
+    // Store history for the post-game breakdown
+    if (!player.answers) player.answers = [];
+    player.answers.push({
+      questionIndex: s.currentQuestion,
+      isCorrect,
+      points,
+      elapsed,
+      reactionTimeFormatted: elapsed < 5 ? "FAST" : elapsed < 1 ? "BLAZING!" : ""
+    });
   }
 
   return { isCorrect, points, correctAnswer: q.correct };

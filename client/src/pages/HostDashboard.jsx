@@ -17,12 +17,14 @@ export default function HostDashboard() {
   const { pin }  = useParams();
   const navigate = useNavigate();
   const { socket } = useSocket();
-  const { playStart, playCorrect, playJoin, playVictory } = useSound();
+  const { playStart, playCorrect, playJoin, playVictory, playLobbyMusic, stopLobbyMusic } = useSound();
 
   const [phase, setPhase]     = useState(P.CONNECTING);
   const [players, setPlayers] = useState([]);
   const [quizTitle, setQT]    = useState("");
   const [qCount, setQC]       = useState(0);
+  const [allQs, setAllQs]     = useState([]);
+  const [showPreview, setShowPreview] = useState(false);
   const [curQ, setCurQ]       = useState(null);
   const [reveal, setReveal]   = useState(null);
   const [lb, setLb]           = useState([]);
@@ -35,7 +37,7 @@ export default function HostDashboard() {
     if (!socket || !pin) return;
     socket.emit("host:join", { pin });
 
-    socket.on("host:joined",      ({ quizTitle, questionCount, players }) => { setQT(quizTitle); setQC(questionCount); setPlayers(players); setPhase(P.LOBBY); });
+    socket.on("host:joined",      ({ quizTitle, questionCount, questions, players }) => { setQT(quizTitle); setQC(questionCount); setAllQs(questions || []); setPlayers(players); setPhase(P.LOBBY); });
     socket.on("lobby:update",     ({ players }) => { setPlayers(players); playJoin(); });
     socket.on("game:starting",    () => setPhase(P.STARTING));
     socket.on("question:start",   q  => { setCurQ(q); setReveal(null); setAns({ answered: 0, total: players.length }); setTimer(true); qIdxRef.current = q.index; setPhase(P.QUESTION); });
@@ -46,6 +48,13 @@ export default function HostDashboard() {
 
     return () => ["host:joined","lobby:update","game:starting","question:start","host:answer_count","question:reveal","game:end","error"].forEach(e => socket.off(e));
   }, [socket, pin]);
+
+  // Manage lobby music
+  useEffect(() => {
+    if (phase === P.LOBBY) playLobbyMusic();
+    else stopLobbyMusic();
+    return () => stopLobbyMusic();
+  }, [phase, playLobbyMusic, stopLobbyMusic]);
 
   const emit = (ev, d = {}) => socket?.emit(ev, { pin, ...d });
 
@@ -59,35 +68,36 @@ export default function HostDashboard() {
       <header style={{
         position: "sticky", top: 0, zIndex: 50,
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "14px 20px",
+        flexWrap: "wrap", gap: 8,
+        padding: "12px 16px",
         background: "rgba(6,8,17,0.88)", backdropFilter: "blur(24px)",
         borderBottom: "1px solid rgba(28,34,64,0.7)",
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{
-            width: 40, height: 40, borderRadius: 13,
+            width: 38, height: 38, borderRadius: 12, flexShrink: 0,
             background: "linear-gradient(135deg,var(--violet),var(--cyan))",
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: "1.2rem", boxShadow: "0 0 20px rgba(124,92,252,0.4)",
+            fontSize: "1.1rem", boxShadow: "0 0 20px rgba(124,92,252,0.4)",
           }}>🎯</div>
           <div>
-            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.05rem",
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "clamp(0.9rem,3vw,1.05rem)",
               background: "linear-gradient(135deg,var(--cyan),var(--violet))",
               WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>QuizFlow</div>
-            {quizTitle && <div style={{ fontSize: "0.68rem", color: "var(--muted)", marginTop: -1 }}>{quizTitle}</div>}
+            {quizTitle && <div style={{ fontSize: "0.65rem", color: "var(--muted)", marginTop: -1, maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{quizTitle}</div>}
           </div>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           {pin && <PINShare pin={pin} />}
           {phase !== P.FINAL && (
             <button onClick={() => { if (confirm("End the game early?")) emit("host:end_game"); }}
-              className="btn-danger" style={{ padding: "8px 14px", borderRadius: 10, fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.78rem" }}>
+              className="btn-danger" style={{ padding: "7px 12px", borderRadius: 10, fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.75rem" }}>
               End
             </button>
           )}
           <button onClick={() => navigate("/")} className="btn-ghost"
-            style={{ padding: "8px 14px", borderRadius: 10, fontFamily: "var(--font-body)", fontSize: "0.82rem" }}>
+            style={{ padding: "7px 12px", borderRadius: 10, fontFamily: "var(--font-body)", fontSize: "0.8rem" }}>
             ← Exit
           </button>
         </div>
@@ -108,52 +118,52 @@ export default function HostDashboard() {
 
         {/* LOBBY */}
         {phase === P.LOBBY && (
-          <div className="animate-phase" style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px 20px", gap: 32 }}>
+          <div className="animate-phase" style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "clamp(20px,5vw,40px) clamp(16px,4vw,24px)", gap: 24 }}>
             {/* PIN hero */}
             <div style={{ textAlign: "center" }}>
-              <div className="badge badge-cyan" style={{ margin: "0 auto 16px" }}>
+              <div className="badge badge-cyan" style={{ margin: "0 auto 14px" }}>
                 <div className="live-dot" />
                 Waiting for players
               </div>
               <div style={{
                 fontFamily: "var(--font-display)", fontWeight: 800,
-                fontSize: "clamp(3.5rem,10vw,7.5rem)",
-                letterSpacing: "0.3em", lineHeight: 1,
+                fontSize: "clamp(3rem,12vw,7.5rem)",
+                letterSpacing: "0.25em", lineHeight: 1,
                 color: "var(--cyan)", textShadow: "0 0 40px rgba(6,247,217,0.45), 0 0 80px rgba(6,247,217,0.2)",
               }}>{pin}</div>
-              <div style={{ color: "var(--muted)", fontSize: "0.88rem", marginTop: 10 }}>
+              <div style={{ color: "var(--muted)", fontSize: "clamp(0.78rem,2vw,0.9rem)", marginTop: 10, padding: "0 10px" }}>
                 {quizTitle} · {qCount} question{qCount !== 1 ? "s" : ""}
               </div>
             </div>
 
             {/* Player grid */}
             <div style={{ width: "100%", maxWidth: 740 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-                <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "var(--text)", fontSize: "1rem" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
+                <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "var(--text)", fontSize: "0.95rem" }}>
                   Players <span style={{ color: "var(--cyan)" }}>({players.length})</span>
                 </span>
                 {players.length > 0 && <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   <div className="live-dot" />
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.68rem", color: "var(--green)" }}>LIVE</span>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--green)" }}>LIVE</span>
                 </div>}
               </div>
 
               {players.length === 0 ? (
-                <div className="glass" style={{ borderRadius: 22, padding: "52px 24px", textAlign: "center" }}>
-                  <div style={{ fontSize: "3.5rem", marginBottom: 12 }}>👀</div>
-                  <div style={{ fontFamily: "var(--font-display)", color: "var(--muted)", fontSize: "1rem" }}>Waiting for players to join...</div>
-                  <div style={{ fontSize: "0.82rem", color: "var(--faint)", marginTop: 6 }}>Share the PIN above</div>
+                <div className="glass" style={{ borderRadius: 22, padding: "clamp(28px,6vw,52px) 24px", textAlign: "center" }}>
+                  <div style={{ fontSize: "3rem", marginBottom: 10 }}>👀</div>
+                  <div style={{ fontFamily: "var(--font-display)", color: "var(--muted)", fontSize: "0.95rem" }}>Waiting for players to join...</div>
+                  <div style={{ fontSize: "0.8rem", color: "var(--faint)", marginTop: 6 }}>Share the PIN above</div>
                 </div>
               ) : (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(148px,1fr))", gap: 10 }}>
+                <div className="player-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(130px,1fr))", gap: 8 }}>
                   {players.map((p, i) => (
                     <div key={p.id} className="glass animate-pop-in" style={{
-                      borderRadius: 14, padding: "11px 14px",
+                      borderRadius: 14, padding: "10px 12px",
                       display: "flex", alignItems: "center", gap: 8,
                       animationDelay: `${i * 40}ms`, animationFillMode: "both",
                     }}>
-                      <span style={{ fontSize: "1.5rem" }}>{p.emoji || "🦊"}</span>
-                      <span style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.85rem", color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <span style={{ fontSize: "1.4rem", flexShrink: 0 }}>{p.emoji || "🦊"}</span>
+                      <span style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.82rem", color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {p.nickname}
                       </span>
                     </div>
@@ -162,16 +172,56 @@ export default function HostDashboard() {
               )}
             </div>
 
-            <button onClick={() => { emit("host:start"); playStart(); }} disabled={players.length === 0}
-              className="btn-primary" style={{ padding: "18px 56px", borderRadius: 20, fontSize: "1.1rem" }}>
-              {players.length === 0 ? "Waiting for players..." : `Start Quiz (${players.length}) →`}
-            </button>
+            <div style={{ display: "flex", gap: 12, width: "100%", maxWidth: 400 }}>
+              <button onClick={() => setShowPreview(true)}
+                className="btn-ghost" style={{ flex: 1, padding: "16px", borderRadius: 16, fontSize: "0.9rem", color: "var(--cyan)", border: "1.5px solid rgba(6,247,217,0.3)" }}>
+                👁 Review
+              </button>
+              <button onClick={() => { emit("host:start"); playStart(); }} disabled={players.length === 0}
+                className="btn-primary" style={{ flex: 2, padding: "16px", borderRadius: 16, fontSize: "clamp(0.9rem,3vw,1.1rem)" }}>
+                {players.length === 0 ? "Waiting..." : `Start (${players.length}) →`}
+              </button>
+            </div>
+
+            {/* PREVIEW MODAL */}
+            {showPreview && (
+              <div className="animate-pop-in" style={{
+                position: "fixed", inset: 0, zIndex: 100,
+                background: "rgba(6,8,17,0.9)", backdropFilter: "blur(12px)",
+                display: "flex", flexDirection: "column", padding: "20px",
+              }}>
+                <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "var(--text)" }}>Preview: {quizTitle}</div>
+                  <button onClick={() => setShowPreview(false)} style={{ background: "none", border: "none", color: "var(--muted)", fontSize: "1.5rem", cursor: "pointer" }}>✕</button>
+                </header>
+                <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 16, paddingRight: 8 }}>
+                  {allQs.map((q, i) => (
+                    <div key={i} style={{ background: "rgba(13,16,34,0.7)", border: "1px solid var(--border)", borderRadius: 14, padding: 16 }}>
+                      <div style={{ color: "var(--cyan)", fontFamily: "var(--font-mono)", fontSize: "0.7rem", marginBottom: 6 }}>Question {i + 1} — {q.time}s</div>
+                      <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "1rem", marginBottom: 12 }}>{q.text}</div>
+                      <div className="ans-grid">
+                        {q.options.map((opt, oi) => (
+                          <div key={oi} style={{
+                            padding: "8px 12px", borderRadius: 8, fontSize: "0.85rem",
+                            background: "rgba(6,8,17,0.6)",
+                            border: `1.5px solid ${oi === q.correct ? "var(--green)" : "var(--border)"}`,
+                            color: oi === q.correct ? "var(--green)" : "var(--muted)",
+                          }}>
+                            {["A","B","C","D"][oi]}: {opt}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
         {/* QUESTION */}
         {phase === P.QUESTION && curQ && (
-          <div className="animate-phase" style={{ flex: 1, display: "flex", flexDirection: "column", padding: "20px", gap: 16, maxWidth: 940, margin: "0 auto", width: "100%" }}>
+          <div className="animate-phase q-card-pad" style={{ flex: 1, display: "flex", flexDirection: "column", padding: "clamp(12px,3vw,20px)", gap: 14, maxWidth: 940, margin: "0 auto", width: "100%" }}>
             {/* Top bar */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -216,7 +266,7 @@ export default function HostDashboard() {
             </div>
 
             {/* Options */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className="ans-grid" style={{ gap: 10 }}>
               {curQ.options.map((opt, i) => {
                 const c = ANSWER_COLORS[i];
                 return (
@@ -277,9 +327,9 @@ export default function HostDashboard() {
 
         {/* REVEAL */}
         {phase === P.REVEAL && reveal && (
-          <div className="animate-phase" style={{ flex: 1, display: "flex", gap: 20, padding: "20px", maxWidth: 1060, margin: "0 auto", width: "100%", flexWrap: "wrap" }}>
+          <div className="animate-phase reveal-layout" style={{ flex: 1, display: "flex", gap: 20, padding: "clamp(12px,3vw,20px)", maxWidth: 1060, margin: "0 auto", width: "100%", flexWrap: "wrap", overflowY: "auto" }}>
             {/* Left */}
-            <div style={{ flex: 1, minWidth: 300, display: "flex", flexDirection: "column", gap: 14 }}>
+            <div style={{ flex: 1, minWidth: "min(300px, 100%)", display: "flex", flexDirection: "column", gap: 14 }}>
               <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.68rem", color: "var(--muted)", letterSpacing: "0.12em", textTransform: "uppercase" }}>
                 Question {qIdxRef.current + 1} — Result
               </div>
@@ -333,7 +383,7 @@ export default function HostDashboard() {
             </div>
 
             {/* Right: leaderboard */}
-            <div style={{ width: 310, flexShrink: 0, display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ width: "min(310px, 100%)", flexShrink: 0, display: "flex", flexDirection: "column", gap: 10 }}>
               <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.68rem", color: "var(--muted)", letterSpacing: "0.12em", textTransform: "uppercase" }}>
                 Live Rankings
               </div>

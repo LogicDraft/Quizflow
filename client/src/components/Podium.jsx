@@ -1,18 +1,22 @@
 import { useEffect, useState } from "react";
-import { formatScore } from "../utils/scoring";
+import { formatScore, launchConfetti } from "../utils/scoring";
 
 const PODIUM = [
-  { rank: 2, height: 100, color: "#94a3b8", label: "2nd", delay: 200 },
-  { rank: 1, height: 140, color: "#ffb938", label: "1st", delay: 0   },
-  { rank: 3, height: 70,  color: "#cd7c30", label: "3rd", delay: 350 },
+  { rank: 2, height: 100, color: "#94a3b8", label: "2nd", delay: 2000 },
+  { rank: 1, height: 140, color: "#ffb938", label: "1st", delay: 4000 },
+  { rank: 3, height: 70,  color: "#cd7c30", label: "3rd", delay: 500 },
 ];
 
 export default function Podium({ players = [] }) {
-  const [visible, setVisible] = useState(false);
+  const [visibleRanks, setVisibleRanks] = useState({});
 
   useEffect(() => {
-    const t = setTimeout(() => setVisible(true), 300);
-    return () => clearTimeout(t);
+    // Reveal individually
+    const t3 = setTimeout(() => { setVisibleRanks(prev => ({...prev, 3: true})); launchConfetti(40, { origin: { x: 0.8, y: 0.8 } }); }, 500);
+    const t2 = setTimeout(() => { setVisibleRanks(prev => ({...prev, 2: true})); launchConfetti(40, { origin: { x: 0.2, y: 0.8 } }); }, 2000);
+    const t1 = setTimeout(() => { setVisibleRanks(prev => ({...prev, 1: true})); launchConfetti(120, { origin: { x: 0.5, y: 0.4 } }); }, 4000);
+    
+    return () => { clearTimeout(t3); clearTimeout(t2); clearTimeout(t1); };
   }, []);
 
   if (players.length < 1) return null;
@@ -50,9 +54,9 @@ export default function Podium({ players = [] }) {
             <div style={{
               textAlign: "center",
               marginBottom: 8,
-              opacity: visible ? 1 : 0,
-              transform: visible ? "translateY(0)" : "translateY(16px)",
-              transition: `opacity 0.5s ${delay + 200}ms, transform 0.5s ${delay + 200}ms cubic-bezier(0.22,1,0.36,1)`,
+              opacity: visibleRanks[rank] ? 1 : 0,
+              transform: visibleRanks[rank] ? "translateY(0)" : "translateY(16px)",
+              transition: `opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1)`,
             }}>
               <div style={{ fontSize: rank === 1 ? "2.4rem" : "1.8rem", lineHeight: 1 }}>
                 {player.emoji || medals[rank]}
@@ -80,10 +84,10 @@ export default function Podium({ players = [] }) {
             {/* Bar */}
             <div className="podium-bar" style={{
               width: "100%",
-              height: visible ? height : 0,
+              height: visibleRanks[rank] ? height : 0,
               background: `linear-gradient(180deg, ${color}55 0%, ${color}22 100%)`,
               border: `1px solid ${color}55`,
-              transition: `height 0.7s ${delay}ms cubic-bezier(0.22,1,0.36,1)`,
+              transition: `height 0.8s cubic-bezier(0.22,1,0.36,1)`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",

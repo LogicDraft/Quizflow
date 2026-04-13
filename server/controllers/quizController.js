@@ -1,5 +1,6 @@
 const sampleQuizzes = require("../data/quizzes");
 const GameStore = require("../models/GameStore");
+const xss = require("xss");
 
 // In-memory quiz store (swap with MongoDB in production)
 const quizDB = new Map(sampleQuizzes.map(q => [q.id, q]));
@@ -33,14 +34,47 @@ const getQuizById = (req, res) => {
  */
 const createQuiz = (req, res) => {
   const { title, description, category, difficulty, questions } = req.body;
-  if (!title || !questions || questions.length < 1) {
-    return res.status(400).json({ success: false, message: "Title and questions required" });
+  if (!title || !title.trim()) {
+    return res.status(400).json({ success: false, message: "Quiz title is required" });
+  }
+  if (!Array.isArray(questions) || questions.length < 1) {
+    return res.status(400).json({ success: false, message: "At least 1 question is required" });
+  }
+  for (let i = 0; i < questions.length; i++) {
+    const q = questions[i];
+    if (!q.text || !q.text.trim()) {
+      return res.status(400).json({ success: false, message: `Question ${i + 1} is missing text` });
+    }
+    if (!Array.isArray(q.options) || q.options.length !== 4) {
+      return res.status(400).json({ success: false, message: `Question ${i + 1} must have exactly 4 options` });
+    }
+    if (q.options.some(o => !o || !o.trim())) {
+      return res.status(400).json({ success: false, message: `Question ${i + 1} has an empty option` });
+    }
+    if (typeof q.correct !== "number" || q.correct < 0 || q.correct > 3) {
+      return res.status(400).json({ success: false, message: `Question ${i + 1} has an invalid correct answer index` });
+    }
+    if (!q.time || q.time < 5 || q.time > 120) {
+      questions[i] = { ...q, time: 20 }; // fall back to default
+    }
   }
   const id = `quiz_custom_${Date.now()}`;
-  const quiz = { id, title, description, category: category || "Custom", difficulty: difficulty || "Medium", questions };
+  const quiz = {
+    id,
+    title: xss(title.trim()),
+    description: xss(description || "Custom quiz"),
+    category: xss(category || "Custom"),
+    difficulty: xss(difficulty || "Medium"),
+    questions: questions.map(q => ({
+      ...q,
+      text: xss(q.text.trim()),
+      options: q.options.map(o => xss(o.trim()))
+    }))
+  };
   quizDB.set(id, quiz);
   res.json({ success: true, quiz });
 };
+
 
 /**
  * POST /api/games/create — host creates a new game session

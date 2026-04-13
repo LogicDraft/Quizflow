@@ -46,6 +46,7 @@ export default function PlayerScreen() {
   const [streak, setStreak]     = useState(0);
   const [err, setErr]           = useState("");
   const [qNum, setQNum]         = useState(0);
+  const [history, setHistory]   = useState([]);
 
   // Haptic feedback
   const vibrate = (pattern) => navigator.vibrate?.(pattern);
@@ -86,10 +87,11 @@ export default function PlayerScreen() {
       if (me) { setRank(me.rank); if (me.rank === 1) { playVictory(); launchConfetti(120); vibrate([50,30,50,30,100]); } }
       setPhase(P.FINAL);
     });
+    socket.on("game:history",         ({ answers }) => setHistory(answers));
     socket.on("game:host_left",       () => { setErr("Host disconnected. Game ended."); setTimeout(() => navigate("/"), 3000); });
     socket.on("error",                ({ message }) => { setErr(message); setTimeout(() => setErr(""), 5000); });
 
-    return () => ["player:joined","lobby:update","game:starting","question:start","player:answer_result","player:tab_warning","question:reveal","game:end","game:host_left","error"].forEach(e => socket.off(e));
+    return () => ["player:joined","lobby:update","game:starting","question:start","player:answer_result","player:tab_warning","question:reveal","game:end","game:history","game:host_left","error"].forEach(e => socket.off(e));
   }, [socket, pin, nickname]);
 
   function answer(idx) {
@@ -211,7 +213,7 @@ export default function PlayerScreen() {
 
         {/* QUESTION / ANSWERED */}
         {(phase === P.QUESTION || phase === P.ANSWERED) && question && (
-          <div className="animate-phase" style={{ flex: 1, display: "flex", flexDirection: "column", padding: "12px 14px 14px", gap: 10 }}>
+          <div className="animate-phase" style={{ flex: 1, display: "flex", flexDirection: "column", padding: "clamp(10px,3vw,16px) clamp(12px,3vw,16px) 14px", gap: 10 }}>
             {/* Q progress pills */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div style={{ display: "flex", gap: 4 }}>
@@ -245,7 +247,8 @@ export default function PlayerScreen() {
               }}>
                 <div style={{
                   fontFamily: "var(--font-display)", fontWeight: 700,
-                  fontSize: "clamp(0.9rem,4vw,1.15rem)", color: "var(--text)", lineHeight: 1.4,
+                  fontSize: "clamp(0.88rem,3.5vw,1.1rem)", color: "var(--text)", lineHeight: 1.45,
+                  wordBreak: "break-word", overflowWrap: "break-word",
                 }}>
                   {question.text}
                 </div>
@@ -253,7 +256,7 @@ export default function PlayerScreen() {
             </div>
 
             {/* Answer buttons */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, flex: 1 }}>
+            <div className="ans-grid" style={{ flex: 1 }}>
               {question.options.map((opt, i) => {
                 const c         = ANSWER_COLORS[i];
                 const isSel     = selected === i;
@@ -265,9 +268,9 @@ export default function PlayerScreen() {
                   <button key={i} onClick={() => answer(i)} disabled={isAns} className={`ans-btn ${isSel ? "selected" : ""} ${isCorrect ? "correct" : ""} ${isWrong ? "wrong" : ""}`}
                     style={{
                       background: isSel ? c.light : c.bg,
-                      borderRadius: 18,
-                      padding: "0 12px",
-                      minHeight: 78,
+                      borderRadius: 16,
+                      padding: "0 10px",
+                      minHeight: "clamp(70px,15vw,90px)",
                       display: "flex", flexDirection: "column",
                       alignItems: "center", justifyContent: "center", gap: 4,
                       opacity: isAns && !isSel ? 0.35 : 1,
@@ -275,11 +278,12 @@ export default function PlayerScreen() {
                   >
                     {/* Inner shimmer */}
                     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg,rgba(255,255,255,0.16) 0%,transparent 55%)", pointerEvents: "none", zIndex: 1 }} />
-                    <span style={{ fontSize: "1.4rem", position: "relative", zIndex: 2 }}>{c.icon}</span>
+                    <span style={{ fontSize: "clamp(1rem,4vw,1.4rem)", position: "relative", zIndex: 2 }}>{c.icon}</span>
                     <span style={{
                       fontFamily: "var(--font-display)", fontWeight: 700, color: "white",
-                      fontSize: "0.84rem", textAlign: "center", lineHeight: 1.3,
+                      fontSize: "clamp(0.72rem,2.5vw,0.84rem)", textAlign: "center", lineHeight: 1.3,
                       position: "relative", zIndex: 2,
+                      wordBreak: "break-word", overflowWrap: "break-word",
                     }}>{opt}</span>
 
                     {/* Selected pulse dot */}
@@ -439,6 +443,40 @@ export default function PlayerScreen() {
                 </div>
               ))}
             </div>
+
+            {/* Private Player History */}
+            {history && history.length > 0 && (
+              <div style={{ width: "100%", maxWidth: 400, marginTop: 10 }}>
+                <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.88rem", color: "var(--text)", marginBottom: 10, textAlign: "center" }}>
+                  Your Performance Breakdown
+                </div>
+                {history.map((ans, i) => (
+                  <div key={i} style={{
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                    padding: "10px 14px", borderRadius: 12, marginBottom: 8,
+                    background: ans.isCorrect ? "rgba(6,247,217,0.06)" : "rgba(255,61,110,0.06)",
+                    border: `1.5px solid ${ans.isCorrect ? "var(--green)" : "var(--red)"}`
+                  }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <div style={{ fontWeight: 800, fontFamily: "var(--font-mono)", fontSize: "0.85rem", color: ans.isCorrect ? "var(--green)" : "var(--red)" }}>
+                        Q{i + 1}
+                      </div>
+                      <div style={{ fontSize: "0.85rem", color: "var(--text)" }}>
+                        {ans.isCorrect ? "✓ Correct" : "✗ Wrong"}
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontSize: "0.75rem", color: "var(--muted)", fontWeight: 600 }}>
+                        {ans.reactionTimeFormatted}
+                      </span>
+                      <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: "0.88rem", color: "var(--text)" }}>
+                        +{ans.points}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <button onClick={() => navigate("/")} className="btn-primary btn-violet"
               style={{ padding: "15px 36px", borderRadius: 16, width: "100%", maxWidth: 400, fontSize: "0.95rem" }}>

@@ -373,3 +373,90 @@ body::after {
 /* Safe areas for mobile */
 .safe-top    { padding-top:    env(safe-area-inset-top,    0px); }
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 16px); }
+
+/* ── Responsive: Mobile first ──────────────────────────────── */
+@media (max-width: 480px) {
+  /* Answer grid: stack on very small screens */
+  .ans-grid-2col {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* PIN input smaller on mobile */
+  .qf-input.pin {
+    font-size: 1.6rem !important;
+    letter-spacing: 0.25em !important;
+  }
+
+  /* Host reveal layout stack */
+  .reveal-layout {
+    flex-direction: column !important;
+  }
+
+  /* Question card padding */
+  .q-card-pad {
+    padding: 16px 14px !important;
+  }
+
+  /* Lobby grid: 2 columns max */
+  .player-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .qf-input.pin {
+    font-size: 1.3rem !important;
+    letter-spacing: 0.18em !important;
+  }
+}
+
+/* ── Responsive: Tablet ────────────────────────────────────── */
+@media (min-width: 481px) and (max-width: 768px) {
+  .reveal-layout {
+    flex-wrap: wrap !important;
+  }
+}
+
+/* ── Touch targets: minimum 44px for mobile ────────────────── */
+@media (hover: none) and (pointer: coarse) {
+  .ans-btn {
+    min-height: 64px !important;
+  }
+  button, .btn-primary, .btn-ghost, .btn-danger {
+    min-height: 44px;
+  }
+}
+
+/* ── Fluid answer buttons ──────────────────────────────────── */
+.ans-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 400px) {
+  .ans-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Landscape Lock for tiny height devices ──────────────────── */
+@media (orientation: landscape) and (max-height: 480px) {
+  #root::after {
+    content: "📱 Please rotate your phone to portrait mode for the best experience.";
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(6, 8, 17, 0.98);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 30px;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: var(--cyan);
+    line-height: 1.5;
+  }
+}

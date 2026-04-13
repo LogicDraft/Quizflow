@@ -1,0 +1,87 @@
+QuizFlow — What to Improve Next
+1. Real Database
+Right now all data lives in RAM — restart the server and every game is gone. Add MongoDB Atlas (free tier):
+
+Store quizzes permanently
+Save game history + scores
+Player profiles across sessions
+
+2. Authentication
+No login = anyone can host anything. Add:
+
+Host accounts (email + password)
+JWT tokens to protect host routes
+Guest mode stays for players
+
+3. Session Persistence
+If the host refreshes the page mid-game, the room breaks. Store session state in Redis so it survives restarts.
+
+🟡 High Impact Features
+4. Custom Quiz Creator
+Currently only 3 built-in quizzes. Build a quiz editor UI:
+
+Add/edit/delete questions
+Image support in questions
+Time limit per question
+Save to your account
+
+5. Game Lobby Code Sharing
+Add a real shareable URL like quizflow.app/join/482916 that auto-fills the PIN — no typing needed.
+6. Spectator Mode
+People who join late can watch the game live without playing. Big value for classroom use.
+7. Team Mode
+Players form teams, team scores are combined. Very popular in corporate/classroom settings.
+
+🟢 UX Polish
+8. Host Preview
+Before starting, host sees each question + timer — lets them review before going live.
+9. Question Image Upload
+Kahoot's biggest feature you're missing. Allow images in questions via Cloudinary (free tier).
+10. Player History Screen
+After the game, each player sees their personal breakdown:
+Q1: ✓ Correct  +870pts  (FAST)
+Q2: ✗ Wrong    +0pts
+Q3: ✓ Correct  +1000pts (BLAZING)
+11. Waiting Room Music
+Play looping background music in the lobby. Toggle for host. Huge game feel upgrade.
+12. Podium Ceremony Animation
+Currently podium just rises. Add: 3rd place enters → 2nd → 1st with dramatic delay, sound, confetti burst per rank.
+
+📱 Mobile Improvements
+13. PWA (Progressive Web App)
+Add a manifest.json + service worker. Players can install QuizFlow to their home screen — feels like a real app, works offline for the join screen.
+14. Landscape Lock Warning
+On small phones in landscape, the answer buttons get cramped. Detect and show "Rotate your phone" prompt.
+
+🏗️ Architecture Upgrades
+15. Replace In-Memory Store with Redis
+Current:  Map() in Node.js process
+Upgrade:  Redis → survives restarts, scales to multiple servers
+16. Rate Limiting
+Add express-rate-limit to prevent:
+
+Brute-force PIN guessing
+Answer spam flooding
+Bot joining
+
+17. Input Sanitization
+Nicknames currently go straight to Socket.io broadcast. Add validator.js to strip HTML/scripts from all user inputs.
+18. Environment-Based Config
+Currently some hardcoded values. Move all config to .env:
+
+Question time limits
+Max players per room
+PIN expiry time
+
+
+📊 Analytics Dashboard
+19. Admin Stats Page
+After each game, show the host:
+
+Which question had lowest correct rate
+Average response time per question
+Most popular wrong answer
+Player engagement heatmap
+
+20. Quiz Difficulty Auto-Tune
+Track historical data — if Question 3 has <20% correct rate, flag it as "too hard" for the quiz creator.

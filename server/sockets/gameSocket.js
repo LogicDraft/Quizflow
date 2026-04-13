@@ -4,6 +4,7 @@
  */
 
 const GameStore = require("../models/GameStore");
+const xss = require("xss");
 
 // Timer references per game PIN
 const questionTimers = new Map();
@@ -53,6 +54,7 @@ module.exports = function registerSocketHandlers(io) {
         pin,
         quizTitle: session.quiz.title,
         questionCount: session.quiz.questions.length,
+        questions: session.quiz.questions, // Sent for Host Preview
         players: session.players
       });
       console.log(`[Host] Joined game ${pin}`);
@@ -77,9 +79,11 @@ module.exports = function registerSocketHandlers(io) {
         return;
       }
 
+      const sanitizedNickname = xss(nickname.trim());
+
       // Check for duplicate nickname
       const duplicate = session.players.find(
-        p => p.nickname.toLowerCase() === nickname.trim().toLowerCase()
+        p => p.nickname.toLowerCase() === sanitizedNickname.toLowerCase()
       );
       if (duplicate) {
         socket.emit("error", { message: "Nickname already taken. Choose another!" });
@@ -88,9 +92,10 @@ module.exports = function registerSocketHandlers(io) {
 
       const player = {
         id: socket.id,
-        nickname: nickname.trim(),
+        nickname: sanitizedNickname,
         score: 0,
-        emoji: getRandomEmoji()
+        emoji: getRandomEmoji(),
+        answers: []
       };
 
       GameStore.addPlayer(pin, player);
@@ -308,6 +313,13 @@ function endGame(io, pin) {
     leaderboard,
     quizTitle: session.quiz.title,
     totalQuestions: session.quiz.questions.length
+  });
+
+  // Send individual history to each player
+  session.players.forEach(p => {
+    io.to(p.id).emit("game:history", {
+      answers: p.answers || []
+    });
   });
 
   // Clean up after 30 minutes
