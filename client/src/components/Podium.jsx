@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { formatScore, launchConfetti } from "../utils/scoring";
 
 const PODIUM = [
-  { rank: 2, height: 100, color: "#94a3b8", label: "2nd", delay: 2000 },
-  { rank: 1, height: 140, color: "#ffb938", label: "1st", delay: 4000 },
-  { rank: 3, height: 70,  color: "#cd7c30", label: "3rd", delay: 500 },
+  { rank: 2, height: 100, color: "#A2AAA2", label: "2nd", delay: 2000 },
+  { rank: 1, height: 140, color: "#D5B978", label: "1st", delay: 4000 },
+  { rank: 3, height: 70,  color: "#A98E6C", label: "3rd", delay: 500 },
 ];
 
 export default function Podium({ players = [] }) {
@@ -72,7 +72,7 @@ export default function Podium({ players = [] }) {
                 marginTop: 4,
                 maxWidth: 80, overflow: "hidden",
                 textOverflow: "ellipsis", whiteSpace: "nowrap",
-                textShadow: rank === 1 ? "0 0 15px rgba(255,185,56,0.5)" : "none"
+                textShadow: rank === 1 ? "0 0 15px rgba(213,185,120,0.5)" : "none"
               }}>
                 {player.nickname}
               </div>

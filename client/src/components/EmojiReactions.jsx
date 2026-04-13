@@ -29,7 +29,7 @@ export default function EmojiReactions({ onReact }) {
           <button key={e} onClick={() => react(e)} style={{
             fontSize:"1.4rem", padding:"8px 10px",
             borderRadius:"12px", cursor:"pointer",
-            background:"rgba(13,16,34,0.8)",
+            background:"rgba(26,37,23,0.8)",
             border:"1px solid var(--border)",
             transition:"transform 0.12s cubic-bezier(0.175,0.885,0.32,1.275), background 0.15s",
             WebkitTapHighlightColor:"transparent"

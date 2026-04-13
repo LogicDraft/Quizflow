@@ -25,8 +25,8 @@ export default function PINShare({ pin }) {
       <div style={{
         display: "flex", alignItems: "center", gap: 8,
         padding: "8px 16px", borderRadius: 12,
-        background: "rgba(6,247,217,0.07)",
-        border: "1px solid rgba(6,247,217,0.25)",
+        background: "rgba(172,200,162,0.07)",
+        border: "1px solid rgba(172,200,162,0.25)",
       }}>
         <span style={{
           fontFamily: "var(--font-mono)", fontSize: "0.65rem",
@@ -35,7 +35,7 @@ export default function PINShare({ pin }) {
         <span style={{
           fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: "1.5rem",
           color: "var(--cyan)", letterSpacing: "0.3em",
-          textShadow: "0 0 15px rgba(6,247,217,0.5)",
+          textShadow: "0 0 15px rgba(172,200,162,0.5)",
         }}>{pin}</span>
       </div>
 
@@ -46,8 +46,8 @@ export default function PINShare({ pin }) {
         style={{
           padding: "9px 14px",
           borderRadius: 10,
-          background: copied ? "rgba(13,242,160,0.12)" : "rgba(13,16,34,0.8)",
-          border: `1.5px solid ${copied ? "rgba(13,242,160,0.4)" : "var(--border)"}`,
+          background: copied ? "rgba(163,196,152,0.12)" : "rgba(26,37,23,0.8)",
+          border: `1.5px solid ${copied ? "rgba(163,196,152,0.4)" : "var(--border)"}`,
           color: copied ? "var(--green)" : "var(--muted)",
           fontFamily: "var(--font-mono)", fontSize: "0.72rem",
           fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase",
@@ -66,7 +66,7 @@ export default function PINShare({ pin }) {
         style={{
           padding: "9px 12px",
           borderRadius: 10,
-          background: "rgba(13,16,34,0.8)",
+          background: "rgba(26,37,23,0.8)",
           border: "1.5px solid var(--border)",
           color: "var(--muted)",
           fontSize: "1rem",

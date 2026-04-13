@@ -70,11 +70,11 @@ export default function HostDashboard() {
         display: "flex", alignItems: "center", justifyContent: "space-between",
         flexWrap: "wrap", gap: 8,
         padding: "12px 16px",
-        background: "rgba(6,8,17,0.88)", backdropFilter: "blur(24px)",
-        borderBottom: "1px solid rgba(28,34,64,0.7)",
+        background: "rgba(17,24,16,0.88)", backdropFilter: "blur(24px)",
+        borderBottom: "1px solid rgba(45,59,39,0.7)",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="var(--cyan)" stroke="var(--cyan)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0 0 8px rgba(6,247,217,0.6))" }}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="var(--cyan)" stroke="var(--cyan)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0 0 8px rgba(172,200,162,0.6))" }}>
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
           </svg>
           <div>
@@ -126,7 +126,7 @@ export default function HostDashboard() {
                 fontFamily: "var(--font-display)", fontWeight: 800,
                 fontSize: "clamp(3rem,12vw,7.5rem)",
                 letterSpacing: "0.25em", lineHeight: 1,
-                color: "var(--cyan)", textShadow: "0 0 40px rgba(6,247,217,0.45), 0 0 80px rgba(6,247,217,0.2)",
+                color: "var(--cyan)", textShadow: "0 0 40px rgba(172,200,162,0.45), 0 0 80px rgba(172,200,162,0.2)",
               }}>{pin}</div>
               <div style={{ color: "var(--muted)", fontSize: "clamp(0.78rem,2vw,0.9rem)", marginTop: 10, padding: "0 10px" }}>
                 {quizTitle} · {qCount} question{qCount !== 1 ? "s" : ""}
@@ -171,7 +171,7 @@ export default function HostDashboard() {
 
             <div style={{ display: "flex", gap: 12, width: "100%", maxWidth: 400 }}>
               <button onClick={() => setShowPreview(true)}
-                className="btn-ghost" style={{ flex: 1, padding: "16px", borderRadius: 16, fontSize: "0.9rem", color: "var(--cyan)", border: "1.5px solid rgba(6,247,217,0.3)" }}>
+                className="btn-ghost" style={{ flex: 1, padding: "16px", borderRadius: 16, fontSize: "0.9rem", color: "var(--cyan)", border: "1.5px solid rgba(172,200,162,0.3)" }}>
                 👁 Review
               </button>
               <button onClick={() => { emit("host:start"); playStart(); }} disabled={players.length === 0}
@@ -184,7 +184,7 @@ export default function HostDashboard() {
             {showPreview && (
               <div className="animate-pop-in" style={{
                 position: "fixed", inset: 0, zIndex: 100,
-                background: "rgba(6,8,17,0.9)", backdropFilter: "blur(12px)",
+                background: "rgba(17,24,16,0.9)", backdropFilter: "blur(12px)",
                 display: "flex", flexDirection: "column", padding: "20px",
               }}>
                 <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
@@ -193,14 +193,14 @@ export default function HostDashboard() {
                 </header>
                 <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 16, paddingRight: 8 }}>
                   {allQs.map((q, i) => (
-                    <div key={i} style={{ background: "rgba(13,16,34,0.7)", border: "1px solid var(--border)", borderRadius: 14, padding: 16 }}>
+                    <div key={i} style={{ background: "rgba(26,37,23,0.7)", border: "1px solid var(--border)", borderRadius: 14, padding: 16 }}>
                       <div style={{ color: "var(--cyan)", fontFamily: "var(--font-mono)", fontSize: "0.7rem", marginBottom: 6 }}>Question {i + 1} — {q.time}s</div>
                       <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "1rem", marginBottom: 12 }}>{q.text}</div>
                       <div className="ans-grid">
                         {q.options.map((opt, oi) => (
                           <div key={oi} style={{
                             padding: "8px 12px", borderRadius: 8, fontSize: "0.85rem",
-                            background: "rgba(6,8,17,0.6)",
+                            background: "rgba(17,24,16,0.6)",
                             border: `1.5px solid ${oi === q.correct ? "var(--green)" : "var(--border)"}`,
                             color: oi === q.correct ? "var(--green)" : "var(--muted)",
                           }}>
@@ -252,7 +252,7 @@ export default function HostDashboard() {
               {/* Question card */}
               <div className="glass animate-pop-in" style={{
                 flex: "1 1 500px", borderRadius: 22, padding: "clamp(28px,6vw,60px) 32px", textAlign: "center",
-                border: "1px solid rgba(124,92,252,0.2)", boxShadow: "0 0 50px rgba(124,92,252,0.07)",
+                border: "1px solid rgba(104,138,93,0.2)", boxShadow: "0 0 50px rgba(104,138,93,0.07)",
                 display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center"
               }}>
                 <div style={{
@@ -323,15 +323,15 @@ export default function HostDashboard() {
               {/* Correct answer callout */}
               <div className="glass animate-pop-in" style={{
                 borderRadius: 22, padding: "22px 26px", textAlign: "center",
-                border: "1px solid rgba(13,242,160,0.25)",
-                boxShadow: "0 0 40px rgba(13,242,160,0.06)",
+                border: "1px solid rgba(163,196,152,0.25)",
+                boxShadow: "0 0 40px rgba(163,196,152,0.06)",
               }}>
                 <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.68rem", color: "var(--muted)", marginBottom: 8, letterSpacing: "0.1em", textTransform: "uppercase" }}>
                   Correct Answer
                 </div>
                 <div style={{
                   fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.65rem",
-                  color: "var(--green)", textShadow: "0 0 20px rgba(13,242,160,0.55)",
+                  color: "var(--green)", textShadow: "0 0 20px rgba(163,196,152,0.55)",
                 }}>
                   ✓ {reveal.correctText}
                 </div>
@@ -407,7 +407,7 @@ export default function HostDashboard() {
       {err && (
         <div className="animate-pop-in" style={{
           position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)",
-          background: "rgba(255,61,110,0.92)", backdropFilter: "blur(12px)",
+          background: "rgba(169,90,90,0.92)", backdropFilter: "blur(12px)",
           color: "white", padding: "12px 22px", borderRadius: 14,
           fontFamily: "var(--font-display)", fontWeight: 600, zIndex: 100,
           display: "flex", gap: 10, alignItems: "center", whiteSpace: "nowrap",

@@ -83,7 +83,7 @@ export default function AnswerDistribution({ options = [], correctIndex, distrib
                     : `linear-gradient(90deg,${color},${color}bb)`,
                   width: visible ? `${barPct}%` : "0%",
                   transition: `width 0.7s ${i * 80}ms cubic-bezier(0.22,1,0.36,1)`,
-                  boxShadow: isRight ? "0 0 10px rgba(13,242,160,0.5)" : "none",
+                  boxShadow: isRight ? "0 0 10px rgba(163,196,152,0.5)" : "none",
                 }} />
               </div>
             </div>

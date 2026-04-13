@@ -19,7 +19,7 @@ function NotFound() {
           color: "var(--bg)", fontFamily: "var(--font-display)",
           fontWeight: 800, fontSize: "0.9rem", letterSpacing: "0.08em",
           textTransform: "uppercase", textDecoration: "none",
-          boxShadow: "0 0 30px rgba(6,247,217,0.25)",
+          boxShadow: "0 0 30px rgba(172,200,162,0.25)",
         }}>← Back Home</a>
       </div>
     </div>

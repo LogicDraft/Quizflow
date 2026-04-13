@@ -167,11 +167,11 @@ export default function AvatarPicker({ selected, onSelect }) {
               borderRadius: 14,
               transition: "transform 0.15s cubic-bezier(0.175,0.885,0.32,1.275), background 0.15s, border-color 0.15s",
               background: isSelected(avatarPath)
-                ? "rgba(6,247,217,0.15)"
-                : "rgba(13,16,34,0.5)",
+                ? "rgba(172,200,162,0.15)"
+                : "rgba(26,37,23,0.5)",
               border: isSelected(avatarPath)
-                ? "1.5px solid rgba(6,247,217,0.6)"
-                : "1.5px solid rgba(28,34,64,0.8)",
+                ? "1.5px solid rgba(172,200,162,0.6)"
+                : "1.5px solid rgba(45,59,39,0.8)",
               transform: isSelected(avatarPath) ? "scale(1.15)" : "scale(1)",
               cursor: "pointer",
               display: "flex", alignItems: "center", justifyContent: "center",

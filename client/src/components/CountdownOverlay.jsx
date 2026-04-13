@@ -21,7 +21,7 @@ export default function CountdownOverlay({ onDone }) {
     <div style={{
       position:"fixed", inset:0, zIndex:100,
       display:"flex", alignItems:"center", justifyContent:"center",
-      background:"rgba(6,8,17,0.92)", backdropFilter:"blur(16px)"
+      background:"rgba(17,24,16,0.92)", backdropFilter:"blur(16px)"
     }}>
       {/* Dot grid */}
       <div className="dot-grid" style={{position:"absolute",inset:0,opacity:0.3}}/>

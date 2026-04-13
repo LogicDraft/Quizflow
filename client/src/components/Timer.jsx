@@ -50,7 +50,7 @@ export default function Timer({ totalTime, running = true, onExpire, size = "nor
           style={{
             color: urgent ? "var(--red)" : "var(--cyan)",
             animation: urgent ? "timerPulse 0.5s ease-in-out infinite" : "none",
-            textShadow: urgent ? "0 0 20px rgba(255,61,110,0.8)" : "0 0 15px rgba(6,247,217,0.6)"
+            textShadow: urgent ? "0 0 20px rgba(169,90,90,0.8)" : "0 0 15px rgba(172,200,162,0.6)"
           }}
         >
           {left}s
@@ -66,8 +66,8 @@ export default function Timer({ totalTime, running = true, onExpire, size = "nor
             width: `${pct}%`,
             transition: "width 1s linear",
             boxShadow: urgent
-              ? "0 0 12px rgba(255,61,110,0.8)"
-              : "0 0 12px rgba(6,247,217,0.6)"
+              ? "0 0 12px rgba(169,90,90,0.8)"
+              : "0 0 12px rgba(172,200,162,0.6)"
           }}
         />
         {/* Shimmer */}

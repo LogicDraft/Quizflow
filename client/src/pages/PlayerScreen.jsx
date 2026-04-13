@@ -121,8 +121,8 @@ export default function PlayerScreen() {
     <div style={{
       display: "flex", alignItems: "center", justifyContent: "space-between",
       padding: "11px 16px",
-      background: "rgba(6,8,17,0.9)", backdropFilter: "blur(20px)",
-      borderBottom: "1px solid rgba(28,34,64,0.7)",
+      background: "rgba(17,24,16,0.9)", backdropFilter: "blur(20px)",
+      borderBottom: "1px solid rgba(45,59,39,0.7)",
       position: "sticky", top: 0, zIndex: 40,
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -154,7 +154,7 @@ export default function PlayerScreen() {
         <div style={{ textAlign: "right" }}>
           <ScoreCounter value={totalScore} style={{
             fontWeight: 700, fontSize: "1.05rem", color: "var(--cyan)",
-            textShadow: "0 0 12px rgba(6,247,217,0.5)",
+            textShadow: "0 0 12px rgba(172,200,162,0.5)",
           }} />
           <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.58rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>pts</div>
         </div>
@@ -189,7 +189,7 @@ export default function PlayerScreen() {
               {[0,1].map(i => (
                 <div key={i} style={{
                   position: "absolute", inset: -12 - i*16, borderRadius: "50%",
-                  border: "1.5px solid rgba(6,247,217,0.3)",
+                  border: "1.5px solid rgba(172,200,162,0.3)",
                   animation: `ripple ${1.5 + i * 0.5}s ease-out ${i * 0.4}s infinite`,
                 }} />
               ))}
@@ -206,7 +206,7 @@ export default function PlayerScreen() {
 
             <div className="glass animate-pop-in" style={{
               borderRadius: 22, padding: "18px 40px",
-              border: "1px solid rgba(124,92,252,0.2)",
+              border: "1px solid rgba(104,138,93,0.2)",
               animationDelay: "80ms", animationFillMode: "both",
             }}>
               <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1.1rem", color: "var(--text)" }}>{quizTitle}</div>
@@ -258,8 +258,8 @@ export default function PlayerScreen() {
               />
               <div className="glass" style={{
                 flex: 1, borderRadius: 18, padding: "16px 18px",
-                border: "1px solid rgba(124,92,252,0.15)",
-                boxShadow: "0 4px 20px rgba(124,92,252,0.05)",
+                border: "1px solid rgba(104,138,93,0.15)",
+                boxShadow: "0 4px 20px rgba(104,138,93,0.05)",
               }}>
                 <div style={{
                   fontFamily: "var(--font-display)", fontWeight: 700,
@@ -320,11 +320,11 @@ export default function PlayerScreen() {
             {result && (
               <div className="animate-pop-in" style={{
                 borderRadius: 18, padding: "18px",
-                background: result.isCorrect ? "rgba(13,242,160,0.08)" : "rgba(255,61,110,0.08)",
-                border: `1.5px solid ${result.isCorrect ? "rgba(13,242,160,0.3)" : "rgba(255,61,110,0.3)"}`,
+                background: result.isCorrect ? "rgba(163,196,152,0.08)" : "rgba(169,90,90,0.08)",
+                border: `1.5px solid ${result.isCorrect ? "rgba(163,196,152,0.3)" : "rgba(169,90,90,0.3)"}`,
                 display: "flex", flexDirection: "column", gap: 10,
               }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: result.isCorrect ? "1px solid rgba(13,242,160,0.2)" : "1px solid rgba(255,61,110,0.2)", paddingBottom: 10 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: result.isCorrect ? "1px solid rgba(163,196,152,0.2)" : "1px solid rgba(169,90,90,0.2)", paddingBottom: 10 }}>
                   <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.5rem", color: result.isCorrect ? "var(--green)" : "var(--red)" }}>
                     {result.isCorrect ? "✓ Correct!" : "✗ Wrong!"}
                   </div>
@@ -343,7 +343,7 @@ export default function PlayerScreen() {
                       <span>Speed Bonus:</span>
                       <span>+{Math.max(0, result.points - 500)}</span>
                     </div>
-                    <div className="animate-slide-up" style={{ display: "flex", justifyContent: "space-between", color: "var(--green)", fontSize: "1.2rem", fontWeight: 800, marginTop: 4, paddingTop: 4, borderTop: "1px dashed rgba(13,242,160,0.3)", animationDelay: "300ms", animationFillMode: "both" }}>
+                    <div className="animate-slide-up" style={{ display: "flex", justifyContent: "space-between", color: "var(--green)", fontSize: "1.2rem", fontWeight: 800, marginTop: 4, paddingTop: 4, borderTop: "1px dashed rgba(163,196,152,0.3)", animationDelay: "300ms", animationFillMode: "both" }}>
                       <span>Total:</span>
                       <span>+{result.points}</span>
                     </div>
@@ -397,11 +397,11 @@ export default function PlayerScreen() {
             {/* Score card */}
             <div className="glass" style={{
               borderRadius: 22, padding: "18px 40px",
-              border: "1px solid rgba(6,247,217,0.18)",
+              border: "1px solid rgba(172,200,162,0.18)",
             }}>
               <ScoreCounter value={totalScore} style={{
                 fontWeight: 800, fontSize: "2.4rem", color: "var(--cyan)",
-                textShadow: "0 0 20px rgba(6,247,217,0.55)",
+                textShadow: "0 0 20px rgba(172,200,162,0.55)",
               }} />
               <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.68rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.12em", marginTop: 4 }}>
                 Total Score
@@ -436,7 +436,7 @@ export default function PlayerScreen() {
               </div>
               <ScoreCounter value={totalScore} style={{
                 fontWeight: 800, fontSize: "1.6rem", color: "var(--cyan)",
-                textShadow: "0 0 15px rgba(6,247,217,0.5)",
+                textShadow: "0 0 15px rgba(172,200,162,0.5)",
               }} />
               <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.62rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.1em", marginTop: 2 }}>final score</div>
             </div>
@@ -450,8 +450,8 @@ export default function PlayerScreen() {
                 <div key={p.id} className="animate-rank-in" style={{
                   display: "flex", alignItems: "center", gap: 10,
                   padding: "11px 14px", borderRadius: 14, marginBottom: 7,
-                  background: p.nickname === nickname ? "rgba(6,247,217,0.08)" : "rgba(13,16,34,0.6)",
-                  border: p.nickname === nickname ? "1.5px solid rgba(6,247,217,0.3)" : "1.5px solid rgba(28,34,64,0.8)",
+                  background: p.nickname === nickname ? "rgba(172,200,162,0.08)" : "rgba(26,37,23,0.6)",
+                  border: p.nickname === nickname ? "1.5px solid rgba(172,200,162,0.3)" : "1.5px solid rgba(45,59,39,0.8)",
                   animationDelay: `${i * 45}ms`, animationFillMode: "both",
                 }}>
                   <div style={{
@@ -486,7 +486,7 @@ export default function PlayerScreen() {
                   <div key={i} style={{
                     display: "flex", alignItems: "center", justifyContent: "space-between",
                     padding: "10px 14px", borderRadius: 12, marginBottom: 8,
-                    background: ans.isCorrect ? "rgba(6,247,217,0.06)" : "rgba(255,61,110,0.06)",
+                    background: ans.isCorrect ? "rgba(172,200,162,0.06)" : "rgba(169,90,90,0.06)",
                     border: `1.5px solid ${ans.isCorrect ? "var(--green)" : "var(--red)"}`
                   }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -522,7 +522,7 @@ export default function PlayerScreen() {
       {err && (
         <div className="animate-pop-in" style={{
           position: "fixed", bottom: 20, left: 12, right: 12,
-          background: "rgba(255,61,110,0.92)", backdropFilter: "blur(12px)",
+          background: "rgba(169,90,90,0.92)", backdropFilter: "blur(12px)",
           color: "white", padding: "13px 16px", borderRadius: 14,
           fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.88rem",
           zIndex: 200, textAlign: "center",

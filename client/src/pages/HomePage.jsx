@@ -85,12 +85,12 @@ export default function HomePage() {
       }}>
         {/* Updated Wordmark Logo */}
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="var(--cyan)" stroke="var(--cyan)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0 0 8px rgba(6,247,217,0.6))" }}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="var(--cyan)" stroke="var(--cyan)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0 0 8px rgba(172,200,162,0.6))" }}>
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
           </svg>
           <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.45rem", letterSpacing: "0.02em" }}>
             <span style={{ color: "white" }}>Quiz</span>
-            <span style={{ color: "var(--cyan)", textShadow: "0 0 10px rgba(6,247,217,0.4)" }}>Flow</span>
+            <span style={{ color: "var(--cyan)", textShadow: "0 0 10px rgba(172,200,162,0.4)" }}>Flow</span>
           </div>
         </div>
 
@@ -157,7 +157,7 @@ export default function HomePage() {
                 fontFamily: "var(--font-display)", fontWeight: 700,
                 fontSize: "0.82rem", letterSpacing: "0.06em", textTransform: "uppercase",
                 color: tab === t.id ? "var(--cyan)" : "var(--muted)",
-                background: tab === t.id ? "rgba(6,247,217,0.05)" : "transparent",
+                background: tab === t.id ? "rgba(172,200,162,0.05)" : "transparent",
                 borderBottom: `2px solid ${tab === t.id ? "var(--cyan)" : "transparent"}`,
                 transition: "all 0.2s", cursor: "pointer",
               }}>{t.label}</button>
@@ -191,12 +191,12 @@ export default function HomePage() {
                         style={{
                           width: "15%", aspectRatio: "1/1", textAlign: "center",
                           fontSize: "1.6rem", padding: 0, fontFamily: "var(--font-mono)", fontWeight: 700,
-                          boxShadow: pin.length === 6 ? "0 0 12px rgba(13,242,160,0.25)" : "none",
+                          boxShadow: pin.length === 6 ? "0 0 12px rgba(163,196,152,0.25)" : "none",
                           borderColor: pin.length === 6 ? "var(--green)" : undefined,
                           transition: "all 0.2s cubic-bezier(0.175,0.885,0.32,1.275)"
                         }}
-                        onFocus={e => { e.target.style.borderColor = "var(--cyan)"; e.target.style.boxShadow = "0 0 0 3px rgba(6,247,217,0.12)"; e.target.select(); }}
-                        onBlur={e  => { e.target.style.borderColor = pin.length===6 ? "var(--green)" : "var(--border)"; e.target.style.boxShadow = pin.length===6 ? "0 0 12px rgba(13,242,160,0.25)" : "none"; }}
+                        onFocus={e => { e.target.style.borderColor = "var(--cyan)"; e.target.style.boxShadow = "0 0 0 3px rgba(172,200,162,0.12)"; e.target.select(); }}
+                        onBlur={e  => { e.target.style.borderColor = pin.length===6 ? "var(--green)" : "var(--border)"; e.target.style.boxShadow = pin.length===6 ? "0 0 12px rgba(163,196,152,0.25)" : "none"; }}
                       />
                     ))}
                   </div>
@@ -213,7 +213,7 @@ export default function HomePage() {
                     placeholder="e.g. QuizMaster99"
                     maxLength={20}
                     className="qf-input"
-                    onFocus={e => { e.target.style.borderColor = "var(--violet)"; e.target.style.boxShadow = "0 0 0 3px rgba(124,92,252,0.12)"; }}
+                    onFocus={e => { e.target.style.borderColor = "var(--violet)"; e.target.style.boxShadow = "0 0 0 3px rgba(104,138,93,0.12)"; }}
                     onBlur={e  => { e.target.style.borderColor = "var(--border)"; e.target.style.boxShadow = "none"; }}
                   />
                 </div>
@@ -235,7 +235,7 @@ export default function HomePage() {
                   <div style={{
                     display: "flex", alignItems: "center", gap: 10,
                     padding: "10px 14px", borderRadius: 12,
-                    background: "rgba(6,8,17,0.6)", border: "1.5px solid var(--border)",
+                    background: "rgba(17,24,16,0.6)", border: "1.5px solid var(--border)",
                   }}>
                     <img src={avatar} alt="Avatar" style={{ width: 44, height: 44, objectFit: "contain", background: "rgba(0,0,0,0.2)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.1)" }} />
                     <span style={{ fontFamily: "var(--font-body)", color: "var(--muted)", fontSize: "0.83rem" }}>
@@ -254,8 +254,8 @@ export default function HomePage() {
                 {err && (
                   <div className="animate-pop-in" style={{
                     padding: "11px 14px", borderRadius: 12,
-                    background: "rgba(255,61,110,0.08)",
-                    border: "1px solid rgba(255,61,110,0.3)",
+                    background: "rgba(169,90,90,0.08)",
+                    border: "1px solid rgba(169,90,90,0.3)",
                     color: "#ff7097", fontSize: "0.83rem",
                     fontFamily: "var(--font-body)",
                   }}>⚠️ {err}</div>
@@ -292,7 +292,7 @@ export default function HomePage() {
             <div key={f.label} style={{
               display: "flex", alignItems: "center", gap: 6,
               padding: "5px 12px", borderRadius: 99,
-              background: "rgba(13,16,34,0.7)", border: "1px solid var(--border)",
+              background: "rgba(26,37,23,0.7)", border: "1px solid var(--border)",
               color: "var(--muted)", fontSize: "0.72rem",
               fontFamily: "var(--font-body)",
             }}>
@@ -401,7 +401,7 @@ function CreatePanel({ navigate }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
 
       {/* Mode toggle */}
-      <div style={{ display: "flex", background: "rgba(6,8,17,0.6)", borderRadius: 12, padding: 4, gap: 4 }}>
+      <div style={{ display: "flex", background: "rgba(17,24,16,0.6)", borderRadius: 12, padding: 4, gap: 4 }}>
         {[
           { id: "premade", label: "📚 Use Pre-built" },
           { id: "custom",  label: "✏️ Build Custom"  },
@@ -410,9 +410,9 @@ function CreatePanel({ navigate }) {
             flex: 1, padding: "9px 6px", borderRadius: 9,
             fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.76rem",
             letterSpacing: "0.04em", cursor: "pointer",
-            background: mode === m.id ? "rgba(124,92,252,0.18)" : "transparent",
+            background: mode === m.id ? "rgba(104,138,93,0.18)" : "transparent",
             color: mode === m.id ? "var(--violet)" : "var(--muted)",
-            border: mode === m.id ? "1.5px solid rgba(124,92,252,0.35)" : "1.5px solid transparent",
+            border: mode === m.id ? "1.5px solid rgba(104,138,93,0.35)" : "1.5px solid transparent",
             transition: "all 0.15s",
           }}>{m.label}</button>
         ))}
@@ -434,9 +434,9 @@ function CreatePanel({ navigate }) {
                 {quizzes.map(q => (
                   <button key={q.id} onClick={() => setSelId(q.id)} style={{
                     textAlign: "left", padding: "12px 14px", borderRadius: 14, cursor: "pointer",
-                    background: selId === q.id ? "rgba(6,247,217,0.07)" : "rgba(6,8,17,0.6)",
-                    border: selId === q.id ? "1.5px solid rgba(6,247,217,0.4)" : "1.5px solid var(--border)",
-                    boxShadow: selId === q.id ? "0 0 20px rgba(6,247,217,0.08)" : "none",
+                    background: selId === q.id ? "rgba(172,200,162,0.07)" : "rgba(17,24,16,0.6)",
+                    border: selId === q.id ? "1.5px solid rgba(172,200,162,0.4)" : "1.5px solid var(--border)",
+                    boxShadow: selId === q.id ? "0 0 20px rgba(172,200,162,0.08)" : "none",
                     transition: "all 0.15s",
                   }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -448,7 +448,7 @@ function CreatePanel({ navigate }) {
                     </div>
                     <div style={{ display: "flex", gap: 8, marginTop: 4, alignItems: "center", flexWrap: "wrap" }}>
                       <span className="badge" style={{
-                        background: "rgba(13,16,34,0.8)", border: "1px solid var(--border)",
+                        background: "rgba(26,37,23,0.8)", border: "1px solid var(--border)",
                         color: "var(--muted)", padding: "2px 8px", fontSize: "0.62rem",
                       }}>{q.category}</span>
                       <span style={{ color: "var(--muted)", fontSize: "0.7rem" }}>{q.questionCount} questions</span>
@@ -461,7 +461,7 @@ function CreatePanel({ navigate }) {
               </div>
             )}
           </div>
-          {err && <div style={{ color: "#ff7097", fontSize: "0.8rem", padding: "10px 12px", borderRadius: 10, background: "rgba(255,61,110,0.07)", border: "1px solid rgba(255,61,110,0.2)" }}>⚠️ {err}</div>}
+          {err && <div style={{ color: "#ff7097", fontSize: "0.8rem", padding: "10px 12px", borderRadius: 10, background: "rgba(169,90,90,0.07)", border: "1px solid rgba(169,90,90,0.2)" }}>⚠️ {err}</div>}
           <button onClick={createFromPremade} disabled={loading || !selId}
             className="btn-primary btn-violet" style={{ width: "100%", padding: "15px" }}>
             {loading ? "Creating..." : "Create Game →"}
@@ -491,7 +491,7 @@ function CreatePanel({ navigate }) {
             {questions.map((q, qi) => (
               <div key={qi} style={{
                 borderRadius: 16, padding: "14px 14px",
-                background: "rgba(6,8,17,0.7)", border: "1.5px solid var(--border)",
+                background: "rgba(17,24,16,0.7)", border: "1.5px solid var(--border)",
               }}>
                 {/* Q header */}
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
@@ -507,7 +507,7 @@ function CreatePanel({ navigate }) {
                       value={q.time}
                       onChange={e => updateQ(qi, "time", Number(e.target.value))}
                       style={{
-                        background: "rgba(13,16,34,0.9)", border: "1px solid var(--border)",
+                        background: "rgba(26,37,23,0.9)", border: "1px solid var(--border)",
                         color: "var(--muted)", borderRadius: 8, padding: "4px 8px",
                         fontSize: "0.7rem", fontFamily: "var(--font-mono)", cursor: "pointer",
                       }}
@@ -518,7 +518,7 @@ function CreatePanel({ navigate }) {
                     </select>
                     {questions.length > 1 && (
                       <button onClick={() => removeQuestion(qi)} style={{
-                        background: "rgba(255,61,110,0.1)", border: "1px solid rgba(255,61,110,0.25)",
+                        background: "rgba(169,90,90,0.1)", border: "1px solid rgba(169,90,90,0.25)",
                         color: "#ff7097", borderRadius: 7, padding: "4px 9px",
                         fontSize: "0.72rem", cursor: "pointer",
                       }}>✕</button>
@@ -534,7 +534,7 @@ function CreatePanel({ navigate }) {
                   rows={2}
                   maxLength={240}
                   style={{
-                    width: "100%", background: "rgba(13,16,34,0.8)",
+                    width: "100%", background: "rgba(26,37,23,0.8)",
                     border: "1.5px solid var(--border)", borderRadius: 10,
                     padding: "10px 12px", color: "var(--text)",
                     fontFamily: "var(--font-body)", fontSize: "0.88rem",
@@ -567,7 +567,7 @@ function CreatePanel({ navigate }) {
                         placeholder={`Option ${optionLabels[oi]}`}
                         maxLength={100}
                         style={{
-                          width: "100%", background: "rgba(13,16,34,0.8)",
+                          width: "100%", background: "rgba(26,37,23,0.8)",
                           border: `1.5px solid ${q.correct === oi ? optionColors[oi] + "80" : "var(--border)"}`,
                           borderRadius: 10, padding: "8px 10px 8px 38px",
                           color: "var(--text)", fontFamily: "var(--font-body)",
@@ -592,7 +592,7 @@ function CreatePanel({ navigate }) {
                       <button key={oi} onClick={() => updateQ(qi, "correct", oi)} style={{
                         flex: 1, padding: "7px 4px",
                         borderRadius: 8, cursor: "pointer",
-                        background: q.correct === oi ? optionColors[oi] + "22" : "rgba(13,16,34,0.6)",
+                        background: q.correct === oi ? optionColors[oi] + "22" : "rgba(26,37,23,0.6)",
                         border: `1.5px solid ${q.correct === oi ? optionColors[oi] : "var(--border)"}`,
                         color: q.correct === oi ? optionColors[oi] : "var(--muted)",
                         fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: "0.78rem",
@@ -611,8 +611,8 @@ function CreatePanel({ navigate }) {
           {questions.length < 20 && (
             <button onClick={addQuestion} style={{
               padding: "10px", borderRadius: 12, cursor: "pointer",
-              background: "rgba(124,92,252,0.06)",
-              border: "1.5px dashed rgba(124,92,252,0.35)",
+              background: "rgba(104,138,93,0.06)",
+              border: "1.5px dashed rgba(104,138,93,0.35)",
               color: "var(--violet)", fontFamily: "var(--font-display)",
               fontWeight: 700, fontSize: "0.82rem",
               transition: "all 0.15s",
@@ -621,7 +621,7 @@ function CreatePanel({ navigate }) {
             </button>
           )}
 
-          {err && <div style={{ color: "#ff7097", fontSize: "0.8rem", padding: "10px 12px", borderRadius: 10, background: "rgba(255,61,110,0.07)", border: "1px solid rgba(255,61,110,0.2)" }}>⚠️ {err}</div>}
+          {err && <div style={{ color: "#ff7097", fontSize: "0.8rem", padding: "10px 12px", borderRadius: 10, background: "rgba(169,90,90,0.07)", border: "1px solid rgba(169,90,90,0.2)" }}>⚠️ {err}</div>}
 
           <button onClick={createFromCustom} disabled={loading}
             className="btn-primary btn-violet" style={{ width: "100%", padding: "15px" }}>
