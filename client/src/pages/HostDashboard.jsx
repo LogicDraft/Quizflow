@@ -159,7 +159,7 @@ export default function HostDashboard() {
                       display: "flex", alignItems: "center", gap: 8,
                       animationDelay: `${i * 40}ms`, animationFillMode: "both",
                     }}>
-                      <img src={p.emoji.startsWith("/") ? p.emoji : "/avatars/blank.svg"} alt="Avatar" style={{ width: 34, height: 34, borderRadius: 6, flexShrink: 0, objectFit: "contain", background: "rgba(0,0,0,0.2)" }} />
+                      <img src={(p.emoji.startsWith("/") || p.emoji.startsWith("data:")) ? p.emoji : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%232a3040'/%3E%3Ccircle cx='100' cy='70' r='40' fill='%23a0aec0'/%3E%3Cpath d='M40 180A60 50 0 0 1 160 180Z' fill='%23a0aec0'/%3E%3C/svg%3E"} alt="Avatar" style={{ width: 34, height: 34, borderRadius: 6, flexShrink: 0, objectFit: "contain", background: "rgba(0,0,0,0.2)" }} />
                       <span style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.82rem", color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {p.nickname}
                       </span>

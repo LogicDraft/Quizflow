@@ -94,7 +94,7 @@ module.exports = function registerSocketHandlers(io) {
         id: socket.id,
         nickname: sanitizedNickname,
         score: 0,
-        emoji: xss(avatar || "/avatars/blank.svg"),
+        emoji: xss(avatar || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%232a3040'/%3E%3Ccircle cx='100' cy='70' r='40' fill='%23a0aec0'/%3E%3Cpath d='M40 180A60 50 0 0 1 160 180Z' fill='%23a0aec0'/%3E%3C/svg%3E"),
         answers: []
       };
 

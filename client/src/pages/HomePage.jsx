@@ -19,7 +19,7 @@ export default function HomePage() {
   const [tab, setTab]         = useState("join");
   const [pin, setPin]         = useState(params.get("pin") || "");
   const [nick, setNick]       = useState("");
-  const [avatar, setAvatar]   = useState("/avatars/blank.svg");
+  const [avatar, setAvatar]   = useState("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%232a3040'/%3E%3Ccircle cx='100' cy='70' r='40' fill='%23a0aec0'/%3E%3Cpath d='M40 180A60 50 0 0 1 160 180Z' fill='%23a0aec0'/%3E%3C/svg%3E");
   const [showAvatars, setShowAvatars] = useState(false);
   const [err, setErr]         = useState("");
   const [loading, setLoading] = useState(false);
