@@ -18,7 +18,7 @@ export default function Leaderboard({ players = [], showChange = true, maxRows =
         const rankDelta = p.prevRank !== undefined ? p.prevRank - p.rank : null;
 
         return (
-          <div key={p.id} className="animate-rank-in"
+          <div key={p.id} className={`animate-rank-in ${p.rank === 1 ? "leaderboard-glow" : ""}`}
             style={{ animationDelay: `${i * 55}ms`, animationFillMode: "both" }}>
             <div style={{
               display: "flex", alignItems: "center", gap: compact ? 8 : 10,

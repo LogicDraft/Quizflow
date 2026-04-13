@@ -58,8 +58,12 @@ export default function Podium({ players = [] }) {
               transform: visibleRanks[rank] ? "translateY(0)" : "translateY(16px)",
               transition: `opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1)`,
             }}>
-              <div style={{ fontSize: rank === 1 ? "2.4rem" : "1.8rem", lineHeight: 1 }}>
-                {player.emoji || medals[rank]}
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                {player.emoji && player.emoji.startsWith("/") ? (
+                  <img src={player.emoji} alt="Avatar" style={{ width: rank === 1 ? 64 : 48, height: rank === 1 ? 64 : 48, objectFit: "contain", background: "rgba(0,0,0,0.2)", borderRadius: 12, border: `2px solid ${color}80` }} />
+                ) : (
+                  <div style={{ fontSize: rank === 1 ? "2.4rem" : "1.8rem", lineHeight: 1 }}>{player.emoji || medals[rank]}</div>
+                )}
               </div>
               <div style={{
                 fontFamily: "var(--font-display)", fontWeight: 700,
