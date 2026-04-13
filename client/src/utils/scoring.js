@@ -6,14 +6,14 @@ export function getRankSuffix(r) { return r===1?"st":r===2?"nd":r===3?"rd":"th";
 export function getMedal(r) { return r===1?"🥇":r===2?"🥈":r===3?"🥉":null; }
 
 export const ANSWER_COLORS = [
-  { bg:"#3b5bdb", light:"#4c6ef5", label:"A", icon:"▲" },
-  { bg:"#c2255c", light:"#e03131", label:"B", icon:"◆" },
-  { bg:"#e67700", light:"#f59f00", label:"C", icon:"●" },
-  { bg:"#087f5b", light:"#0ca678", label:"D", icon:"■" },
+  { bg:"#2563eb", light:"#4f8cff", label:"A", icon:"▲" },
+  { bg:"#e11d74", light:"#ff5fa2", label:"B", icon:"◆" },
+  { bg:"#d97706", light:"#f6b73c", label:"C", icon:"●" },
+  { bg:"#059669", light:"#21c58f", label:"D", icon:"■" },
 ];
 
 export function launchConfetti(n = 100) {
-  const colors = ["#06f7d9","#7c5cfc","#f72b8b","#0df2a0","#ffb938","#ff3d6e","#fff"];
+  const colors = ["#72f0ff","#9a87ff","#ff86c2","#7fe7c6","#f6cf7d","#ff748f","#fff"];
   const shapes = ["circle","square","triangle"];
   for (let i = 0; i < n; i++) {
     const el = document.createElement("div");

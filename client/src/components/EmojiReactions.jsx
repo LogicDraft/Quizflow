@@ -29,15 +29,15 @@ export default function EmojiReactions({ onReact }) {
           <button key={e} onClick={() => react(e)} style={{
             fontSize:"1.4rem", padding:"8px 10px",
             borderRadius:"12px", cursor:"pointer",
-            background: "transparent",
-            border:"1px solid var(--border)",
+            background: "rgba(17,26,45,0.75)",
+            border:"1px solid rgba(148,163,184,0.18)",
             transition:"transform 0.12s cubic-bezier(0.175,0.885,0.32,1.275), background 0.15s",
             WebkitTapHighlightColor:"transparent"
           }}
-          onMouseEnter={e => e.target.style.transform = "scale(1.3)"}
+          onMouseEnter={e => e.target.style.transform = "scale(1.18)"}
           onMouseLeave={e => e.target.style.transform = "scale(1)"}
-          onMouseDown={e => e.target.style.transform  = "scale(0.85)"}
-          onMouseUp={e => e.target.style.transform    = "scale(1.3)"}
+          onMouseDown={e => e.target.style.transform  = "scale(0.92)"}
+          onMouseUp={e => e.target.style.transform    = "scale(1.18)"}
           >{e}</button>
         ))}
       </div>

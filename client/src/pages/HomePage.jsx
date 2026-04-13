@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import AvatarPicker from "../components/AvatarPicker";
 import NetworkStatus from "../components/NetworkStatus";
+import ThemeToggle from "../components/ThemeToggle";
 
 const API = import.meta.env.VITE_SERVER_URL || "http://localhost:3001";
 
@@ -26,6 +27,10 @@ export default function HomePage() {
   const [muted, setMuted]     = useState(() => localStorage.getItem("qf_muted") === "1");
   const pinRefs = useRef([]);
 
+  function scrollTo(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   function toggleMute() {
     const next = !muted;
     setMuted(next);
@@ -46,17 +51,6 @@ export default function HomePage() {
     } finally { setLoading(false); }
   }
 
-  // Floating particles
-  const particles = Array.from({ length: 18 }, (_, i) => ({
-    id: i,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    size: Math.random() * 3 + 1.5,
-    dur: Math.random() * 6 + 6,
-    delay: Math.random() * 5,
-    color: ["var(--cyan)","var(--violet)","var(--pink)","var(--amber)"][Math.floor(Math.random()*4)],
-  }));
-
   return (
     <div className="mesh-bg animate-page" style={{ minHeight: "100vh", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
       <NetworkStatus />
@@ -64,233 +58,320 @@ export default function HomePage() {
       {/* Dot grid */}
       <div className="dot-grid" style={{ position: "fixed", inset: 0, opacity: 0.2, pointerEvents: "none" }} />
 
-      {/* Floating particles */}
-      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
-        {particles.map(p => (
-          <div key={p.id} style={{
-            position: "absolute", left: `${p.x}%`, top: `${p.y}%`,
-            width: p.size, height: p.size, borderRadius: "50%",
-            background: p.color, opacity: 0.35,
-            boxShadow: `0 0 ${p.size * 3}px ${p.color}`,
-            animation: `timerPulse ${p.dur}s ease-in-out ${p.delay}s infinite`,
-          }} />
-        ))}
-      </div>
-
       {/* Header */}
-      <header style={{
-        padding: "clamp(12px,3vw,20px) clamp(16px,4vw,32px)",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        borderBottom: "1px solid rgba(26,37,23,0.05)",
-      }}>
-        {/* Updated Wordmark Logo */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="var(--cyan)" stroke="var(--cyan)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0 0 8px rgba(172,200,162,0.6))" }}>
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-          </svg>
-          <div style={{ fontFamily: "var(--font-inter)", fontWeight: 800, fontSize: "1.45rem", letterSpacing: "0.02em" }}>
-            <span style={{ color: "var(--text)" }}>Quiz</span>
-            <span style={{ color: "var(--cyan)", textShadow: "0 0 10px rgba(172,200,162,0.4)" }}>Flow</span>
-          </div>
-        </div>
+      <header className="site-header">
+        <div className="site-header-inner">
+          <a href="#top" className="brand-wordmark" aria-label="QuizFlow home">
+            <div className="brand-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+              </svg>
+            </div>
+            <div className="brand-copy">
+              <div className="brand-title">QuizFlow</div>
+              <div className="brand-subtitle">Invite-only secure quizzes</div>
+            </div>
+          </a>
 
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <button onClick={toggleMute} className="btn-ghost" style={{
-            padding: "8px 12px", borderRadius: 10, fontSize: "0.95rem",
-          }} title={muted ? "Unmute" : "Mute"}>
-            {muted ? "🔇" : "🔊"}
-          </button>
-          <button onClick={() => setTab("create")} className="btn-ghost" style={{
-            padding: "8px 16px", borderRadius: 12,
-            fontFamily: "var(--font-inter)", fontWeight: 700,
-            fontSize: "0.8rem", letterSpacing: "0.05em",
-          }}>
-            Host →
-          </button>
+          <nav className="topbar-actions" aria-label="Primary">
+            {[
+              { id: "about", label: "About" },
+              { id: "features", label: "Features" },
+              { id: "works", label: "How It Works" },
+              { id: "setup", label: "Setup Guide" },
+            ].map(item => (
+              <button key={item.id} type="button" className="btn-ghost" style={{ padding: "8px 12px", borderRadius: 999, fontSize: "0.78rem", letterSpacing: "0.02em" }} onClick={() => scrollTo(item.id)}>
+                {item.label}
+              </button>
+            ))}
+          </nav>
+
+          <div className="topbar-actions">
+            <button type="button" className="btn-primary-sq" style={{ padding: "10px 16px", borderRadius: 16 }} onClick={() => { setTab("create"); scrollTo("launch"); }}>
+              Create Quiz
+            </button>
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
       {/* Hero + Card */}
-      <main style={{
-        flex: 1, position: "relative", zIndex: 10,
-        display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center",
-        padding: "24px 16px 40px",
-      }}>
-        {/* Headline */}
-        <div className="animate-slide-up" style={{ textAlign: "center", marginBottom: 28 }}>
-          <div className="text-slate-400 font-medium tracking-wide uppercase text-xs mb-3">
-            Anti-Cheat Secure Quiz app
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-3" style={{ fontFamily: "var(--font-inter)" }}>
-            SecureQuiz
+      <main className="page-main" style={{ paddingTop: "2rem", paddingBottom: "3rem" }}>
+        <section id="top" className="hero-block" style={{ padding: "1rem 0 2.25rem" }}>
+          <div className="hero-eyebrow">Modern Secure Quiz App Experience</div>
+          <h1 className="hero-title" style={{ maxWidth: 1100, margin: "0 auto" }}>
+            Secure Quiz app - Smart <br />&amp; Secure Quiz Platform
           </h1>
-          <p style={{
-            color: "var(--muted)", fontSize: "clamp(0.88rem,2.5vw,1rem)",
-            maxWidth: 380, margin: "0 auto", lineHeight: 1.6,
-          }}>
-            Host or join real-time quizzes. Compete on speed &amp; knowledge. Climb the leaderboard live.
+          <p className="hero-copy" style={{ maxWidth: 820 }}>
+            Host or join real-time quizzes with a clean, invite-only flow. The experience stays simple, fast, and readable on every screen.
           </p>
-        </div>
 
-        {/* Main card */}
-        <div className="animate-pop-in glass-card-sq" style={{
-          width: "100%", maxWidth: 480,
-          overflow: "hidden",
-          animationDelay: "150ms", animationFillMode: "both",
-        }}>
-          {/* Tabs */}
-          <div style={{ display: "flex", borderBottom: "1px solid rgba(255,255,255,0.05)", background: "transparent" }}>
+          <div className="pill-row" style={{ justifyContent: "center", marginTop: "1.7rem" }}>
+            <button type="button" className="btn-primary-sq" onClick={() => { setTab("create"); scrollTo("launch"); }}>
+              Create a Quiz
+            </button>
+            <button type="button" className="btn-secondary-sq" onClick={() => scrollTo("works")}>
+              How It Works
+            </button>
+          </div>
+
+          <div className="hero-proof" aria-label="Highlights">
             {[
-              { id: "join",   label: "🎮 Participant Login"  },
-              { id: "create", label: "🎯 Host Dashboard"  },
-            ].map(t => (
-              <button key={t.id} onClick={() => { setTab(t.id); setErr(""); }} style={{
-                flex: 1, padding: "16px 0",
-                fontFamily: "var(--font-inter)", fontWeight: 600,
-                fontSize: "0.85rem", letterSpacing: "0.02em",
-                color: tab === t.id ? "white" : "rgb(156 163 175)",
-                background: tab === t.id ? "rgba(255,255,255,0.03)" : "transparent",
-                borderBottom: `2px solid ${tab === t.id ? "#6366f1" : "transparent"}`,
-                transition: "all 0.2s", cursor: "pointer",
-              }}>{t.label}</button>
+              "Invite-only access",
+              "Live dashboard analytics",
+              "Works on mobile + desktop",
+              "Share link in seconds",
+            ].map(item => (
+              <span key={item}>{item}</span>
             ))}
           </div>
+        </section>
 
-          <div style={{ padding: "22px 20px" }}>
-            {tab === "join" ? (
-              <form onSubmit={handleJoin} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                {/* OTP PIN Input */}
-                <div>
-                  <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--muted)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 8 }}>
-                    Game PIN
-                  </label>
-                  <div style={{ display: "flex", gap: 6, justifyContent: "space-between" }}>
-                    {[0,1,2,3,4,5].map(i => (
-                      <input key={i} ref={el => pinRefs.current[i] = el}
-                        value={pin[i] || ""}
-                        onChange={e => {
-                          const val = e.target.value.replace(/\D/g, "").slice(-1);
-                          if (!val && e.target.value !== "") return;
-                          let newPin = (pin || "").split('');
-                          newPin[i] = val;
-                          setPin(newPin.join(''));
-                          if (val && i < 5) pinRefs.current[i+1].focus();
-                        }}
-                        onKeyDown={e => {
-                          if (e.key === 'Backspace' && !pin[i] && i > 0) pinRefs.current[i-1].focus();
-                        }}
-                        className={`input-sq ${err.includes("PIN") ? "ans-btn wrong" : ""}`}
-                        style={{
-                          width: "15%", aspectRatio: "1/1", textAlign: "center",
-                          fontSize: "1.6rem", padding: 0, fontFamily: "var(--font-mono)", fontWeight: 700,
-                                                                              transition: "all 0.2s cubic-bezier(0.175,0.885,0.32,1.275)"
-                        }}
-                        onFocus={e => e.target.select()}
-                        
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Nickname */}
-                <div>
-                  <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--muted)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 8 }}>
-                    Nickname
-                  </label>
-                  <input
-                    value={nick}
-                    onChange={e => setNick(e.target.value.slice(0, 20))}
-                    placeholder="e.g. QuizMaster99"
-                    maxLength={20}
-                    className="input-sq"
-                    
-                    
-                  />
-                </div>
-
-                {/* Avatar */}
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                    <label style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--muted)", letterSpacing: "0.12em", textTransform: "uppercase" }}>
-                      Your Avatar
-                    </label>
-                    <button type="button" onClick={() => setShowAvatars(!showAvatars)} style={{
-                      fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--cyan)",
-                      background: "none", border: "none", cursor: "pointer",
-                    }}>
-                      {showAvatars ? "Hide ▲" : "Change ▼"}
-                    </button>
-                  </div>
-
-                  <div style={{
-                    display: "flex", alignItems: "center", gap: 10,
-                    padding: "10px 14px", borderRadius: 12,
-                    background: "transparent", border: "1.5px solid var(--border)",
-                  }}>
-                    <img src={avatar} alt="Avatar" style={{ width: 44, height: 44, objectFit: "contain", background: "transparent", borderRadius: 12, border: "1px solid rgba(26,37,23,0.1)" }} />
-                    <span style={{ fontFamily: "var(--font-inter)", color: "var(--muted)", fontSize: "0.83rem" }}>
-                      {nick || "Your nickname"} · ready to play!
-                    </span>
-                  </div>
-
-                  {showAvatars && (
-                    <div className="animate-slide-up" style={{ marginTop: 10 }}>
-                      <AvatarPicker selected={avatar} onSelect={e => { setAvatar(e); setShowAvatars(false); }} />
-                    </div>
-                  )}
-                </div>
-
-                {/* Error */}
-                {err && (
-                  <div className="animate-pop-in" style={{
-                    padding: "11px 14px", borderRadius: 12,
-                    background: "transparent",
-                    border: "1px solid rgba(169,90,90,0.3)",
-                    color: "#ff7097", fontSize: "0.83rem",
-                    fontFamily: "var(--font-inter)",
-                  }}>⚠️ {err}</div>
-                )}
-
-                <button type="submit" disabled={loading || pin.length !== 6 || nick.length < 2}
-                  className="btn-primary-sq w-full" style={{ width: "100%", padding: "15px" }}>
-                  {loading ? (
-                    <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ animation: "timerPulse 0.7s ease infinite" }}>⏳</span> Joining...
-                    </span>
-                  ) : "Join Game →"}
-                </button>
-              </form>
-            ) : (
-              <CreatePanel navigate={navigate} />
-            )}
+        <section id="about" className="glass-card-sq" style={{ padding: "1.35rem", marginTop: "1.5rem" }}>
+          <div style={{ maxWidth: 760 }}>
+            <div className="hero-eyebrow" style={{ marginBottom: 0.6 }}>About SecureQuiz</div>
+            <h2 style={{ margin: 0, fontFamily: "var(--font-display)", fontSize: "clamp(1.6rem, 3vw, 2.25rem)", letterSpacing: "-0.03em", color: "var(--text)" }}>
+              Secure Quiz app built for anyone who wants to run or take quizzes quickly and securely.
+            </h2>
           </div>
-        </div>
 
-        {/* Feature pills */}
-        <div className="animate-slide-up" style={{
-          display: "flex", gap: 8, flexWrap: "wrap",
-          justifyContent: "center", marginTop: 22,
-          animationDelay: "280ms", animationFillMode: "both",
-        }}>
+          <div className="section-shell" style={{ marginTop: "1.15rem" }}>
+            {[
+              {
+                title: "Create in minutes",
+                copy: "Simple question and option inputs with no setup overhead.",
+              },
+              {
+                title: "Share instantly",
+                copy: "Generate a quiz link, send the PIN, and bring players in fast.",
+              },
+              {
+                title: "Track live results",
+                copy: "See submissions, answer splits, and rankings in real time.",
+              },
+              {
+                title: "Reduce cheating",
+                copy: "Built-in monitoring keeps the experience honest and focused.",
+              },
+            ].map((item, index) => (
+              <div key={item.title} className="meta-card" style={{ alignItems: "flex-start", padding: "1rem", minHeight: 112 }}>
+                <div style={{
+                  width: 32, height: 32, borderRadius: 999,
+                  display: "grid", placeItems: "center",
+                  background: index === 0 ? "rgba(96,165,250,0.12)" : index === 1 ? "rgba(47,111,58,0.12)" : index === 2 ? "rgba(139,92,246,0.12)" : "rgba(245,158,11,0.12)",
+                  color: "var(--text)", border: "1px solid var(--border)", flexShrink: 0,
+                  fontFamily: "var(--font-mono)", fontWeight: 700,
+                }}>
+                  {index + 1}
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "var(--text)" }}>{item.title}</div>
+                  <div style={{ color: "var(--muted)", fontSize: "0.9rem", lineHeight: 1.6 }}>{item.copy}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section id="features" className="pill-row" style={{ justifyContent: "center", marginTop: "1.5rem" }}>
           {[
-            { icon: "⚡", label: "Real-time WebSocket" },
-            { icon: "🛡️", label: "Anti-cheat" },
-            { icon: "📱", label: "Mobile first" },
-            { icon: "🔊", label: "Sound effects" },
-            { icon: "🏆", label: "Live leaderboard" },
-          ].map(f => (
-            <div key={f.label} style={{
-              display: "flex", alignItems: "center", gap: 6,
-              padding: "5px 12px", borderRadius: 99,
-              background: "transparent", border: "1px solid var(--border)",
-              color: "var(--muted)", fontSize: "0.72rem",
-              fontFamily: "var(--font-inter)",
-            }}>
-              {f.icon} {f.label}
-            </div>
+            "Modern UI",
+            "Invite-only access",
+            "Live dashboards",
+            "Mobile-first flows",
+          ].map(item => (
+            <span key={item}>{item}</span>
           ))}
-        </div>
+        </section>
+
+        <section id="works" className="section-shell" style={{ marginTop: "1.75rem", alignItems: "stretch" }}>
+          <div className="glass-card-sq" style={{ padding: "1.35rem" }}>
+            <div className="hero-eyebrow" style={{ marginBottom: 8 }}>How It Works</div>
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1.8rem", letterSpacing: "-0.03em", marginBottom: 18, color: "var(--text)" }}>
+              A simple flow from setup to live play.
+            </div>
+            <div className="panel-stack">
+              {[
+                ["01", "Create or pick a quiz", "Start from a template or build your own question set."],
+                ["02", "Share the access PIN", "Send the room code and let players join from any device."],
+                ["03", "Run the game live", "Watch the leaderboard, answer stats, and results update in real time."],
+              ].map(step => (
+                <div key={step[0]} className="meta-card" style={{ alignItems: "flex-start" }}>
+                  <div style={{
+                    width: 42, height: 42, borderRadius: 14,
+                    display: "grid", placeItems: "center",
+                    background: "rgba(26,37,23,0.06)", color: "var(--text)",
+                    border: "1px solid var(--border)", flexShrink: 0,
+                    fontFamily: "var(--font-mono)", fontWeight: 700,
+                  }}>{step[0]}</div>
+                  <div>
+                    <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "var(--text)", marginBottom: 4 }}>{step[1]}</div>
+                    <div style={{ color: "var(--muted)", lineHeight: 1.6, fontSize: "0.9rem" }}>{step[2]}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div id="launch" className="glass-card-sq" style={{ padding: "1.35rem" }}>
+            <div className="hero-eyebrow" style={{ marginBottom: 8 }}>Setup Guide</div>
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1.8rem", letterSpacing: "-0.03em", marginBottom: 12, color: "var(--text)" }}>
+              Launch or join a session.
+            </div>
+            <div style={{ marginBottom: 16, color: "var(--muted)", lineHeight: 1.6 }}>
+              Use the participant login to join with a PIN, or switch to the host dashboard to start a new game.
+            </div>
+
+            <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+              {[
+                { id: "join", label: "Join" },
+                { id: "create", label: "Host" },
+              ].map(item => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => { setTab(item.id); setErr(""); }}
+                  className="btn-secondary-sq"
+                  style={{ flex: 1, padding: "10px 12px", borderRadius: 999, background: tab === item.id ? "rgba(26,37,23,0.08)" : "rgba(255,255,255,0.8)" }}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="glass-card-sq" style={{ padding: 0, overflow: "hidden" }}>
+              <div style={{ display: "flex", borderBottom: "1px solid rgba(26,37,23,0.08)", background: "rgba(255,255,255,0.55)" }}>
+                {[
+                  { id: "join", label: "Participant Login" },
+                  { id: "create", label: "Host Dashboard" },
+                ].map(t => (
+                  <button key={t.id} onClick={() => { setTab(t.id); setErr(""); }} style={{
+                    flex: 1, padding: "14px 0",
+                    fontFamily: "var(--font-display)", fontWeight: 700,
+                    fontSize: "0.84rem", letterSpacing: "0.01em",
+                    color: tab === t.id ? "var(--text)" : "var(--muted)",
+                    background: tab === t.id ? "rgba(26,37,23,0.06)" : "transparent",
+                    borderBottom: `2px solid ${tab === t.id ? "var(--cyan)" : "transparent"}`,
+                    transition: "all 0.2s", cursor: "pointer",
+                  }}>{t.label}</button>
+                ))}
+              </div>
+
+              <div style={{ padding: "20px" }}>
+                {tab === "join" ? (
+                  <form onSubmit={handleJoin} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                    <div>
+                      <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--muted)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 8 }}>
+                        Game PIN
+                      </label>
+                      <div style={{ display: "flex", gap: 6, justifyContent: "space-between" }}>
+                        {[0,1,2,3,4,5].map(i => (
+                          <input key={i} ref={el => pinRefs.current[i] = el}
+                            value={pin[i] || ""}
+                            onChange={e => {
+                              const val = e.target.value.replace(/\D/g, "").slice(-1);
+                              if (!val && e.target.value !== "") return;
+                              const newPin = (pin || "").split("");
+                              newPin[i] = val;
+                              setPin(newPin.join(""));
+                              if (val && i < 5) pinRefs.current[i + 1].focus();
+                            }}
+                            onKeyDown={e => {
+                              if (e.key === "Backspace" && !pin[i] && i > 0) pinRefs.current[i - 1].focus();
+                            }}
+                            className={`input-sq ${err.includes("PIN") ? "ans-btn wrong" : ""}`}
+                            style={{
+                              width: "15%", aspectRatio: "1/1", textAlign: "center",
+                              fontSize: "1.6rem", padding: 0, fontFamily: "var(--font-mono)", fontWeight: 700,
+                              transition: "all 0.2s cubic-bezier(0.175,0.885,0.32,1.275)",
+                            }}
+                            onFocus={e => e.target.select()}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--muted)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 8 }}>
+                        Nickname
+                      </label>
+                      <input
+                        value={nick}
+                        onChange={e => setNick(e.target.value.slice(0, 20))}
+                        placeholder="e.g. QuizMaster99"
+                        maxLength={20}
+                        className="input-sq"
+                      />
+                    </div>
+
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                        <label style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--muted)", letterSpacing: "0.12em", textTransform: "uppercase" }}>
+                          Your Avatar
+                        </label>
+                        <button type="button" onClick={() => setShowAvatars(!showAvatars)} style={{
+                          fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--cyan)",
+                          background: "none", border: "none", cursor: "pointer",
+                        }}>
+                          {showAvatars ? "Hide ▲" : "Change ▼"}
+                        </button>
+                      </div>
+
+                      <div style={{
+                        display: "flex", alignItems: "center", gap: 10,
+                        padding: "10px 14px", borderRadius: 12,
+                        background: "rgba(255,255,255,0.72)", border: "1.5px solid var(--border)",
+                      }}>
+                        <img src={avatar} alt="Avatar" style={{ width: 44, height: 44, objectFit: "contain", background: "transparent", borderRadius: 12, border: "1px solid rgba(26,37,23,0.1)" }} />
+                        <span style={{ fontFamily: "var(--font-inter)", color: "var(--muted)", fontSize: "0.83rem" }}>
+                          {nick || "Your nickname"} · ready to play!
+                        </span>
+                      </div>
+
+                      {showAvatars && (
+                        <div className="animate-slide-up" style={{ marginTop: 10 }}>
+                          <AvatarPicker selected={avatar} onSelect={e => { setAvatar(e); setShowAvatars(false); }} />
+                        </div>
+                      )}
+                    </div>
+
+                    {err && (
+                      <div className="animate-pop-in" style={{
+                        padding: "11px 14px", borderRadius: 12,
+                        background: "rgba(159,58,47,0.08)",
+                        border: "1px solid rgba(159,58,47,0.2)",
+                        color: "#9f3a2f", fontSize: "0.83rem",
+                        fontFamily: "var(--font-inter)",
+                      }}>⚠️ {err}</div>
+                    )}
+
+                    <button type="submit" disabled={loading || pin.length !== 6 || nick.length < 2}
+                      className="btn-primary-sq w-full" style={{ width: "100%", padding: "15px" }}>
+                      {loading ? (
+                        <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <span style={{ animation: "timerPulse 0.7s ease infinite" }}>⏳</span> Joining...
+                        </span>
+                      ) : "Join Game →"}
+                    </button>
+                  </form>
+                ) : (
+                  <CreatePanel navigate={navigate} />
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="setup" className="pill-row" style={{ justifyContent: "center", marginTop: "1.5rem" }}>
+          {[
+            "Simple question builder",
+            "Live response tracking",
+            "Leaderboards in real time",
+            "Cheat-aware game flow",
+          ].map(item => (
+            <span key={item}>{item}</span>
+          ))}
+        </section>
       </main>
     </div>
   );
@@ -403,7 +484,7 @@ function CreatePanel({ navigate }) {
             letterSpacing: "0.04em", cursor: "pointer",
             background: mode === m.id ? "rgba(104,138,93,0.18)" : "transparent",
             color: mode === m.id ? "var(--violet)" : "var(--muted)",
-            border: mode === m.id ? "1.5px solid rgba(104,138,93,0.35)" : "1.5px solid transparent",
+                    border: mode === m.id ? "1.5px solid rgba(96,165,250,0.32)" : "1.5px solid transparent",
             transition: "all 0.15s",
           }}>{m.label}</button>
         ))}
@@ -425,15 +506,15 @@ function CreatePanel({ navigate }) {
                 {quizzes.map(q => (
                   <button key={q.id} onClick={() => setSelId(q.id)} style={{
                     textAlign: "left", padding: "12px 14px", borderRadius: 14, cursor: "pointer",
-                    background: selId === q.id ? "rgba(172,200,162,0.07)" : "rgba(237,245,233,0.9)",
-                    border: selId === q.id ? "1.5px solid rgba(172,200,162,0.4)" : "1.5px solid var(--border)",
-                    boxShadow: selId === q.id ? "0 0 20px rgba(172,200,162,0.08)" : "none",
+                    background: selId === q.id ? "rgba(96,165,250,0.08)" : "rgba(17,26,45,0.82)",
+                    border: selId === q.id ? "1.5px solid rgba(96,165,250,0.32)" : "1.5px solid var(--border)",
+                    boxShadow: selId === q.id ? "0 0 20px rgba(96,165,250,0.1)" : "none",
                     transition: "all 0.15s",
                   }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <span style={{
                         fontFamily: "var(--font-inter)", fontWeight: 700, fontSize: "0.88rem",
-                        color: selId === q.id ? "var(--text)" : "#a0aec0",
+                        color: selId === q.id ? "var(--text)" : "var(--muted)",
                       }}>{q.title}</span>
                       {selId === q.id && <span style={{ color: "var(--cyan)", fontSize: "0.9rem" }}>✓</span>}
                     </div>
@@ -583,7 +664,7 @@ function CreatePanel({ navigate }) {
                       <button key={oi} onClick={() => updateQ(qi, "correct", oi)} style={{
                         flex: 1, padding: "7px 4px",
                         borderRadius: 8, cursor: "pointer",
-                        background: q.correct === oi ? optionColors[oi] + "22" : "rgba(26,37,23,0.6)",
+                        background: q.correct === oi ? optionColors[oi] + "22" : "rgba(17,26,45,0.72)",
                         border: `1.5px solid ${q.correct === oi ? optionColors[oi] : "var(--border)"}`,
                         color: q.correct === oi ? optionColors[oi] : "var(--muted)",
                         fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: "0.78rem",
@@ -603,7 +684,7 @@ function CreatePanel({ navigate }) {
             <button onClick={addQuestion} style={{
               padding: "10px", borderRadius: 12, cursor: "pointer",
               background: "transparent",
-              border: "1.5px dashed rgba(104,138,93,0.35)",
+              border: "1.5px dashed rgba(96,165,250,0.3)",
               color: "var(--violet)", fontFamily: "var(--font-inter)",
               fontWeight: 700, fontSize: "0.82rem",
               transition: "all 0.15s",

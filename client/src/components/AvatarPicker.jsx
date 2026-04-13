@@ -167,11 +167,11 @@ export default function AvatarPicker({ selected, onSelect }) {
               borderRadius: 14,
               transition: "transform 0.15s cubic-bezier(0.175,0.885,0.32,1.275), background 0.15s, border-color 0.15s",
               background: isSelected(avatarPath)
-                ? "rgba(172,200,162,0.15)"
-                : "rgba(237,245,233,0.6)",
+                ? "rgba(114,240,255,0.12)"
+                : "rgba(15,25,43,0.72)",
               border: isSelected(avatarPath)
-                ? "1.5px solid rgba(172,200,162,0.6)"
-                : "1.5px solid rgba(45,59,39,0.8)",
+                ? "1.5px solid rgba(114,240,255,0.55)"
+                : "1.5px solid rgba(148,163,184,0.18)",
               transform: isSelected(avatarPath) ? "scale(1.15)" : "scale(1)",
               cursor: "pointer",
               display: "flex", alignItems: "center", justifyContent: "center",
@@ -181,7 +181,7 @@ export default function AvatarPicker({ selected, onSelect }) {
             <img src={avatarPath} alt="Avatar" style={{
               width: "100%", height: "auto", aspectRatio: "1/1",
               objectFit: "contain",
-              filter: isSelected(avatarPath) ? "none" : "grayscale(30%) brightness(0.8)",
+              filter: isSelected(avatarPath) ? "none" : "grayscale(15%) brightness(0.92)",
               transition: "filter 0.15s",
             }} />
           </button>

@@ -44,8 +44,8 @@ export default function CircularTimer({ totalTime, running = true, onExpire, siz
   const pct    = left / totalTime;
 
   const strokeColor = urgent
-    ? "#ff3d6e"
-    : pct > 0.5 ? "var(--cyan)" : "#ffb938";
+    ? "#ff748f"
+    : pct > 0.5 ? "var(--cyan)" : "var(--amber)";
 
   const scale = size / SIZE;
 
@@ -73,8 +73,8 @@ export default function CircularTimer({ totalTime, running = true, onExpire, siz
           strokeDashoffset={offset}
           style={{
             transition: "stroke-dashoffset 1s linear, stroke 0.5s ease",
-            filter: urgent ? "drop-shadow(0 0 6px rgba(169,90,90,0.8))"
-                           : "drop-shadow(0 0 5px rgba(172,200,162,0.6))",
+            filter: urgent ? "drop-shadow(0 0 6px rgba(255,116,143,0.8))"
+                           : "drop-shadow(0 0 5px rgba(114,240,255,0.6))",
           }}
         />
       </svg>
@@ -95,8 +95,8 @@ export default function CircularTimer({ totalTime, running = true, onExpire, siz
           lineHeight: 1,
           animation: urgent ? "timerPulse 0.5s ease-in-out infinite" : "none",
           textShadow: urgent
-            ? "0 0 15px rgba(169,90,90,0.8)"
-            : "0 0 12px rgba(172,200,162,0.6)",
+            ? "0 0 15px rgba(255,116,143,0.8)"
+            : "0 0 12px rgba(114,240,255,0.6)",
         }}>
           {left}
         </span>

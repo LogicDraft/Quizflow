@@ -71,10 +71,10 @@ export default function HostDashboard() {
         flexWrap: "wrap", gap: 8,
         padding: "12px 16px",
         background: "transparent", backdropFilter: "blur(24px)",
-        borderBottom: "1px solid rgba(45,59,39,0.7)",
+        borderBottom: "1px solid rgba(148,163,184,0.12)",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="var(--cyan)" stroke="var(--cyan)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0 0 8px rgba(172,200,162,0.6))" }}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="var(--cyan)" stroke="var(--cyan)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0 0 8px rgba(96,165,250,0.6))" }}>
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
           </svg>
           <div>
@@ -171,7 +171,7 @@ export default function HostDashboard() {
 
             <div style={{ display: "flex", gap: 12, width: "100%", maxWidth: 400 }}>
               <button onClick={() => setShowPreview(true)}
-                className="btn-ghost" style={{ flex: 1, padding: "16px", borderRadius: 16, fontSize: "0.9rem", color: "var(--cyan)", border: "1.5px solid rgba(172,200,162,0.3)" }}>
+                className="btn-ghost" style={{ flex: 1, padding: "16px", borderRadius: 16, fontSize: "0.9rem", color: "var(--cyan)", border: "1.5px solid rgba(96,165,250,0.28)" }}>
                 👁 Review
               </button>
               <button onClick={() => { emit("host:start"); playStart(); }} disabled={players.length === 0}
@@ -252,7 +252,7 @@ export default function HostDashboard() {
               {/* Question card */}
               <div className="glass-card-sq animate-pop-in" style={{
                 flex: "1 1 500px", borderRadius: 22, padding: "clamp(28px,6vw,60px) 32px", textAlign: "center",
-                border: "1px solid rgba(104,138,93,0.2)", boxShadow: "0 0 50px rgba(104,138,93,0.07)",
+                border: "1px solid rgba(148,163,184,0.16)", boxShadow: "0 0 50px rgba(96,165,250,0.06)",
                 display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center"
               }}>
                 <div style={{
@@ -295,7 +295,7 @@ export default function HostDashboard() {
                     background: c.bg, borderRadius: 18, padding: "20px 18px",
                     display: "flex", alignItems: "center", gap: 12,
                     animation: `slideInUp 0.6s cubic-bezier(0.22,1,0.36,1) ${i * 80}ms both`,
-                    boxShadow: `inset 0 1px 0 rgba(26,37,23,0.2), inset 0 -4px 0 rgba(26,37,23,0.15), 0 8px 16px rgba(0,0,0,0.3)`,
+                    boxShadow: `inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -4px 0 rgba(0,0,0,0.22), 0 8px 16px rgba(0,0,0,0.3)`,
                   }}>
                     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg,rgba(255,255,255,0.14) 0%,transparent 55%)", pointerEvents: "none" }} />
                     <span style={{
@@ -323,15 +323,15 @@ export default function HostDashboard() {
               {/* Correct answer callout */}
               <div className="glass-card-sq animate-pop-in" style={{
                 borderRadius: 22, padding: "22px 26px", textAlign: "center",
-                border: "1px solid rgba(163,196,152,0.25)",
-                boxShadow: "0 0 40px rgba(163,196,152,0.06)",
+                border: "1px solid rgba(96,165,250,0.18)",
+                boxShadow: "0 0 40px rgba(96,165,250,0.06)",
               }}>
                 <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.68rem", color: "var(--muted)", marginBottom: 8, letterSpacing: "0.1em", textTransform: "uppercase" }}>
                   Correct Answer
                 </div>
                 <div style={{
                   fontFamily: "var(--font-inter)", fontWeight: 800, fontSize: "1.65rem",
-                  color: "var(--green)", textShadow: "0 0 20px rgba(163,196,152,0.55)",
+                  color: "var(--green)", textShadow: "0 0 20px rgba(16,185,129,0.55)",
                 }}>
                   ✓ {reveal.correctText}
                 </div>

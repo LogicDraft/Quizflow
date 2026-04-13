@@ -46,7 +46,7 @@ export default function AnswerDistribution({ options = [], correctIndex, distrib
             }}>
               <div style={{
                 position: "absolute", inset: 0,
-                background: "linear-gradient(135deg,rgba(26,37,23,0.2) 0%,transparent 60%)",
+                background: "linear-gradient(135deg,rgba(255,255,255,0.18) 0%,transparent 60%)",
               }} />
               {isRight ? "✓" : c.label}
             </div>
@@ -79,11 +79,11 @@ export default function AnswerDistribution({ options = [], correctIndex, distrib
                 <div style={{
                   height: "100%", borderRadius: 99,
                   background: isRight
-                    ? "linear-gradient(90deg,var(--green),#00c97a)"
+                    ? "linear-gradient(90deg,var(--green),#19d6a1)"
                     : `linear-gradient(90deg,${color},${color}bb)`,
                   width: visible ? `${barPct}%` : "0%",
                   transition: `width 0.7s ${i * 80}ms cubic-bezier(0.22,1,0.36,1)`,
-                  boxShadow: isRight ? "0 0 10px rgba(163,196,152,0.5)" : "none",
+                  boxShadow: isRight ? "0 0 10px rgba(127,231,198,0.5)" : "none",
                 }} />
               </div>
             </div>
