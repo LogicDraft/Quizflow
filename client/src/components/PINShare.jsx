@@ -25,7 +25,7 @@ export default function PINShare({ pin }) {
       <div style={{
         display: "flex", alignItems: "center", gap: 8,
         padding: "8px 16px", borderRadius: 12,
-        background: "rgba(172,200,162,0.07)",
+        background: "transparent",
         border: "1px solid rgba(172,200,162,0.25)",
       }}>
         <span style={{
@@ -66,7 +66,7 @@ export default function PINShare({ pin }) {
         style={{
           padding: "9px 12px",
           borderRadius: 10,
-          background: "rgba(26,37,23,0.8)",
+          background: "transparent",
           border: "1.5px solid var(--border)",
           color: "var(--muted)",
           fontSize: "1rem",

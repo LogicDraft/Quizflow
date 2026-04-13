@@ -60,13 +60,13 @@ export default function Podium({ players = [] }) {
             }}>
               <div style={{ display: "flex", justifyContent: "center" }}>
                 {player.emoji && (player.emoji.startsWith("/") || player.emoji.startsWith("data:")) ? (
-                  <img src={player.emoji} alt="Avatar" style={{ width: rank === 1 ? 64 : 48, height: rank === 1 ? 64 : 48, objectFit: "contain", background: "rgba(26,37,23,0.08)", borderRadius: 12, border: `2px solid ${color}80` }} />
+                  <img src={player.emoji} alt="Avatar" style={{ width: rank === 1 ? 64 : 48, height: rank === 1 ? 64 : 48, objectFit: "contain", background: "transparent", borderRadius: 12, border: `2px solid ${color}80` }} />
                 ) : (
                   <div style={{ fontSize: rank === 1 ? "2.4rem" : "1.8rem", lineHeight: 1 }}>{player.emoji || medals[rank]}</div>
                 )}
               </div>
               <div style={{
-                fontFamily: "var(--font-display)", fontWeight: 700,
+                fontFamily: "var(--font-inter)", fontWeight: 700,
                 fontSize: rank === 1 ? "0.88rem" : "0.75rem",
                 color: rank === 1 ? "#ffb938" : "var(--text)",
                 marginTop: 4,
@@ -98,7 +98,7 @@ export default function Podium({ players = [] }) {
               transformOrigin: "bottom",
             }}>
               <span style={{
-                fontFamily: "var(--font-display)", fontWeight: 800,
+                fontFamily: "var(--font-inter)", fontWeight: 800,
                 fontSize: "1.4rem", color,
                 textShadow: `0 0 15px ${color}88`,
               }}>

@@ -89,7 +89,7 @@ export default function CircularTimer({ totalTime, running = true, onExpire, siz
         justifyContent: "center",
       }}>
         <span style={{
-          fontFamily: "var(--font-display)", fontWeight: 800,
+          fontFamily: "var(--font-inter)", fontWeight: 800,
           fontSize: size * 0.28,
           color: urgent ? "var(--red)" : "var(--cyan)",
           lineHeight: 1,

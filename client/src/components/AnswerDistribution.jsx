@@ -41,7 +41,7 @@ export default function AnswerDistribution({ options = [], correctIndex, distrib
               width: 32, height: 32, borderRadius: 9, flexShrink: 0,
               background: color,
               display: "flex", alignItems: "center", justifyContent: "center",
-              fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "0.85rem",
+              fontFamily: "var(--font-inter)", fontWeight: 800, fontSize: "0.85rem",
               color: "var(--text)", position: "relative", overflow: "hidden",
             }}>
               <div style={{
@@ -55,7 +55,7 @@ export default function AnswerDistribution({ options = [], correctIndex, distrib
             <div style={{ flex: 1 }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
                 <span style={{
-                  fontFamily: "var(--font-body)", fontSize: "0.78rem",
+                  fontFamily: "var(--font-inter)", fontSize: "0.78rem",
                   color: isRight ? "var(--green)" : "var(--text)",
                   fontWeight: isRight ? 600 : 400,
                   maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap"

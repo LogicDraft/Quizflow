@@ -31,7 +31,7 @@ export default function Leaderboard({ players = [], showChange = true, maxRows =
               {/* Rank */}
               <div style={{
                 width: compact ? 28 : 34, textAlign: "center", flexShrink: 0,
-                fontFamily: "var(--font-display)", fontWeight: 800,
+                fontFamily: "var(--font-inter)", fontWeight: 800,
                 fontSize: medal ? (compact ? "1.1rem" : "1.4rem") : (compact ? "0.75rem" : "0.85rem"),
                 color: p.rank === 1 ? "#ffb938" : p.rank === 2 ? "#cbd5e1" : p.rank === 3 ? "#cd7c30" : "var(--muted)",
                 textShadow: p.rank <= 3 ? "0 0 10px currentColor" : "none",
@@ -42,7 +42,7 @@ export default function Leaderboard({ players = [], showChange = true, maxRows =
               {/* Name */}
               <div style={{
                 flex: 1, overflow: "hidden",
-                fontFamily: "var(--font-display)", fontWeight: 700,
+                fontFamily: "var(--font-inter)", fontWeight: 700,
                 fontSize: compact ? "0.82rem" : "0.92rem",
                 color: isTop3 ? "var(--text)" : "#a0aec0",
                 whiteSpace: "nowrap", textOverflow: "ellipsis",
@@ -87,7 +87,7 @@ export default function Leaderboard({ players = [], showChange = true, maxRows =
       })}
 
       {players.length === 0 && (
-        <div style={{ textAlign: "center", color: "var(--muted)", padding: "2rem", fontFamily: "var(--font-display)" }}>
+        <div style={{ textAlign: "center", color: "var(--muted)", padding: "2rem", fontFamily: "var(--font-inter)" }}>
           No players yet...
         </div>
       )}

@@ -25,7 +25,7 @@ export default function NetworkStatus() {
       color:        online ? "var(--bg)"    : "white",
       textAlign:    "center",
       padding:      "9px 16px",
-      fontFamily:   "var(--font-display)",
+      fontFamily:   "var(--font-inter)",
       fontWeight:   700, fontSize: "0.82rem",
       letterSpacing:"0.08em", textTransform: "uppercase",
       animation:    "slideDown 0.3s ease both",

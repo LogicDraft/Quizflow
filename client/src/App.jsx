@@ -10,13 +10,13 @@ function NotFound() {
       <div className="dot-grid" style={{ position: "fixed", inset: 0, opacity: 0.2, pointerEvents: "none" }} />
       <div style={{ position: "relative", zIndex: 10 }}>
         <div style={{ fontSize: "6rem", marginBottom: 12 }}>🎯</div>
-        <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "3rem", color: "var(--cyan)", marginBottom: 8 }}>404</div>
-        <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1.2rem", color: "var(--text)", marginBottom: 8 }}>Page Not Found</div>
+        <div style={{ fontFamily: "var(--font-inter)", fontWeight: 800, fontSize: "3rem", color: "var(--cyan)", marginBottom: 8 }}>404</div>
+        <div style={{ fontFamily: "var(--font-inter)", fontWeight: 700, fontSize: "1.2rem", color: "var(--text)", marginBottom: 8 }}>Page Not Found</div>
         <div style={{ color: "var(--muted)", marginBottom: 28, fontSize: "0.9rem" }}>This game room doesn't exist.</div>
         <a href="/" style={{
           display: "inline-block", padding: "14px 32px", borderRadius: 14,
           background: "linear-gradient(135deg,var(--cyan),var(--violet))",
-          color: "var(--bg)", fontFamily: "var(--font-display)",
+          color: "var(--bg)", fontFamily: "var(--font-inter)",
           fontWeight: 800, fontSize: "0.9rem", letterSpacing: "0.08em",
           textTransform: "uppercase", textDecoration: "none",
           boxShadow: "0 0 30px rgba(172,200,162,0.25)",

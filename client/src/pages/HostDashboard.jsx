@@ -70,7 +70,7 @@ export default function HostDashboard() {
         display: "flex", alignItems: "center", justifyContent: "space-between",
         flexWrap: "wrap", gap: 8,
         padding: "12px 16px",
-        background: "rgba(17,24,16,0.88)", backdropFilter: "blur(24px)",
+        background: "transparent", backdropFilter: "blur(24px)",
         borderBottom: "1px solid rgba(45,59,39,0.7)",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -78,7 +78,7 @@ export default function HostDashboard() {
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
           </svg>
           <div>
-            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "clamp(1.1rem,3vw,1.3rem)", letterSpacing: "0.02em" }}>
+            <div style={{ fontFamily: "var(--font-inter)", fontWeight: 800, fontSize: "clamp(1.1rem,3vw,1.3rem)", letterSpacing: "0.02em" }}>
               <span style={{ color: "var(--text)" }}>Quiz</span><span style={{ color: "var(--cyan)" }}>Flow</span>
             </div>
             {quizTitle && <div style={{ fontSize: "0.65rem", color: "var(--muted)", marginTop: -1, maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{quizTitle}</div>}
@@ -89,12 +89,12 @@ export default function HostDashboard() {
           {pin && <PINShare pin={pin} />}
           {phase !== P.FINAL && (
             <button onClick={() => { if (confirm("End the game early?")) emit("host:end_game"); }}
-              className="btn-danger" style={{ padding: "7px 12px", borderRadius: 10, fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.75rem" }}>
+              className="btn-danger" style={{ padding: "7px 12px", borderRadius: 10, fontFamily: "var(--font-inter)", fontWeight: 600, fontSize: "0.75rem" }}>
               End
             </button>
           )}
           <button onClick={() => navigate("/")} className="btn-ghost"
-            style={{ padding: "7px 12px", borderRadius: 10, fontFamily: "var(--font-body)", fontSize: "0.8rem" }}>
+            style={{ padding: "7px 12px", borderRadius: 10, fontFamily: "var(--font-inter)", fontSize: "0.8rem" }}>
             ← Exit
           </button>
         </div>
@@ -108,7 +108,7 @@ export default function HostDashboard() {
           <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: "3.5rem", marginBottom: 14, animation: "timerPulse 1s ease infinite" }}>🎯</div>
-              <div style={{ fontFamily: "var(--font-display)", color: "var(--muted)" }}>Connecting to session...</div>
+              <div style={{ fontFamily: "var(--font-inter)", color: "var(--muted)" }}>Connecting to session...</div>
             </div>
           </div>
         )}
@@ -123,7 +123,7 @@ export default function HostDashboard() {
                 Waiting for players
               </div>
               <div style={{
-                fontFamily: "var(--font-display)", fontWeight: 800,
+                fontFamily: "var(--font-inter)", fontWeight: 800,
                 fontSize: "clamp(3rem,12vw,7.5rem)",
                 letterSpacing: "0.25em", lineHeight: 1,
                 color: "var(--cyan)", textShadow: "0 0 40px rgba(172,200,162,0.45), 0 0 80px rgba(172,200,162,0.2)",
@@ -136,7 +136,7 @@ export default function HostDashboard() {
             {/* Player grid */}
             <div style={{ width: "100%", maxWidth: 740 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
-                <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "var(--text)", fontSize: "0.95rem" }}>
+                <span style={{ fontFamily: "var(--font-inter)", fontWeight: 700, color: "var(--text)", fontSize: "0.95rem" }}>
                   Players <span style={{ color: "var(--cyan)" }}>({players.length})</span>
                 </span>
                 {players.length > 0 && <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -146,21 +146,21 @@ export default function HostDashboard() {
               </div>
 
               {players.length === 0 ? (
-                <div className="glass" style={{ borderRadius: 22, padding: "clamp(28px,6vw,52px) 24px", textAlign: "center" }}>
+                <div className="glass-card-sq" style={{ borderRadius: 22, padding: "clamp(28px,6vw,52px) 24px", textAlign: "center" }}>
                   <div style={{ fontSize: "3rem", marginBottom: 10 }}>👀</div>
-                  <div style={{ fontFamily: "var(--font-display)", color: "var(--muted)", fontSize: "0.95rem" }}>Waiting for players to join...</div>
+                  <div style={{ fontFamily: "var(--font-inter)", color: "var(--muted)", fontSize: "0.95rem" }}>Waiting for players to join...</div>
                   <div style={{ fontSize: "0.8rem", color: "var(--faint)", marginTop: 6 }}>Share the PIN above</div>
                 </div>
               ) : (
                 <div className="player-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(130px,1fr))", gap: 8 }}>
                   {players.map((p, i) => (
-                    <div key={p.id} className="glass animate-pop-in" style={{
+                    <div key={p.id} className="glass-card-sq animate-pop-in" style={{
                       borderRadius: 14, padding: "10px 12px",
                       display: "flex", alignItems: "center", gap: 8,
                       animationDelay: `${i * 40}ms`, animationFillMode: "both",
                     }}>
-                      <img src={(p.emoji.startsWith("/") || p.emoji.startsWith("data:")) ? p.emoji : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%232a3040'/%3E%3Ccircle cx='100' cy='70' r='40' fill='%23a0aec0'/%3E%3Cpath d='M40 180A60 50 0 0 1 160 180Z' fill='%23a0aec0'/%3E%3C/svg%3E"} alt="Avatar" style={{ width: 34, height: 34, borderRadius: 6, flexShrink: 0, objectFit: "contain", background: "rgba(26,37,23,0.08)" }} />
-                      <span style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.82rem", color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <img src={(p.emoji.startsWith("/") || p.emoji.startsWith("data:")) ? p.emoji : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%232a3040'/%3E%3Ccircle cx='100' cy='70' r='40' fill='%23a0aec0'/%3E%3Cpath d='M40 180A60 50 0 0 1 160 180Z' fill='%23a0aec0'/%3E%3C/svg%3E"} alt="Avatar" style={{ width: 34, height: 34, borderRadius: 6, flexShrink: 0, objectFit: "contain", background: "transparent" }} />
+                      <span style={{ fontFamily: "var(--font-inter)", fontWeight: 600, fontSize: "0.82rem", color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {p.nickname}
                       </span>
                     </div>
@@ -175,7 +175,7 @@ export default function HostDashboard() {
                 👁 Review
               </button>
               <button onClick={() => { emit("host:start"); playStart(); }} disabled={players.length === 0}
-                className="btn-primary" style={{ flex: 2, padding: "16px", borderRadius: 16, fontSize: "clamp(0.9rem,3vw,1.1rem)" }}>
+                className="btn-primary-sq w-full" style={{ flex: 2, padding: "16px", borderRadius: 16, fontSize: "clamp(0.9rem,3vw,1.1rem)" }}>
                 {players.length === 0 ? "Waiting..." : `Start (${players.length}) →`}
               </button>
             </div>
@@ -184,23 +184,23 @@ export default function HostDashboard() {
             {showPreview && (
               <div className="animate-pop-in" style={{
                 position: "fixed", inset: 0, zIndex: 100,
-                background: "rgba(17,24,16,0.9)", backdropFilter: "blur(12px)",
+                background: "transparent", backdropFilter: "blur(12px)",
                 display: "flex", flexDirection: "column", padding: "20px",
               }}>
                 <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "var(--text)" }}>Preview: {quizTitle}</div>
+                  <div style={{ fontFamily: "var(--font-inter)", fontWeight: 700, color: "var(--text)" }}>Preview: {quizTitle}</div>
                   <button onClick={() => setShowPreview(false)} style={{ background: "none", border: "none", color: "var(--muted)", fontSize: "1.5rem", cursor: "pointer" }}>✕</button>
                 </header>
                 <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 16, paddingRight: 8 }}>
                   {allQs.map((q, i) => (
-                    <div key={i} style={{ background: "rgba(26,37,23,0.7)", border: "1px solid var(--border)", borderRadius: 14, padding: 16 }}>
+                    <div key={i} style={{ background: "transparent", border: "1px solid var(--border)", borderRadius: 14, padding: 16 }}>
                       <div style={{ color: "var(--cyan)", fontFamily: "var(--font-mono)", fontSize: "0.7rem", marginBottom: 6 }}>Question {i + 1} — {q.time}s</div>
-                      <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "1rem", marginBottom: 12 }}>{q.text}</div>
+                      <div style={{ fontFamily: "var(--font-inter)", fontWeight: 600, fontSize: "1rem", marginBottom: 12 }}>{q.text}</div>
                       <div className="ans-grid">
                         {q.options.map((opt, oi) => (
                           <div key={oi} style={{
                             padding: "8px 12px", borderRadius: 8, fontSize: "0.85rem",
-                            background: "rgba(237,245,233,0.9)",
+                            background: "transparent",
                             border: `1.5px solid ${oi === q.correct ? "var(--green)" : "var(--border)"}`,
                             color: oi === q.correct ? "var(--green)" : "var(--muted)",
                           }}>
@@ -241,7 +241,7 @@ export default function HostDashboard() {
                 </div>
               </div>
               <button onClick={() => emit("host:next")} className="btn-ghost"
-                style={{ padding: "7px 14px", borderRadius: 9, fontFamily: "var(--font-display)", fontSize: "0.75rem", fontWeight: 600 }}>
+                style={{ padding: "7px 14px", borderRadius: 9, fontFamily: "var(--font-inter)", fontSize: "0.75rem", fontWeight: 600 }}>
                 Skip →
               </button>
             </div>
@@ -250,13 +250,13 @@ export default function HostDashboard() {
             <div style={{ display: "flex", flexWrap: "wrap", gap: 20, marginTop: 10 }}>
               
               {/* Question card */}
-              <div className="glass animate-pop-in" style={{
+              <div className="glass-card-sq animate-pop-in" style={{
                 flex: "1 1 500px", borderRadius: 22, padding: "clamp(28px,6vw,60px) 32px", textAlign: "center",
                 border: "1px solid rgba(104,138,93,0.2)", boxShadow: "0 0 50px rgba(104,138,93,0.07)",
                 display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center"
               }}>
                 <div style={{
-                  fontFamily: "var(--font-display)", fontWeight: 700,
+                  fontFamily: "var(--font-inter)", fontWeight: 700,
                   fontSize: "clamp(1.5rem,4vw,3rem)", color: "var(--text)", lineHeight: 1.3,
                 }}>
                   {curQ.text}
@@ -265,12 +265,12 @@ export default function HostDashboard() {
 
               {/* Side controls (Desktop Timer & Progress) */}
               <div style={{ flex: "1 1 250px", display: "flex", flexDirection: "column", gap: 14 }}>
-                <div className="glass animate-slide-up" style={{ borderRadius: 18, padding: 20, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1 }}>
+                <div className="glass-card-sq animate-slide-up" style={{ borderRadius: 18, padding: 20, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1 }}>
                   <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem", color: "var(--muted)", marginBottom: 16 }}>TIME REMAINING</div>
                   <CircularTimer totalTime={curQ.time} running={timerOn} onExpire={() => setTimer(false)} size={130} />
                 </div>
 
-                <div className="glass animate-slide-up" style={{ borderRadius: 18, padding: 20, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1, animationDelay: "100ms" }}>
+                <div className="glass-card-sq animate-slide-up" style={{ borderRadius: 18, padding: 20, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1, animationDelay: "100ms" }}>
                   <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem", color: "var(--muted)", marginBottom: 16 }}>ANSWERS LOGGED</div>
                   <div style={{ position: "relative", width: 100, height: 100 }}>
                     <svg width="100" height="100" viewBox="0 0 120 120" style={{ transform: "rotate(-90deg)" }}>
@@ -278,8 +278,8 @@ export default function HostDashboard() {
                       <circle cx="60" cy="60" r="54" fill="none" stroke="var(--cyan)" strokeWidth="12" strokeDasharray="339.3" strokeDashoffset={339.3 - (339.3 * (ansCount.answered / Math.max(1, ansCount.total)))} style={{ transition: "stroke-dashoffset 0.5s ease" }} strokeLinecap="round" />
                     </svg>
                     <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", flexWrap: "wrap", flexDirection: "column" }}>
-                      <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.8rem" }}>{ansCount.answered}</span>
-                      <span style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "0.8rem", color: "var(--muted)", marginTop: -6 }}>/ {ansCount.total}</span>
+                      <span style={{ fontFamily: "var(--font-inter)", fontWeight: 800, fontSize: "1.8rem" }}>{ansCount.answered}</span>
+                      <span style={{ fontFamily: "var(--font-inter)", fontWeight: 600, fontSize: "0.8rem", color: "var(--muted)", marginTop: -6 }}>/ {ansCount.total}</span>
                     </div>
                   </div>
                 </div>
@@ -300,10 +300,10 @@ export default function HostDashboard() {
                     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg,rgba(255,255,255,0.14) 0%,transparent 55%)", pointerEvents: "none" }} />
                     <span style={{
                       width: 44, height: 44, borderRadius: 12, flexShrink: 0,
-                      background: "rgba(0,0,0,0.25)", display: "flex", alignItems: "center", justifyContent: "center",
-                      fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.2rem", color: "var(--text)", zIndex: 1
+                      background: "transparent", display: "flex", alignItems: "center", justifyContent: "center",
+                      fontFamily: "var(--font-inter)", fontWeight: 800, fontSize: "1.2rem", color: "var(--text)", zIndex: 1
                     }}>{c.label}</span>
-                    <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "var(--text)", fontSize: "1.1rem", zIndex: 1, wordBreak: "break-word" }}>{opt}</span>
+                    <span style={{ fontFamily: "var(--font-inter)", fontWeight: 700, color: "var(--text)", fontSize: "1.1rem", zIndex: 1, wordBreak: "break-word" }}>{opt}</span>
                   </div>
                 );
               })}
@@ -321,7 +321,7 @@ export default function HostDashboard() {
               </div>
 
               {/* Correct answer callout */}
-              <div className="glass animate-pop-in" style={{
+              <div className="glass-card-sq animate-pop-in" style={{
                 borderRadius: 22, padding: "22px 26px", textAlign: "center",
                 border: "1px solid rgba(163,196,152,0.25)",
                 boxShadow: "0 0 40px rgba(163,196,152,0.06)",
@@ -330,7 +330,7 @@ export default function HostDashboard() {
                   Correct Answer
                 </div>
                 <div style={{
-                  fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.65rem",
+                  fontFamily: "var(--font-inter)", fontWeight: 800, fontSize: "1.65rem",
                   color: "var(--green)", textShadow: "0 0 20px rgba(163,196,152,0.55)",
                 }}>
                   ✓ {reveal.correctText}
@@ -338,7 +338,7 @@ export default function HostDashboard() {
               </div>
 
               {/* Stats row */}
-              <div className="glass" style={{ borderRadius: 18, padding: "14px 20px", display: "flex", justifyContent: "space-around" }}>
+              <div className="glass-card-sq" style={{ borderRadius: 18, padding: "14px 20px", display: "flex", justifyContent: "space-around" }}>
                 {[
                   { val: reveal.answeredCount, label: "Answered",     color: "var(--cyan)"  },
                   { val: reveal.totalCount,    label: "Players",      color: "var(--muted)" },
@@ -353,7 +353,7 @@ export default function HostDashboard() {
 
               {/* Answer distribution */}
               {curQ && (
-                <div className="glass" style={{ borderRadius: 18, padding: "16px 20px" }}>
+                <div className="glass-card-sq" style={{ borderRadius: 18, padding: "16px 20px" }}>
                   <AnswerDistribution
                     options={curQ.options}
                     correctIndex={reveal.correctAnswer}
@@ -363,7 +363,7 @@ export default function HostDashboard() {
                 </div>
               )}
 
-              <button onClick={() => emit("host:continue")} className="btn-primary" style={{ padding: "16px", borderRadius: 16, marginTop: "auto" }}>
+              <button onClick={() => emit("host:continue")} className="btn-primary-sq w-full" style={{ padding: "16px", borderRadius: 16, marginTop: "auto" }}>
                 {qIdxRef.current + 1 >= qCount ? "🏆 Final Results" : "Next Question →"}
               </button>
             </div>
@@ -383,7 +383,7 @@ export default function HostDashboard() {
           <div className="animate-phase" style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "28px 20px", gap: 24, overflowY: "auto" }}>
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: "4.5rem", marginBottom: 10 }}>🏆</div>
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "clamp(2rem,5vw,3.5rem)", color: "var(--text)" }}>
+              <div style={{ fontFamily: "var(--font-inter)", fontWeight: 800, fontSize: "clamp(2rem,5vw,3.5rem)", color: "var(--text)" }}>
                 Quiz Complete!
               </div>
               <div style={{ color: "var(--muted)", marginTop: 6 }}>{quizTitle}</div>
@@ -397,7 +397,7 @@ export default function HostDashboard() {
               <Leaderboard players={lb} showChange={false} maxRows={10} />
             </div>
 
-            <button onClick={() => navigate("/")} className="btn-primary btn-violet" style={{ padding: "16px 48px", borderRadius: 18, fontSize: "1.05rem" }}>
+            <button onClick={() => navigate("/")} className="btn-primary-sq w-full btn-violet" style={{ padding: "16px 48px", borderRadius: 18, fontSize: "1.05rem" }}>
               Play Again →
             </button>
           </div>
@@ -407,9 +407,9 @@ export default function HostDashboard() {
       {err && (
         <div className="animate-pop-in" style={{
           position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)",
-          background: "rgba(169,90,90,0.92)", backdropFilter: "blur(12px)",
+          background: "transparent", backdropFilter: "blur(12px)",
           color: "var(--text)", padding: "12px 22px", borderRadius: 14,
-          fontFamily: "var(--font-display)", fontWeight: 600, zIndex: 100,
+          fontFamily: "var(--font-inter)", fontWeight: 600, zIndex: 100,
           display: "flex", gap: 10, alignItems: "center", whiteSpace: "nowrap",
         }}>
           ⚠️ {err}

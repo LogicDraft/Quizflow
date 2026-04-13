@@ -121,15 +121,15 @@ export default function PlayerScreen() {
     <div style={{
       display: "flex", alignItems: "center", justifyContent: "space-between",
       padding: "11px 16px",
-      background: "rgba(17,24,16,0.9)", backdropFilter: "blur(20px)",
+      background: "transparent", backdropFilter: "blur(20px)",
       borderBottom: "1px solid rgba(45,59,39,0.7)",
       position: "sticky", top: 0, zIndex: 40,
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <img src={(emoji.startsWith("/") || emoji.startsWith("data:")) ? emoji : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%232a3040'/%3E%3Ccircle cx='100' cy='70' r='40' fill='%23a0aec0'/%3E%3Cpath d='M40 180A60 50 0 0 1 160 180Z' fill='%23a0aec0'/%3E%3C/svg%3E"} alt="Avatar" style={{ width: 38, height: 38, objectFit: "contain", borderRadius: 8, background: "rgba(26,37,23,0.08)", border: "1px solid rgba(26,37,23,0.1)" }} />
+        <img src={(emoji.startsWith("/") || emoji.startsWith("data:")) ? emoji : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%232a3040'/%3E%3Ccircle cx='100' cy='70' r='40' fill='%23a0aec0'/%3E%3Cpath d='M40 180A60 50 0 0 1 160 180Z' fill='%23a0aec0'/%3E%3C/svg%3E"} alt="Avatar" style={{ width: 38, height: 38, objectFit: "contain", borderRadius: 8, background: "transparent", border: "1px solid rgba(26,37,23,0.1)" }} />
         <div>
           <div style={{
-            fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.9rem",
+            fontFamily: "var(--font-inter)", fontWeight: 700, fontSize: "0.9rem",
             color: "var(--text)", maxWidth: 110, overflow: "hidden",
             textOverflow: "ellipsis", whiteSpace: "nowrap",
           }}>{nickname}</div>
@@ -145,7 +145,7 @@ export default function PlayerScreen() {
       <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
         {myRank && (
           <span style={{
-            fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.88rem",
+            fontFamily: "var(--font-inter)", fontWeight: 700, fontSize: "0.88rem",
             color: myRank <= 3 ? "var(--amber)" : "var(--muted)",
           }}>
             {getMedal(myRank) || `#${myRank}`}
@@ -176,7 +176,7 @@ export default function PlayerScreen() {
         {phase === P.CONNECTING && (
           <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
             <div style={{ fontSize: "4rem", animation: "timerPulse 1s ease infinite" }}>🎯</div>
-            <div style={{ fontFamily: "var(--font-display)", color: "var(--muted)" }}>Connecting...</div>
+            <div style={{ fontFamily: "var(--font-inter)", color: "var(--muted)" }}>Connecting...</div>
           </div>
         )}
 
@@ -196,7 +196,7 @@ export default function PlayerScreen() {
             </div>
 
             <div className="animate-slide-up">
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "2.2rem", color: "var(--text)" }}>
+              <div style={{ fontFamily: "var(--font-inter)", fontWeight: 800, fontSize: "2.2rem", color: "var(--text)" }}>
                 {nickname}
               </div>
               <div style={{ color: "var(--muted)", fontSize: "0.9rem", marginTop: 5 }}>
@@ -204,12 +204,12 @@ export default function PlayerScreen() {
               </div>
             </div>
 
-            <div className="glass animate-pop-in" style={{
+            <div className="glass-card-sq animate-pop-in" style={{
               borderRadius: 22, padding: "18px 40px",
               border: "1px solid rgba(104,138,93,0.2)",
               animationDelay: "80ms", animationFillMode: "both",
             }}>
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1.1rem", color: "var(--text)" }}>{quizTitle}</div>
+              <div style={{ fontFamily: "var(--font-inter)", fontWeight: 700, fontSize: "1.1rem", color: "var(--text)" }}>{quizTitle}</div>
               <div style={{ color: "var(--muted)", fontSize: "0.82rem", marginTop: 5 }}>
                 {pCount} player{pCount !== 1 ? "s" : ""} in lobby
               </div>
@@ -256,13 +256,13 @@ export default function PlayerScreen() {
                 size={90}
                 onExpire={() => { if (phase === P.QUESTION) setPhase(P.ANSWERED); }}
               />
-              <div className="glass" style={{
+              <div className="glass-card-sq" style={{
                 flex: 1, borderRadius: 18, padding: "16px 18px",
                 border: "1px solid rgba(104,138,93,0.15)",
                 boxShadow: "0 4px 20px rgba(104,138,93,0.05)",
               }}>
                 <div style={{
-                  fontFamily: "var(--font-display)", fontWeight: 700,
+                  fontFamily: "var(--font-inter)", fontWeight: 700,
                   fontSize: "clamp(0.88rem,3.5vw,1.1rem)", color: "var(--text)", lineHeight: 1.45,
                   wordBreak: "break-word", overflowWrap: "break-word",
                 }}>
@@ -296,7 +296,7 @@ export default function PlayerScreen() {
                     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg,rgba(255,255,255,0.16) 0%,transparent 55%)", pointerEvents: "none", zIndex: 1 }} />
                     <span style={{ fontSize: "clamp(1rem,4vw,1.4rem)", position: "relative", zIndex: 2 }}>{c.icon}</span>
                     <span style={{
-                      fontFamily: "var(--font-display)", fontWeight: 700, color: "var(--text)",
+                      fontFamily: "var(--font-inter)", fontWeight: 700, color: "var(--text)",
                       fontSize: "clamp(0.72rem,2.5vw,0.84rem)", textAlign: "center", lineHeight: 1.3,
                       position: "relative", zIndex: 2,
                       wordBreak: "break-word", overflowWrap: "break-word",
@@ -307,7 +307,7 @@ export default function PlayerScreen() {
                       <div style={{
                         position: "absolute", top: 8, right: 10, zIndex: 3,
                         width: 8, height: 8, borderRadius: "50%",
-                        background: "rgba(255,255,255,0.6)",
+                        background: "transparent",
                         animation: "timerPulse 0.5s ease-in-out infinite",
                       }} />
                     )}
@@ -325,7 +325,7 @@ export default function PlayerScreen() {
                 display: "flex", flexDirection: "column", gap: 10,
               }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: result.isCorrect ? "1px solid rgba(163,196,152,0.2)" : "1px solid rgba(169,90,90,0.2)", paddingBottom: 10 }}>
-                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.5rem", color: result.isCorrect ? "var(--green)" : "var(--red)" }}>
+                  <div style={{ fontFamily: "var(--font-inter)", fontWeight: 800, fontSize: "1.5rem", color: result.isCorrect ? "var(--green)" : "var(--red)" }}>
                     {result.isCorrect ? "✓ Correct!" : "✗ Wrong!"}
                   </div>
                   {streak >= 2 && result.isCorrect && (
@@ -362,7 +362,7 @@ export default function PlayerScreen() {
             )}
 
             {phase === P.ANSWERED && !result && (
-              <div style={{ textAlign: "center", color: "var(--muted)", fontFamily: "var(--font-display)", fontSize: "0.85rem", padding: "12px 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+              <div style={{ textAlign: "center", color: "var(--muted)", fontFamily: "var(--font-inter)", fontSize: "0.85rem", padding: "12px 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
                 {/* Equalizer animation */}
                 <div style={{ display: "flex", gap: 4, height: 16, alignItems: "flex-end" }}>
                   {[1,2,3].map(i => (
@@ -384,7 +384,7 @@ export default function PlayerScreen() {
 
             <div>
               <div style={{
-                fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "2rem",
+                fontFamily: "var(--font-inter)", fontWeight: 800, fontSize: "2rem",
                 color: selected === reveal.correctAnswer ? "var(--green)" : "var(--red)",
               }}>
                 {selected === reveal.correctAnswer ? "Correct!" : "Incorrect"}
@@ -395,7 +395,7 @@ export default function PlayerScreen() {
             </div>
 
             {/* Score card */}
-            <div className="glass" style={{
+            <div className="glass-card-sq" style={{
               borderRadius: 22, padding: "18px 40px",
               border: "1px solid rgba(172,200,162,0.18)",
             }}>
@@ -407,14 +407,14 @@ export default function PlayerScreen() {
                 Total Score
               </div>
               {myRank && (
-                <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: myRank <= 3 ? "var(--amber)" : "var(--text)", marginTop: 8, fontSize: "1.1rem" }}>
+                <div style={{ fontFamily: "var(--font-inter)", fontWeight: 700, color: myRank <= 3 ? "var(--amber)" : "var(--text)", marginTop: 8, fontSize: "1.1rem" }}>
                   {getMedal(myRank) || `#${myRank}`} Rank
                 </div>
               )}
             </div>
 
             <div style={{ marginTop: 10 }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: "0.85rem", color: "var(--pink)", fontWeight: 700, marginBottom: 8, animation: "popIn 1s ease 1s both" }}>React while you wait 👇</div>
+              <div style={{ fontFamily: "var(--font-inter)", fontSize: "0.85rem", color: "var(--pink)", fontWeight: 700, marginBottom: 8, animation: "popIn 1s ease 1s both" }}>React while you wait 👇</div>
               <EmojiReactions />
             </div>
 
@@ -431,7 +431,7 @@ export default function PlayerScreen() {
               <div style={{ fontSize: "4.5rem", lineHeight: 1, marginBottom: 8 }}>
                 {myRank === 1 ? "🏆" : getMedal(myRank) || "🎯"}
               </div>
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "2.2rem", color: "var(--text)" }}>
+              <div style={{ fontFamily: "var(--font-inter)", fontWeight: 800, fontSize: "2.2rem", color: "var(--text)" }}>
                 {myRank === 1 ? "You Won!" : myRank <= 3 ? "Top 3! 🎉" : `Rank #${myRank}`}
               </div>
               <ScoreCounter value={totalScore} style={{
@@ -456,14 +456,14 @@ export default function PlayerScreen() {
                 }}>
                   <div style={{
                     width: 28, textAlign: "center",
-                    fontFamily: "var(--font-display)", fontWeight: 800,
+                    fontFamily: "var(--font-inter)", fontWeight: 800,
                     fontSize: p.rank <= 3 ? "1rem" : "0.78rem",
                     color: p.rank === 1 ? "#ffb938" : p.rank === 2 ? "#cbd5e1" : p.rank === 3 ? "#cd7c30" : "var(--muted)",
                   }}>
                     {getMedal(p.rank) || `#${p.rank}`}
                   </div>
                   <div style={{
-                    flex: 1, fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.88rem",
+                    flex: 1, fontFamily: "var(--font-inter)", fontWeight: 700, fontSize: "0.88rem",
                     color: p.nickname === nickname ? "var(--cyan)" : "var(--text)",
                     overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                   }}>
@@ -479,7 +479,7 @@ export default function PlayerScreen() {
             {/* Private Player History */}
             {history && history.length > 0 && (
               <div style={{ width: "100%", maxWidth: 400, marginTop: 10 }}>
-                <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.88rem", color: "var(--text)", marginBottom: 10, textAlign: "center" }}>
+                <div style={{ fontFamily: "var(--font-inter)", fontWeight: 700, fontSize: "0.88rem", color: "var(--text)", marginBottom: 10, textAlign: "center" }}>
                   Your Performance Breakdown
                 </div>
                 {history.map((ans, i) => (
@@ -510,7 +510,7 @@ export default function PlayerScreen() {
               </div>
             )}
 
-            <button onClick={() => navigate("/")} className="btn-primary btn-violet"
+            <button onClick={() => navigate("/")} className="btn-primary-sq w-full btn-violet"
               style={{ padding: "15px 36px", borderRadius: 16, width: "100%", maxWidth: 400, fontSize: "0.95rem" }}>
               Play Again →
             </button>
@@ -522,9 +522,9 @@ export default function PlayerScreen() {
       {err && (
         <div className="animate-pop-in" style={{
           position: "fixed", bottom: 20, left: 12, right: 12,
-          background: "rgba(169,90,90,0.92)", backdropFilter: "blur(12px)",
+          background: "transparent", backdropFilter: "blur(12px)",
           color: "var(--text)", padding: "13px 16px", borderRadius: 14,
-          fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.88rem",
+          fontFamily: "var(--font-inter)", fontWeight: 600, fontSize: "0.88rem",
           zIndex: 200, textAlign: "center",
         }}>⚠️ {err}</div>
       )}

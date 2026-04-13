@@ -88,7 +88,7 @@ export default function HomePage() {
           <svg width="26" height="26" viewBox="0 0 24 24" fill="var(--cyan)" stroke="var(--cyan)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0 0 8px rgba(172,200,162,0.6))" }}>
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
           </svg>
-          <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.45rem", letterSpacing: "0.02em" }}>
+          <div style={{ fontFamily: "var(--font-inter)", fontWeight: 800, fontSize: "1.45rem", letterSpacing: "0.02em" }}>
             <span style={{ color: "var(--text)" }}>Quiz</span>
             <span style={{ color: "var(--cyan)", textShadow: "0 0 10px rgba(172,200,162,0.4)" }}>Flow</span>
           </div>
@@ -102,7 +102,7 @@ export default function HomePage() {
           </button>
           <button onClick={() => setTab("create")} className="btn-ghost" style={{
             padding: "8px 16px", borderRadius: 12,
-            fontFamily: "var(--font-display)", fontWeight: 700,
+            fontFamily: "var(--font-inter)", fontWeight: 700,
             fontSize: "0.8rem", letterSpacing: "0.05em",
           }}>
             Host →
@@ -119,17 +119,11 @@ export default function HomePage() {
       }}>
         {/* Headline */}
         <div className="animate-slide-up" style={{ textAlign: "center", marginBottom: 28 }}>
-          <div className="badge badge-cyan" style={{ marginBottom: 14, margin: "0 auto 14px" }}>
-            <div className="live-dot" />
-            Live Multiplayer Quiz
+          <div className="text-slate-400 font-medium tracking-wide uppercase text-xs mb-3">
+            Anti-Cheat Secure Quiz app
           </div>
-          <h1 style={{
-            fontFamily: "var(--font-display)", fontWeight: 800,
-            fontSize: "clamp(2.2rem,8vw,5rem)",
-            lineHeight: 1.04, marginBottom: 12,
-          }}>
-            Play Smarter.<br />
-            <span className="grad-text">Win Faster.</span>
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-3" style={{ fontFamily: "var(--font-inter)" }}>
+            SecureQuiz
           </h1>
           <p style={{
             color: "var(--muted)", fontSize: "clamp(0.88rem,2.5vw,1rem)",
@@ -140,25 +134,24 @@ export default function HomePage() {
         </div>
 
         {/* Main card */}
-        <div className="animate-pop-in glass-bright" style={{
+        <div className="animate-pop-in glass-card-sq" style={{
           width: "100%", maxWidth: 480,
-          borderRadius: 24, overflow: "hidden",
+          overflow: "hidden",
           animationDelay: "150ms", animationFillMode: "both",
-          boxShadow: "0 24px 80px rgba(26,37,23,0.15), 0 0 0 1px rgba(42,48,96,0.6)",
         }}>
           {/* Tabs */}
-          <div style={{ display: "flex", borderBottom: "1px solid var(--border)" }}>
+          <div style={{ display: "flex", borderBottom: "1px solid rgba(255,255,255,0.05)", background: "transparent" }}>
             {[
-              { id: "join",   label: "🎮 Join Game"  },
-              { id: "create", label: "🎯 Host Game"  },
+              { id: "join",   label: "🎮 Participant Login"  },
+              { id: "create", label: "🎯 Host Dashboard"  },
             ].map(t => (
               <button key={t.id} onClick={() => { setTab(t.id); setErr(""); }} style={{
-                flex: 1, padding: "15px 0",
-                fontFamily: "var(--font-display)", fontWeight: 700,
-                fontSize: "0.82rem", letterSpacing: "0.06em", textTransform: "uppercase",
-                color: tab === t.id ? "var(--cyan)" : "var(--muted)",
-                background: tab === t.id ? "rgba(172,200,162,0.05)" : "transparent",
-                borderBottom: `2px solid ${tab === t.id ? "var(--cyan)" : "transparent"}`,
+                flex: 1, padding: "16px 0",
+                fontFamily: "var(--font-inter)", fontWeight: 600,
+                fontSize: "0.85rem", letterSpacing: "0.02em",
+                color: tab === t.id ? "white" : "rgb(156 163 175)",
+                background: tab === t.id ? "rgba(255,255,255,0.03)" : "transparent",
+                borderBottom: `2px solid ${tab === t.id ? "#6366f1" : "transparent"}`,
                 transition: "all 0.2s", cursor: "pointer",
               }}>{t.label}</button>
             ))}
@@ -187,16 +180,14 @@ export default function HomePage() {
                         onKeyDown={e => {
                           if (e.key === 'Backspace' && !pin[i] && i > 0) pinRefs.current[i-1].focus();
                         }}
-                        className={`qf-input ${err.includes("PIN") ? "ans-btn wrong" : ""}`}
+                        className={`input-sq ${err.includes("PIN") ? "ans-btn wrong" : ""}`}
                         style={{
                           width: "15%", aspectRatio: "1/1", textAlign: "center",
                           fontSize: "1.6rem", padding: 0, fontFamily: "var(--font-mono)", fontWeight: 700,
-                          boxShadow: pin.length === 6 ? "0 0 12px rgba(163,196,152,0.25)" : "none",
-                          borderColor: pin.length === 6 ? "var(--green)" : undefined,
-                          transition: "all 0.2s cubic-bezier(0.175,0.885,0.32,1.275)"
+                                                                              transition: "all 0.2s cubic-bezier(0.175,0.885,0.32,1.275)"
                         }}
-                        onFocus={e => { e.target.style.borderColor = "var(--cyan)"; e.target.style.boxShadow = "0 0 0 3px rgba(172,200,162,0.12)"; e.target.select(); }}
-                        onBlur={e  => { e.target.style.borderColor = pin.length===6 ? "var(--green)" : "var(--border)"; e.target.style.boxShadow = pin.length===6 ? "0 0 12px rgba(163,196,152,0.25)" : "none"; }}
+                        onFocus={e => e.target.select()}
+                        
                       />
                     ))}
                   </div>
@@ -212,9 +203,9 @@ export default function HomePage() {
                     onChange={e => setNick(e.target.value.slice(0, 20))}
                     placeholder="e.g. QuizMaster99"
                     maxLength={20}
-                    className="qf-input"
-                    onFocus={e => { e.target.style.borderColor = "var(--violet)"; e.target.style.boxShadow = "0 0 0 3px rgba(104,138,93,0.12)"; }}
-                    onBlur={e  => { e.target.style.borderColor = "var(--border)"; e.target.style.boxShadow = "none"; }}
+                    className="input-sq"
+                    
+                    
                   />
                 </div>
 
@@ -235,10 +226,10 @@ export default function HomePage() {
                   <div style={{
                     display: "flex", alignItems: "center", gap: 10,
                     padding: "10px 14px", borderRadius: 12,
-                    background: "rgba(237,245,233,0.9)", border: "1.5px solid var(--border)",
+                    background: "transparent", border: "1.5px solid var(--border)",
                   }}>
-                    <img src={avatar} alt="Avatar" style={{ width: 44, height: 44, objectFit: "contain", background: "rgba(26,37,23,0.08)", borderRadius: 12, border: "1px solid rgba(26,37,23,0.1)" }} />
-                    <span style={{ fontFamily: "var(--font-body)", color: "var(--muted)", fontSize: "0.83rem" }}>
+                    <img src={avatar} alt="Avatar" style={{ width: 44, height: 44, objectFit: "contain", background: "transparent", borderRadius: 12, border: "1px solid rgba(26,37,23,0.1)" }} />
+                    <span style={{ fontFamily: "var(--font-inter)", color: "var(--muted)", fontSize: "0.83rem" }}>
                       {nick || "Your nickname"} · ready to play!
                     </span>
                   </div>
@@ -254,15 +245,15 @@ export default function HomePage() {
                 {err && (
                   <div className="animate-pop-in" style={{
                     padding: "11px 14px", borderRadius: 12,
-                    background: "rgba(169,90,90,0.08)",
+                    background: "transparent",
                     border: "1px solid rgba(169,90,90,0.3)",
                     color: "#ff7097", fontSize: "0.83rem",
-                    fontFamily: "var(--font-body)",
+                    fontFamily: "var(--font-inter)",
                   }}>⚠️ {err}</div>
                 )}
 
                 <button type="submit" disabled={loading || pin.length !== 6 || nick.length < 2}
-                  className="btn-primary" style={{ width: "100%", padding: "15px" }}>
+                  className="btn-primary-sq w-full" style={{ width: "100%", padding: "15px" }}>
                   {loading ? (
                     <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <span style={{ animation: "timerPulse 0.7s ease infinite" }}>⏳</span> Joining...
@@ -292,9 +283,9 @@ export default function HomePage() {
             <div key={f.label} style={{
               display: "flex", alignItems: "center", gap: 6,
               padding: "5px 12px", borderRadius: 99,
-              background: "rgba(26,37,23,0.7)", border: "1px solid var(--border)",
+              background: "transparent", border: "1px solid var(--border)",
               color: "var(--muted)", fontSize: "0.72rem",
-              fontFamily: "var(--font-body)",
+              fontFamily: "var(--font-inter)",
             }}>
               {f.icon} {f.label}
             </div>
@@ -401,14 +392,14 @@ function CreatePanel({ navigate }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
 
       {/* Mode toggle */}
-      <div style={{ display: "flex", background: "rgba(237,245,233,0.9)", borderRadius: 12, padding: 4, gap: 4 }}>
+      <div style={{ display: "flex", background: "transparent", borderRadius: 12, padding: 4, gap: 4 }}>
         {[
           { id: "premade", label: "📚 Use Pre-built" },
           { id: "custom",  label: "✏️ Build Custom"  },
         ].map(m => (
           <button key={m.id} onClick={() => { setMode(m.id); setErr(""); }} style={{
             flex: 1, padding: "9px 6px", borderRadius: 9,
-            fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.76rem",
+            fontFamily: "var(--font-inter)", fontWeight: 700, fontSize: "0.76rem",
             letterSpacing: "0.04em", cursor: "pointer",
             background: mode === m.id ? "rgba(104,138,93,0.18)" : "transparent",
             color: mode === m.id ? "var(--violet)" : "var(--muted)",
@@ -441,14 +432,14 @@ function CreatePanel({ navigate }) {
                   }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <span style={{
-                        fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.88rem",
+                        fontFamily: "var(--font-inter)", fontWeight: 700, fontSize: "0.88rem",
                         color: selId === q.id ? "var(--text)" : "#a0aec0",
                       }}>{q.title}</span>
                       {selId === q.id && <span style={{ color: "var(--cyan)", fontSize: "0.9rem" }}>✓</span>}
                     </div>
                     <div style={{ display: "flex", gap: 8, marginTop: 4, alignItems: "center", flexWrap: "wrap" }}>
                       <span className="badge" style={{
-                        background: "rgba(26,37,23,0.8)", border: "1px solid var(--border)",
+                        background: "transparent", border: "1px solid var(--border)",
                         color: "var(--muted)", padding: "2px 8px", fontSize: "0.62rem",
                       }}>{q.category}</span>
                       <span style={{ color: "var(--muted)", fontSize: "0.7rem" }}>{q.questionCount} questions</span>
@@ -461,9 +452,9 @@ function CreatePanel({ navigate }) {
               </div>
             )}
           </div>
-          {err && <div style={{ color: "#ff7097", fontSize: "0.8rem", padding: "10px 12px", borderRadius: 10, background: "rgba(169,90,90,0.07)", border: "1px solid rgba(169,90,90,0.2)" }}>⚠️ {err}</div>}
+          {err && <div style={{ color: "#ff7097", fontSize: "0.8rem", padding: "10px 12px", borderRadius: 10, background: "transparent", border: "1px solid rgba(169,90,90,0.2)" }}>⚠️ {err}</div>}
           <button onClick={createFromPremade} disabled={loading || !selId}
-            className="btn-primary btn-violet" style={{ width: "100%", padding: "15px" }}>
+            className="btn-primary-sq w-full btn-violet" style={{ width: "100%", padding: "15px" }}>
             {loading ? "Creating..." : "Create Game →"}
           </button>
         </>
@@ -481,7 +472,7 @@ function CreatePanel({ navigate }) {
               value={quizTitle}
               onChange={e => setQT(e.target.value.slice(0, 60))}
               placeholder="e.g. Science Bowl Round 1"
-              className="qf-input"
+              className="input-sq"
               maxLength={60}
             />
           </div>
@@ -491,7 +482,7 @@ function CreatePanel({ navigate }) {
             {questions.map((q, qi) => (
               <div key={qi} style={{
                 borderRadius: 16, padding: "14px 14px",
-                background: "rgba(17,24,16,0.7)", border: "1.5px solid var(--border)",
+                background: "transparent", border: "1.5px solid var(--border)",
               }}>
                 {/* Q header */}
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
@@ -507,7 +498,7 @@ function CreatePanel({ navigate }) {
                       value={q.time}
                       onChange={e => updateQ(qi, "time", Number(e.target.value))}
                       style={{
-                        background: "rgba(26,37,23,0.9)", border: "1px solid var(--border)",
+                        background: "transparent", border: "1px solid var(--border)",
                         color: "var(--muted)", borderRadius: 8, padding: "4px 8px",
                         fontSize: "0.7rem", fontFamily: "var(--font-mono)", cursor: "pointer",
                       }}
@@ -518,7 +509,7 @@ function CreatePanel({ navigate }) {
                     </select>
                     {questions.length > 1 && (
                       <button onClick={() => removeQuestion(qi)} style={{
-                        background: "rgba(169,90,90,0.1)", border: "1px solid rgba(169,90,90,0.25)",
+                        background: "transparent", border: "1px solid rgba(169,90,90,0.25)",
                         color: "#ff7097", borderRadius: 7, padding: "4px 9px",
                         fontSize: "0.72rem", cursor: "pointer",
                       }}>✕</button>
@@ -534,10 +525,10 @@ function CreatePanel({ navigate }) {
                   rows={2}
                   maxLength={240}
                   style={{
-                    width: "100%", background: "rgba(26,37,23,0.8)",
+                    width: "100%", background: "transparent",
                     border: "1.5px solid var(--border)", borderRadius: 10,
                     padding: "10px 12px", color: "var(--text)",
-                    fontFamily: "var(--font-body)", fontSize: "0.88rem",
+                    fontFamily: "var(--font-inter)", fontSize: "0.88rem",
                     resize: "vertical", outline: "none",
                     transition: "border-color 0.2s",
                     marginBottom: 10,
@@ -567,10 +558,10 @@ function CreatePanel({ navigate }) {
                         placeholder={`Option ${optionLabels[oi]}`}
                         maxLength={100}
                         style={{
-                          width: "100%", background: "rgba(26,37,23,0.8)",
+                          width: "100%", background: "transparent",
                           border: `1.5px solid ${q.correct === oi ? optionColors[oi] + "80" : "var(--border)"}`,
                           borderRadius: 10, padding: "8px 10px 8px 38px",
-                          color: "var(--text)", fontFamily: "var(--font-body)",
+                          color: "var(--text)", fontFamily: "var(--font-inter)",
                           fontSize: "0.8rem", outline: "none",
                           transition: "border-color 0.2s",
                           boxSizing: "border-box",
@@ -611,9 +602,9 @@ function CreatePanel({ navigate }) {
           {questions.length < 20 && (
             <button onClick={addQuestion} style={{
               padding: "10px", borderRadius: 12, cursor: "pointer",
-              background: "rgba(104,138,93,0.06)",
+              background: "transparent",
               border: "1.5px dashed rgba(104,138,93,0.35)",
-              color: "var(--violet)", fontFamily: "var(--font-display)",
+              color: "var(--violet)", fontFamily: "var(--font-inter)",
               fontWeight: 700, fontSize: "0.82rem",
               transition: "all 0.15s",
             }}>
@@ -621,10 +612,10 @@ function CreatePanel({ navigate }) {
             </button>
           )}
 
-          {err && <div style={{ color: "#ff7097", fontSize: "0.8rem", padding: "10px 12px", borderRadius: 10, background: "rgba(169,90,90,0.07)", border: "1px solid rgba(169,90,90,0.2)" }}>⚠️ {err}</div>}
+          {err && <div style={{ color: "#ff7097", fontSize: "0.8rem", padding: "10px 12px", borderRadius: 10, background: "transparent", border: "1px solid rgba(169,90,90,0.2)" }}>⚠️ {err}</div>}
 
           <button onClick={createFromCustom} disabled={loading}
-            className="btn-primary btn-violet" style={{ width: "100%", padding: "15px" }}>
+            className="btn-primary-sq w-full btn-violet" style={{ width: "100%", padding: "15px" }}>
             {loading ? "Creating..." : `🚀 Launch Quiz (${questions.length} Q)`}
           </button>
         </>
