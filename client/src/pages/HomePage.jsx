@@ -81,7 +81,7 @@ export default function HomePage() {
       <header style={{
         padding: "clamp(12px,3vw,20px) clamp(16px,4vw,32px)",
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        borderBottom: "1px solid rgba(255,255,255,0.05)",
+        borderBottom: "1px solid rgba(26,37,23,0.05)",
       }}>
         {/* Updated Wordmark Logo */}
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -89,7 +89,7 @@ export default function HomePage() {
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
           </svg>
           <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.45rem", letterSpacing: "0.02em" }}>
-            <span style={{ color: "white" }}>Quiz</span>
+            <span style={{ color: "var(--text)" }}>Quiz</span>
             <span style={{ color: "var(--cyan)", textShadow: "0 0 10px rgba(172,200,162,0.4)" }}>Flow</span>
           </div>
         </div>
@@ -144,7 +144,7 @@ export default function HomePage() {
           width: "100%", maxWidth: 480,
           borderRadius: 24, overflow: "hidden",
           animationDelay: "150ms", animationFillMode: "both",
-          boxShadow: "0 24px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(42,48,96,0.6)",
+          boxShadow: "0 24px 80px rgba(26,37,23,0.15), 0 0 0 1px rgba(42,48,96,0.6)",
         }}>
           {/* Tabs */}
           <div style={{ display: "flex", borderBottom: "1px solid var(--border)" }}>
@@ -235,9 +235,9 @@ export default function HomePage() {
                   <div style={{
                     display: "flex", alignItems: "center", gap: 10,
                     padding: "10px 14px", borderRadius: 12,
-                    background: "rgba(17,24,16,0.6)", border: "1.5px solid var(--border)",
+                    background: "rgba(237,245,233,0.9)", border: "1.5px solid var(--border)",
                   }}>
-                    <img src={avatar} alt="Avatar" style={{ width: 44, height: 44, objectFit: "contain", background: "rgba(0,0,0,0.2)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.1)" }} />
+                    <img src={avatar} alt="Avatar" style={{ width: 44, height: 44, objectFit: "contain", background: "rgba(26,37,23,0.08)", borderRadius: 12, border: "1px solid rgba(26,37,23,0.1)" }} />
                     <span style={{ fontFamily: "var(--font-body)", color: "var(--muted)", fontSize: "0.83rem" }}>
                       {nick || "Your nickname"} · ready to play!
                     </span>
@@ -401,7 +401,7 @@ function CreatePanel({ navigate }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
 
       {/* Mode toggle */}
-      <div style={{ display: "flex", background: "rgba(17,24,16,0.6)", borderRadius: 12, padding: 4, gap: 4 }}>
+      <div style={{ display: "flex", background: "rgba(237,245,233,0.9)", borderRadius: 12, padding: 4, gap: 4 }}>
         {[
           { id: "premade", label: "📚 Use Pre-built" },
           { id: "custom",  label: "✏️ Build Custom"  },
@@ -434,7 +434,7 @@ function CreatePanel({ navigate }) {
                 {quizzes.map(q => (
                   <button key={q.id} onClick={() => setSelId(q.id)} style={{
                     textAlign: "left", padding: "12px 14px", borderRadius: 14, cursor: "pointer",
-                    background: selId === q.id ? "rgba(172,200,162,0.07)" : "rgba(17,24,16,0.6)",
+                    background: selId === q.id ? "rgba(172,200,162,0.07)" : "rgba(237,245,233,0.9)",
                     border: selId === q.id ? "1.5px solid rgba(172,200,162,0.4)" : "1.5px solid var(--border)",
                     boxShadow: selId === q.id ? "0 0 20px rgba(172,200,162,0.08)" : "none",
                     transition: "all 0.15s",

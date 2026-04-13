@@ -79,7 +79,7 @@ export default function HostDashboard() {
           </svg>
           <div>
             <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "clamp(1.1rem,3vw,1.3rem)", letterSpacing: "0.02em" }}>
-              <span style={{ color: "white" }}>Quiz</span><span style={{ color: "var(--cyan)" }}>Flow</span>
+              <span style={{ color: "var(--text)" }}>Quiz</span><span style={{ color: "var(--cyan)" }}>Flow</span>
             </div>
             {quizTitle && <div style={{ fontSize: "0.65rem", color: "var(--muted)", marginTop: -1, maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{quizTitle}</div>}
           </div>
@@ -159,7 +159,7 @@ export default function HostDashboard() {
                       display: "flex", alignItems: "center", gap: 8,
                       animationDelay: `${i * 40}ms`, animationFillMode: "both",
                     }}>
-                      <img src={(p.emoji.startsWith("/") || p.emoji.startsWith("data:")) ? p.emoji : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%232a3040'/%3E%3Ccircle cx='100' cy='70' r='40' fill='%23a0aec0'/%3E%3Cpath d='M40 180A60 50 0 0 1 160 180Z' fill='%23a0aec0'/%3E%3C/svg%3E"} alt="Avatar" style={{ width: 34, height: 34, borderRadius: 6, flexShrink: 0, objectFit: "contain", background: "rgba(0,0,0,0.2)" }} />
+                      <img src={(p.emoji.startsWith("/") || p.emoji.startsWith("data:")) ? p.emoji : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%232a3040'/%3E%3Ccircle cx='100' cy='70' r='40' fill='%23a0aec0'/%3E%3Cpath d='M40 180A60 50 0 0 1 160 180Z' fill='%23a0aec0'/%3E%3C/svg%3E"} alt="Avatar" style={{ width: 34, height: 34, borderRadius: 6, flexShrink: 0, objectFit: "contain", background: "rgba(26,37,23,0.08)" }} />
                       <span style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.82rem", color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {p.nickname}
                       </span>
@@ -200,7 +200,7 @@ export default function HostDashboard() {
                         {q.options.map((opt, oi) => (
                           <div key={oi} style={{
                             padding: "8px 12px", borderRadius: 8, fontSize: "0.85rem",
-                            background: "rgba(17,24,16,0.6)",
+                            background: "rgba(237,245,233,0.9)",
                             border: `1.5px solid ${oi === q.correct ? "var(--green)" : "var(--border)"}`,
                             color: oi === q.correct ? "var(--green)" : "var(--muted)",
                           }}>
@@ -295,15 +295,15 @@ export default function HostDashboard() {
                     background: c.bg, borderRadius: 18, padding: "20px 18px",
                     display: "flex", alignItems: "center", gap: 12,
                     animation: `slideInUp 0.6s cubic-bezier(0.22,1,0.36,1) ${i * 80}ms both`,
-                    boxShadow: `inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -4px 0 rgba(0,0,0,0.5), 0 8px 16px rgba(0,0,0,0.3)`,
+                    boxShadow: `inset 0 1px 0 rgba(26,37,23,0.2), inset 0 -4px 0 rgba(26,37,23,0.15), 0 8px 16px rgba(0,0,0,0.3)`,
                   }}>
                     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg,rgba(255,255,255,0.14) 0%,transparent 55%)", pointerEvents: "none" }} />
                     <span style={{
                       width: 44, height: 44, borderRadius: 12, flexShrink: 0,
                       background: "rgba(0,0,0,0.25)", display: "flex", alignItems: "center", justifyContent: "center",
-                      fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.2rem", color: "white", zIndex: 1
+                      fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.2rem", color: "var(--text)", zIndex: 1
                     }}>{c.label}</span>
-                    <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "white", fontSize: "1.1rem", zIndex: 1, wordBreak: "break-word" }}>{opt}</span>
+                    <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "var(--text)", fontSize: "1.1rem", zIndex: 1, wordBreak: "break-word" }}>{opt}</span>
                   </div>
                 );
               })}
@@ -408,12 +408,12 @@ export default function HostDashboard() {
         <div className="animate-pop-in" style={{
           position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)",
           background: "rgba(169,90,90,0.92)", backdropFilter: "blur(12px)",
-          color: "white", padding: "12px 22px", borderRadius: 14,
+          color: "var(--text)", padding: "12px 22px", borderRadius: 14,
           fontFamily: "var(--font-display)", fontWeight: 600, zIndex: 100,
           display: "flex", gap: 10, alignItems: "center", whiteSpace: "nowrap",
         }}>
           ⚠️ {err}
-          <button onClick={() => setErr("")} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.6)", cursor: "pointer" }}>✕</button>
+          <button onClick={() => setErr("")} style={{ background: "none", border: "none", color: "rgba(22,32,18,0.6)", cursor: "pointer" }}>✕</button>
         </div>
       )}
     </div>

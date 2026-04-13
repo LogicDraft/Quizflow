@@ -168,7 +168,7 @@ export default function AvatarPicker({ selected, onSelect }) {
               transition: "transform 0.15s cubic-bezier(0.175,0.885,0.32,1.275), background 0.15s, border-color 0.15s",
               background: isSelected(avatarPath)
                 ? "rgba(172,200,162,0.15)"
-                : "rgba(26,37,23,0.5)",
+                : "rgba(237,245,233,0.6)",
               border: isSelected(avatarPath)
                 ? "1.5px solid rgba(172,200,162,0.6)"
                 : "1.5px solid rgba(45,59,39,0.8)",

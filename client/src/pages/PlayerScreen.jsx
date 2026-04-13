@@ -126,7 +126,7 @@ export default function PlayerScreen() {
       position: "sticky", top: 0, zIndex: 40,
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <img src={(emoji.startsWith("/") || emoji.startsWith("data:")) ? emoji : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%232a3040'/%3E%3Ccircle cx='100' cy='70' r='40' fill='%23a0aec0'/%3E%3Cpath d='M40 180A60 50 0 0 1 160 180Z' fill='%23a0aec0'/%3E%3C/svg%3E"} alt="Avatar" style={{ width: 38, height: 38, objectFit: "contain", borderRadius: 8, background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.1)" }} />
+        <img src={(emoji.startsWith("/") || emoji.startsWith("data:")) ? emoji : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%232a3040'/%3E%3Ccircle cx='100' cy='70' r='40' fill='%23a0aec0'/%3E%3Cpath d='M40 180A60 50 0 0 1 160 180Z' fill='%23a0aec0'/%3E%3C/svg%3E"} alt="Avatar" style={{ width: 38, height: 38, objectFit: "contain", borderRadius: 8, background: "rgba(26,37,23,0.08)", border: "1px solid rgba(26,37,23,0.1)" }} />
         <div>
           <div style={{
             fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.9rem",
@@ -184,7 +184,7 @@ export default function PlayerScreen() {
         {phase === P.LOBBY && (
           <div className="animate-phase" style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px 20px", gap: 22, textAlign: "center" }}>
             <div style={{ position: "relative", width: 120, height: 120 }}>
-              <img src={(emoji.startsWith("/") || emoji.startsWith("data:")) ? emoji : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%232a3040'/%3E%3Ccircle cx='100' cy='70' r='40' fill='%23a0aec0'/%3E%3Cpath d='M40 180A60 50 0 0 1 160 180Z' fill='%23a0aec0'/%3E%3C/svg%3E"} alt="Avatar" style={{ width: "100%", height: "100%", objectFit: "contain", position: "relative", zIndex: 5, filter: "drop-shadow(0 10px 20px rgba(0,0,0,0.5))" }} />
+              <img src={(emoji.startsWith("/") || emoji.startsWith("data:")) ? emoji : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%232a3040'/%3E%3Ccircle cx='100' cy='70' r='40' fill='%23a0aec0'/%3E%3Cpath d='M40 180A60 50 0 0 1 160 180Z' fill='%23a0aec0'/%3E%3C/svg%3E"} alt="Avatar" style={{ width: "100%", height: "100%", objectFit: "contain", position: "relative", zIndex: 5, filter: "drop-shadow(0 10px 20px rgba(26,37,23,0.15))" }} />
               {/* Animated rings */}
               {[0,1].map(i => (
                 <div key={i} style={{
@@ -296,7 +296,7 @@ export default function PlayerScreen() {
                     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg,rgba(255,255,255,0.16) 0%,transparent 55%)", pointerEvents: "none", zIndex: 1 }} />
                     <span style={{ fontSize: "clamp(1rem,4vw,1.4rem)", position: "relative", zIndex: 2 }}>{c.icon}</span>
                     <span style={{
-                      fontFamily: "var(--font-display)", fontWeight: 700, color: "white",
+                      fontFamily: "var(--font-display)", fontWeight: 700, color: "var(--text)",
                       fontSize: "clamp(0.72rem,2.5vw,0.84rem)", textAlign: "center", lineHeight: 1.3,
                       position: "relative", zIndex: 2,
                       wordBreak: "break-word", overflowWrap: "break-word",
@@ -523,7 +523,7 @@ export default function PlayerScreen() {
         <div className="animate-pop-in" style={{
           position: "fixed", bottom: 20, left: 12, right: 12,
           background: "rgba(169,90,90,0.92)", backdropFilter: "blur(12px)",
-          color: "white", padding: "13px 16px", borderRadius: 14,
+          color: "var(--text)", padding: "13px 16px", borderRadius: 14,
           fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.88rem",
           zIndex: 200, textAlign: "center",
         }}>⚠️ {err}</div>

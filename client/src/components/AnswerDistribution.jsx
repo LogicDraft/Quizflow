@@ -42,11 +42,11 @@ export default function AnswerDistribution({ options = [], correctIndex, distrib
               background: color,
               display: "flex", alignItems: "center", justifyContent: "center",
               fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "0.85rem",
-              color: "white", position: "relative", overflow: "hidden",
+              color: "var(--text)", position: "relative", overflow: "hidden",
             }}>
               <div style={{
                 position: "absolute", inset: 0,
-                background: "linear-gradient(135deg,rgba(255,255,255,0.2) 0%,transparent 60%)",
+                background: "linear-gradient(135deg,rgba(26,37,23,0.2) 0%,transparent 60%)",
               }} />
               {isRight ? "✓" : c.label}
             </div>
