@@ -159,7 +159,7 @@ export default function HostDashboard() {
                       display: "flex", alignItems: "center", gap: 8,
                       animationDelay: `${i * 40}ms`, animationFillMode: "both",
                     }}>
-                      <img src={p.emoji.startsWith("/") ? p.emoji : "/avatars/peter1.webp"} alt="Avatar" style={{ width: 34, height: 34, borderRadius: 6, flexShrink: 0, objectFit: "contain", background: "rgba(0,0,0,0.2)" }} />
+                      <img src={p.emoji.startsWith("/") ? p.emoji : "/avatars/blank.svg"} alt="Avatar" style={{ width: 34, height: 34, borderRadius: 6, flexShrink: 0, objectFit: "contain", background: "rgba(0,0,0,0.2)" }} />
                       <span style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.82rem", color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {p.nickname}
                       </span>

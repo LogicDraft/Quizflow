@@ -29,7 +29,7 @@ export default function PlayerScreen() {
   const { playCorrect, playWrong, playVictory, playStart } = useSound();
 
   const nickname  = sp.get("nickname") || "Player";
-  const initEmoji = sp.get("avatar")   || "/avatars/peter1.webp";
+  const initEmoji = sp.get("avatar")   || "/avatars/blank.svg";
 
   const [phase, setPhase]       = useState(P.CONNECTING);
   const [emoji]                 = useState(initEmoji);
@@ -126,7 +126,7 @@ export default function PlayerScreen() {
       position: "sticky", top: 0, zIndex: 40,
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <img src={emoji.startsWith("/") ? emoji : "/avatars/peter1.webp"} alt="Avatar" style={{ width: 38, height: 38, objectFit: "contain", borderRadius: 8, background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.1)" }} />
+        <img src={emoji.startsWith("/") ? emoji : "/avatars/blank.svg"} alt="Avatar" style={{ width: 38, height: 38, objectFit: "contain", borderRadius: 8, background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.1)" }} />
         <div>
           <div style={{
             fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.9rem",
@@ -184,7 +184,7 @@ export default function PlayerScreen() {
         {phase === P.LOBBY && (
           <div className="animate-phase" style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px 20px", gap: 22, textAlign: "center" }}>
             <div style={{ position: "relative", width: 120, height: 120 }}>
-              <img src={emoji.startsWith("/") ? emoji : "/avatars/peter1.webp"} alt="Avatar" style={{ width: "100%", height: "100%", objectFit: "contain", position: "relative", zIndex: 5, filter: "drop-shadow(0 10px 20px rgba(0,0,0,0.5))" }} />
+              <img src={emoji.startsWith("/") ? emoji : "/avatars/blank.svg"} alt="Avatar" style={{ width: "100%", height: "100%", objectFit: "contain", position: "relative", zIndex: 5, filter: "drop-shadow(0 10px 20px rgba(0,0,0,0.5))" }} />
               {/* Animated rings */}
               {[0,1].map(i => (
                 <div key={i} style={{

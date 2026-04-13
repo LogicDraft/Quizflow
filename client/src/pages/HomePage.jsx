@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import AvatarPicker from "../components/AvatarPicker";
@@ -19,7 +19,7 @@ export default function HomePage() {
   const [tab, setTab]         = useState("join");
   const [pin, setPin]         = useState(params.get("pin") || "");
   const [nick, setNick]       = useState("");
-  const [avatar, setAvatar]   = useState("/avatars/peter1.webp");
+  const [avatar, setAvatar]   = useState("/avatars/blank.svg");
   const [showAvatars, setShowAvatars] = useState(false);
   const [err, setErr]         = useState("");
   const [loading, setLoading] = useState(false);

@@ -94,7 +94,7 @@ module.exports = function registerSocketHandlers(io) {
         id: socket.id,
         nickname: sanitizedNickname,
         score: 0,
-        emoji: xss(avatar || "/avatars/peter1.webp"),
+        emoji: xss(avatar || "/avatars/blank.svg"),
         answers: []
       };
 
