@@ -29,7 +29,7 @@ export default function PlayerScreen() {
   const { playCorrect, playWrong, playVictory, playStart } = useSound();
 
   const nickname  = sp.get("nickname") || "Player";
-  const initEmoji = sp.get("avatar")   || "🦊";
+  const initEmoji = sp.get("avatar")   || "/avatars/peter1.webp";
 
   const [phase, setPhase]       = useState(P.CONNECTING);
   const [emoji]                 = useState(initEmoji);
@@ -47,9 +47,24 @@ export default function PlayerScreen() {
   const [err, setErr]           = useState("");
   const [qNum, setQNum]         = useState(0);
   const [history, setHistory]   = useState([]);
+  const [urgent, setUrgent]     = useState(false);
 
   // Haptic feedback
   const vibrate = (pattern) => navigator.vibrate?.(pattern);
+
+  // Urgency Timer
+  useEffect(() => {
+    if (phase === P.QUESTION && question && selected === null) {
+      if (question.time <= 5) {
+        setUrgent(true);
+      } else {
+        const tid = setTimeout(() => setUrgent(true), (question.time - 5) * 1000);
+        return () => clearTimeout(tid);
+      }
+    } else {
+      setUrgent(false);
+    }
+  }, [phase, question, selected]);
 
   // Anti-cheat: tab switch
   useEffect(() => {
@@ -110,8 +125,8 @@ export default function PlayerScreen() {
       borderBottom: "1px solid rgba(28,34,64,0.7)",
       position: "sticky", top: 0, zIndex: 40,
     }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <span style={{ fontSize: "1.5rem" }}>{emoji}</span>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <img src={emoji.startsWith("/") ? emoji : "/avatars/peter1.webp"} alt="Avatar" style={{ width: 38, height: 38, objectFit: "contain", borderRadius: 8, background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.1)" }} />
         <div>
           <div style={{
             fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.9rem",
@@ -150,6 +165,7 @@ export default function PlayerScreen() {
   return (
     <div className="mesh-bg" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <div className="dot-grid" style={{ position: "fixed", inset: 0, opacity: 0.18, pointerEvents: "none" }} />
+      {urgent && <div className="urgency-vignette" />}
       <NetworkStatus />
       {phase === P.STARTING && <CountdownOverlay onDone={() => {}} />}
       <StatusBar />
@@ -167,8 +183,8 @@ export default function PlayerScreen() {
         {/* LOBBY */}
         {phase === P.LOBBY && (
           <div className="animate-phase" style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px 20px", gap: 22, textAlign: "center" }}>
-            <div style={{ position: "relative" }}>
-              <div style={{ fontSize: "7rem", lineHeight: 1 }}>{emoji}</div>
+            <div style={{ position: "relative", width: 120, height: 120 }}>
+              <img src={emoji.startsWith("/") ? emoji : "/avatars/peter1.webp"} alt="Avatar" style={{ width: "100%", height: "100%", objectFit: "contain", position: "relative", zIndex: 5, filter: "drop-shadow(0 10px 20px rgba(0,0,0,0.5))" }} />
               {/* Animated rings */}
               {[0,1].map(i => (
                 <div key={i} style={{
@@ -256,7 +272,7 @@ export default function PlayerScreen() {
             </div>
 
             {/* Answer buttons */}
-            <div className="ans-grid" style={{ flex: 1 }}>
+            <div className={`ans-grid ${urgent ? "heartbeat-grid" : ""}`} style={{ flex: 1 }}>
               {question.options.map((opt, i) => {
                 const c         = ANSWER_COLORS[i];
                 const isSel     = selected === i;
@@ -300,35 +316,42 @@ export default function PlayerScreen() {
               })}
             </div>
 
-            {/* Result feedback */}
+            {/* Result feedback Breakdown */}
             {result && (
               <div className="animate-pop-in" style={{
-                borderRadius: 18, padding: "14px 18px",
-                background: result.isCorrect ? "rgba(13,242,160,0.1)" : "rgba(255,61,110,0.1)",
-                border: `1px solid ${result.isCorrect ? "rgba(13,242,160,0.35)" : "rgba(255,61,110,0.35)"}`,
-                display: "flex", alignItems: "center", justifyContent: "space-between",
+                borderRadius: 18, padding: "18px",
+                background: result.isCorrect ? "rgba(13,242,160,0.08)" : "rgba(255,61,110,0.08)",
+                border: `1.5px solid ${result.isCorrect ? "rgba(13,242,160,0.3)" : "rgba(255,61,110,0.3)"}`,
+                display: "flex", flexDirection: "column", gap: 10,
               }}>
-                <div>
-                  <div style={{
-                    fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.4rem",
-                    color: result.isCorrect ? "var(--green)" : "var(--red)",
-                  }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: result.isCorrect ? "1px solid rgba(13,242,160,0.2)" : "1px solid rgba(255,61,110,0.2)", paddingBottom: 10 }}>
+                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.5rem", color: result.isCorrect ? "var(--green)" : "var(--red)" }}>
                     {result.isCorrect ? "✓ Correct!" : "✗ Wrong!"}
                   </div>
                   {streak >= 2 && result.isCorrect && (
-                    <div style={{ fontSize: "0.75rem", color: "var(--amber)", marginTop: 2 }}>🔥 {streak} in a row!</div>
+                    <div style={{ fontSize: "0.8rem", color: "var(--amber)", fontWeight: 700 }}>🔥 {streak} in a row!</div>
                   )}
                 </div>
+
                 {result.isCorrect && (
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: "1.3rem", color: "var(--green)" }}>
-                      +{formatScore(result.points)}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: "0.95rem", fontFamily: "var(--font-mono)", fontWeight: 600 }}>
+                    <div className="animate-slide-up" style={{ display: "flex", justifyContent: "space-between", color: "var(--text)", animationDelay: "100ms", animationFillMode: "both" }}>
+                      <span>Base Points:</span>
+                      <span>+{Math.min(500, result.points)}</span>
+                    </div>
+                    <div className="animate-slide-up" style={{ display: "flex", justifyContent: "space-between", color: "var(--text)", animationDelay: "200ms", animationFillMode: "both" }}>
+                      <span>Speed Bonus:</span>
+                      <span>+{Math.max(0, result.points - 500)}</span>
+                    </div>
+                    <div className="animate-slide-up" style={{ display: "flex", justifyContent: "space-between", color: "var(--green)", fontSize: "1.2rem", fontWeight: 800, marginTop: 4, paddingTop: 4, borderTop: "1px dashed rgba(13,242,160,0.3)", animationDelay: "300ms", animationFillMode: "both" }}>
+                      <span>Total:</span>
+                      <span>+{result.points}</span>
                     </div>
                     {/* Speed badge */}
                     {(() => { const s = getSpeed(result.points); return (
-                      <div className="speed-badge" style={{
+                      <div className="speed-badge animate-pop-in" style={{
                         background: `${s.color}15`, border: `1px solid ${s.color}40`, color: s.color,
-                        marginTop: 4,
+                        marginTop: 4, animationDelay: "450ms", animationFillMode: "both"
                       }}>
                         {s.icon} {s.label}
                       </div>
@@ -339,7 +362,13 @@ export default function PlayerScreen() {
             )}
 
             {phase === P.ANSWERED && !result && (
-              <div style={{ textAlign: "center", color: "var(--muted)", fontFamily: "var(--font-display)", fontSize: "0.85rem", animation: "timerPulse 1.5s ease infinite", padding: "6px 0" }}>
+              <div style={{ textAlign: "center", color: "var(--muted)", fontFamily: "var(--font-display)", fontSize: "0.85rem", padding: "12px 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+                {/* Equalizer animation */}
+                <div style={{ display: "flex", gap: 4, height: 16, alignItems: "flex-end" }}>
+                  {[1,2,3].map(i => (
+                    <div key={i} style={{ width: 4, background: "var(--cyan)", borderRadius: 2, animation: `timerPulse ${0.5 + i*0.2}s ease-in-out infinite alternate` }} />
+                  ))}
+                </div>
                 ⏳ Waiting for others...
               </div>
             )}
@@ -348,7 +377,7 @@ export default function PlayerScreen() {
 
         {/* REVEAL */}
         {phase === P.REVEAL && reveal && (
-          <div className="animate-phase" style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px 18px", gap: 18, textAlign: "center", overflowY: "auto" }}>
+          <div className="phase-enter-up" style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px 18px", gap: 18, textAlign: "center", overflowY: "auto" }}>
             <div style={{ fontSize: "5rem", lineHeight: 1, animation: selected === reveal.correctAnswer ? "popIn 0.5s ease" : "shake 0.4s ease" }}>
               {selected === reveal.correctAnswer ? "🎉" : "😔"}
             </div>
@@ -384,9 +413,12 @@ export default function PlayerScreen() {
               )}
             </div>
 
-            <EmojiReactions />
+            <div style={{ marginTop: 10 }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: "0.85rem", color: "var(--pink)", fontWeight: 700, marginBottom: 8, animation: "popIn 1s ease 1s both" }}>React while you wait 👇</div>
+              <EmojiReactions />
+            </div>
 
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem", color: "var(--muted)", letterSpacing: "0.12em", textTransform: "uppercase", animation: "timerPulse 2s ease infinite" }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem", color: "var(--muted)", letterSpacing: "0.12em", textTransform: "uppercase", animation: "timerPulse 2s ease infinite", marginTop: 10 }}>
               Next question coming up...
             </div>
           </div>

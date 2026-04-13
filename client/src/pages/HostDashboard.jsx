@@ -3,7 +3,7 @@ import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { useSocket } from "../context/SocketContext";
 import { useSound } from "../hooks/useSound";
 import Leaderboard from "../components/Leaderboard";
-import Timer from "../components/Timer";
+import CircularTimer from "../components/CircularTimer";
 import CountdownOverlay from "../components/CountdownOverlay";
 import AnswerDistribution from "../components/AnswerDistribution";
 import PINShare from "../components/PINShare";
@@ -74,16 +74,13 @@ export default function HostDashboard() {
         borderBottom: "1px solid rgba(28,34,64,0.7)",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{
-            width: 38, height: 38, borderRadius: 12, flexShrink: 0,
-            background: "linear-gradient(135deg,var(--violet),var(--cyan))",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: "1.1rem", boxShadow: "0 0 20px rgba(124,92,252,0.4)",
-          }}>🎯</div>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="var(--cyan)" stroke="var(--cyan)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0 0 8px rgba(6,247,217,0.6))" }}>
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
           <div>
-            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "clamp(0.9rem,3vw,1.05rem)",
-              background: "linear-gradient(135deg,var(--cyan),var(--violet))",
-              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>QuizFlow</div>
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "clamp(1.1rem,3vw,1.3rem)", letterSpacing: "0.02em" }}>
+              <span style={{ color: "white" }}>Quiz</span><span style={{ color: "var(--cyan)" }}>Flow</span>
+            </div>
             {quizTitle && <div style={{ fontSize: "0.65rem", color: "var(--muted)", marginTop: -1, maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{quizTitle}</div>}
           </div>
         </div>
@@ -162,7 +159,7 @@ export default function HostDashboard() {
                       display: "flex", alignItems: "center", gap: 8,
                       animationDelay: `${i * 40}ms`, animationFillMode: "both",
                     }}>
-                      <span style={{ fontSize: "1.4rem", flexShrink: 0 }}>{p.emoji || "🦊"}</span>
+                      <img src={p.emoji.startsWith("/") ? p.emoji : "/avatars/peter1.webp"} alt="Avatar" style={{ width: 34, height: 34, borderRadius: 6, flexShrink: 0, objectFit: "contain", background: "rgba(0,0,0,0.2)" }} />
                       <span style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "0.82rem", color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {p.nickname}
                       </span>
@@ -249,78 +246,67 @@ export default function HostDashboard() {
               </button>
             </div>
 
-            <Timer totalTime={curQ.time} running={timerOn} onExpire={() => setTimer(false)} />
-
-            {/* Question card */}
-            <div className="glass animate-pop-in" style={{
-              borderRadius: 22, padding: "28px 32px", textAlign: "center",
-              border: "1px solid rgba(124,92,252,0.2)",
-              boxShadow: "0 0 50px rgba(124,92,252,0.07)",
-            }}>
-              <div style={{
-                fontFamily: "var(--font-display)", fontWeight: 700,
-                fontSize: "clamp(1.1rem,3vw,1.65rem)", color: "var(--text)", lineHeight: 1.4,
+            {/* Dashboard grid */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 20, marginTop: 10 }}>
+              
+              {/* Question card */}
+              <div className="glass animate-pop-in" style={{
+                flex: "1 1 500px", borderRadius: 22, padding: "clamp(28px,6vw,60px) 32px", textAlign: "center",
+                border: "1px solid rgba(124,92,252,0.2)", boxShadow: "0 0 50px rgba(124,92,252,0.07)",
+                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center"
               }}>
-                {curQ.text}
+                <div style={{
+                  fontFamily: "var(--font-display)", fontWeight: 700,
+                  fontSize: "clamp(1.5rem,4vw,3rem)", color: "var(--text)", lineHeight: 1.3,
+                }}>
+                  {curQ.text}
+                </div>
+              </div>
+
+              {/* Side controls (Desktop Timer & Progress) */}
+              <div style={{ flex: "1 1 250px", display: "flex", flexDirection: "column", gap: 14 }}>
+                <div className="glass animate-slide-up" style={{ borderRadius: 18, padding: 20, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1 }}>
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem", color: "var(--muted)", marginBottom: 16 }}>TIME REMAINING</div>
+                  <CircularTimer totalTime={curQ.time} running={timerOn} onExpire={() => setTimer(false)} size={130} />
+                </div>
+
+                <div className="glass animate-slide-up" style={{ borderRadius: 18, padding: 20, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1, animationDelay: "100ms" }}>
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem", color: "var(--muted)", marginBottom: 16 }}>ANSWERS LOGGED</div>
+                  <div style={{ position: "relative", width: 100, height: 100 }}>
+                    <svg width="100" height="100" viewBox="0 0 120 120" style={{ transform: "rotate(-90deg)" }}>
+                      <circle cx="60" cy="60" r="54" fill="none" stroke="var(--border)" strokeWidth="12" />
+                      <circle cx="60" cy="60" r="54" fill="none" stroke="var(--cyan)" strokeWidth="12" strokeDasharray="339.3" strokeDashoffset={339.3 - (339.3 * (ansCount.answered / Math.max(1, ansCount.total)))} style={{ transition: "stroke-dashoffset 0.5s ease" }} strokeLinecap="round" />
+                    </svg>
+                    <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", flexWrap: "wrap", flexDirection: "column" }}>
+                      <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.8rem" }}>{ansCount.answered}</span>
+                      <span style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "0.8rem", color: "var(--muted)", marginTop: -6 }}>/ {ansCount.total}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Options */}
-            <div className="ans-grid" style={{ gap: 10 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 14 }}>
               {curQ.options.map((opt, i) => {
                 const c = ANSWER_COLORS[i];
                 return (
-                  <div key={i} className="animate-slide-up" style={{
-                    background: c.bg, borderRadius: 18, padding: "15px 18px",
+                  <div key={i} className="ans-btn" style={{
+                    background: c.bg, borderRadius: 18, padding: "20px 18px",
                     display: "flex", alignItems: "center", gap: 12,
-                    animationDelay: `${i * 65}ms`, animationFillMode: "both",
-                    boxShadow: `0 4px 20px ${c.bg}44`,
-                    position: "relative", overflow: "hidden",
+                    animation: `slideInUp 0.6s cubic-bezier(0.22,1,0.36,1) ${i * 80}ms both`,
+                    boxShadow: `inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -4px 0 rgba(0,0,0,0.5), 0 8px 16px rgba(0,0,0,0.3)`,
                   }}>
                     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg,rgba(255,255,255,0.14) 0%,transparent 55%)", pointerEvents: "none" }} />
                     <span style={{
-                      width: 36, height: 36, borderRadius: 10, flexShrink: 0,
+                      width: 44, height: 44, borderRadius: 12, flexShrink: 0,
                       background: "rgba(0,0,0,0.25)", display: "flex", alignItems: "center", justifyContent: "center",
-                      fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1rem", color: "white",
+                      fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.2rem", color: "white", zIndex: 1
                     }}>{c.label}</span>
-                    <span style={{ fontFamily: "var(--font-display)", fontWeight: 600, color: "white", fontSize: "0.92rem" }}>{opt}</span>
+                    <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "white", fontSize: "1.1rem", zIndex: 1, wordBreak: "break-word" }}>{opt}</span>
                   </div>
                 );
               })}
-            </div>
-
-            {/* Live answer progress */}
-            <div className="glass" style={{ borderRadius: 16, padding: "14px 18px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <span style={{ fontFamily: "var(--font-body)", color: "var(--muted)", fontSize: "0.82rem" }}>
-                  Live answers
-                </span>
-                <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700, color: "var(--cyan)", fontSize: "0.95rem" }}>
-                  {ansCount.answered} / {ansCount.total}
-                </span>
-              </div>
-              <div style={{ height: 5, background: "var(--border)", borderRadius: 99, overflow: "hidden" }}>
-                <div style={{
-                  height: "100%",
-                  background: "linear-gradient(90deg,var(--green),var(--cyan))",
-                  width: `${ansCount.total > 0 ? (ansCount.answered / ansCount.total) * 100 : 0}%`,
-                  transition: "width 0.4s ease",
-                  boxShadow: "0 0 8px rgba(6,247,217,0.5)",
-                }} />
-              </div>
-              {/* Dot per player */}
-              {players.length <= 20 && (
-                <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: 10 }}>
-                  {players.map((_, i) => (
-                    <div key={i} style={{
-                      width: 10, height: 10, borderRadius: "50%",
-                      background: i < ansCount.answered ? "var(--green)" : "var(--border)",
-                      boxShadow: i < ansCount.answered ? "0 0 6px var(--green)" : "none",
-                      transition: "all 0.3s ease",
-                    }} />
-                  ))}
-                </div>
-              )}
             </div>
           </div>
         )}

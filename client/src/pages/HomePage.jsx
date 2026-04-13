@@ -19,11 +19,12 @@ export default function HomePage() {
   const [tab, setTab]         = useState("join");
   const [pin, setPin]         = useState(params.get("pin") || "");
   const [nick, setNick]       = useState("");
-  const [avatar, setAvatar]   = useState("🦊");
+  const [avatar, setAvatar]   = useState("/avatars/peter1.webp");
   const [showAvatars, setShowAvatars] = useState(false);
   const [err, setErr]         = useState("");
   const [loading, setLoading] = useState(false);
   const [muted, setMuted]     = useState(() => localStorage.getItem("qf_muted") === "1");
+  const pinRefs = useRef([]);
 
   function toggleMute() {
     const next = !muted;
@@ -78,32 +79,21 @@ export default function HomePage() {
 
       {/* Header */}
       <header style={{
-        position: "relative", zIndex: 10,
+        padding: "clamp(12px,3vw,20px) clamp(16px,4vw,32px)",
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "14px 20px",
-        borderBottom: "1px solid rgba(28,34,64,0.6)",
-        backdropFilter: "blur(20px)",
-        gap: 8,
+        borderBottom: "1px solid rgba(255,255,255,0.05)",
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{
-            width: 40, height: 40, borderRadius: 14,
-            background: "linear-gradient(135deg, var(--violet), var(--cyan))",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: "1.2rem", boxShadow: "0 0 24px rgba(124,92,252,0.45)",
-            flexShrink: 0,
-          }}>🎯</div>
-          <div>
-            <div style={{
-              fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "clamp(1rem,4vw,1.3rem)",
-              background: "linear-gradient(135deg,var(--cyan),var(--violet))",
-              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-            }}>QuizFlow</div>
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.58rem", color: "var(--muted)", letterSpacing: "0.12em", textTransform: "uppercase" }}>
-              Real-Time Quiz Platform
-            </div>
+        {/* Updated Wordmark Logo */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="var(--cyan)" stroke="var(--cyan)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0 0 8px rgba(6,247,217,0.6))" }}>
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+          <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.45rem", letterSpacing: "0.02em" }}>
+            <span style={{ color: "white" }}>Quiz</span>
+            <span style={{ color: "var(--cyan)", textShadow: "0 0 10px rgba(6,247,217,0.4)" }}>Flow</span>
           </div>
         </div>
+
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <button onClick={toggleMute} className="btn-ghost" style={{
             padding: "8px 12px", borderRadius: 10, fontSize: "0.95rem",
@@ -177,27 +167,39 @@ export default function HomePage() {
           <div style={{ padding: "22px 20px" }}>
             {tab === "join" ? (
               <form onSubmit={handleJoin} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                {/* PIN */}
+                {/* OTP PIN Input */}
                 <div>
                   <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--muted)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 8 }}>
                     Game PIN
                   </label>
-                  <input
-                    value={pin}
-                    onChange={e => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                    placeholder="Enter 6-digit PIN"
-                    maxLength={6}
-                    autoFocus
-                    className="qf-input pin"
-                    style={{ fontSize: "clamp(1.4rem,5vw,2rem)", letterSpacing: "0.3em" }}
-                    onFocus={e => { e.target.style.borderColor = "var(--cyan)"; e.target.style.boxShadow = "0 0 0 3px rgba(6,247,217,0.12)"; }}
-                    onBlur={e  => { e.target.style.borderColor = "var(--border)"; e.target.style.boxShadow = "none"; }}
-                  />
-                  {pin.length > 0 && pin.length < 6 && (
-                    <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.62rem", color: "var(--muted)", marginTop: 5 }}>
-                      {6 - pin.length} more digit{6 - pin.length !== 1 ? "s" : ""}
-                    </div>
-                  )}
+                  <div style={{ display: "flex", gap: 6, justifyContent: "space-between" }}>
+                    {[0,1,2,3,4,5].map(i => (
+                      <input key={i} ref={el => pinRefs.current[i] = el}
+                        value={pin[i] || ""}
+                        onChange={e => {
+                          const val = e.target.value.replace(/\D/g, "").slice(-1);
+                          if (!val && e.target.value !== "") return;
+                          let newPin = (pin || "").split('');
+                          newPin[i] = val;
+                          setPin(newPin.join(''));
+                          if (val && i < 5) pinRefs.current[i+1].focus();
+                        }}
+                        onKeyDown={e => {
+                          if (e.key === 'Backspace' && !pin[i] && i > 0) pinRefs.current[i-1].focus();
+                        }}
+                        className={`qf-input ${err.includes("PIN") ? "ans-btn wrong" : ""}`}
+                        style={{
+                          width: "15%", aspectRatio: "1/1", textAlign: "center",
+                          fontSize: "1.6rem", padding: 0, fontFamily: "var(--font-mono)", fontWeight: 700,
+                          boxShadow: pin.length === 6 ? "0 0 12px rgba(13,242,160,0.25)" : "none",
+                          borderColor: pin.length === 6 ? "var(--green)" : undefined,
+                          transition: "all 0.2s cubic-bezier(0.175,0.885,0.32,1.275)"
+                        }}
+                        onFocus={e => { e.target.style.borderColor = "var(--cyan)"; e.target.style.boxShadow = "0 0 0 3px rgba(6,247,217,0.12)"; e.target.select(); }}
+                        onBlur={e  => { e.target.style.borderColor = pin.length===6 ? "var(--green)" : "var(--border)"; e.target.style.boxShadow = pin.length===6 ? "0 0 12px rgba(13,242,160,0.25)" : "none"; }}
+                      />
+                    ))}
+                  </div>
                 </div>
 
                 {/* Nickname */}
@@ -235,7 +237,7 @@ export default function HomePage() {
                     padding: "10px 14px", borderRadius: 12,
                     background: "rgba(6,8,17,0.6)", border: "1.5px solid var(--border)",
                   }}>
-                    <span style={{ fontSize: "1.8rem" }}>{avatar}</span>
+                    <img src={avatar} alt="Avatar" style={{ width: 44, height: 44, objectFit: "contain", background: "rgba(0,0,0,0.2)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.1)" }} />
                     <span style={{ fontFamily: "var(--font-body)", color: "var(--muted)", fontSize: "0.83rem" }}>
                       {nick || "Your nickname"} · ready to play!
                     </span>
