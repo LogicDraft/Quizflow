@@ -78,9 +78,9 @@ Error generating stack: `+s.message+`
           border-radius: 0.95rem;
           display: grid;
           place-items: center;
-          border: 1px solid rgba(96, 165, 250, 0.28);
-          background: linear-gradient(145deg, rgba(96, 165, 250, 0.14), rgba(141, 173, 132, 0.2));
-          color: rgba(96, 165, 250, 0.92);
+          border: 1px solid rgba(34, 211, 238, 0.28);
+          background: linear-gradient(145deg, rgba(34, 211, 238, 0.14), rgba(251, 191, 36, 0.18));
+          color: rgba(251, 191, 36, 0.92);
           box-shadow: var(--shadow-soft);
         }
         .home-brand-mark svg {
@@ -175,9 +175,9 @@ Error generating stack: `+s.message+`
           border-radius: 0.95rem;
           display: grid;
           place-items: center;
-          border: 1px solid rgba(96, 165, 250, 0.28);
-          background: linear-gradient(145deg, rgba(96, 165, 250, 0.14), rgba(141, 173, 132, 0.2));
-          color: rgba(96, 165, 250, 0.9);
+          border: 1px solid rgba(34, 211, 238, 0.28);
+          background: linear-gradient(145deg, rgba(34, 211, 238, 0.14), rgba(251, 191, 36, 0.18));
+          color: rgba(251, 191, 36, 0.9);
         }
         .footer-brand-text {
           font-family: var(--font-display);
