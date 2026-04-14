@@ -8,34 +8,20 @@ import ThemeToggle from "../components/ThemeToggle";
 const API = import.meta.env.VITE_SERVER_URL || "http://localhost:3001";
 
 const BLANK_QUESTION = () => ({
-  text: "",
-  options: ["", "", "", ""],
-  correct: 0,
-  time: 20,
+  text: "", options: ["", "", "", ""], correct: 0, time: 20,
 });
 
 export default function HomePage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const [tab, setTab]         = useState("join");
-  const [pin, setPin]         = useState(params.get("pin") || "");
-  const [nick, setNick]       = useState("");
-  const [avatar, setAvatar]   = useState("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%232a3040'/%3E%3Ccircle cx='100' cy='70' r='40' fill='%23a0aec0'/%3E%3Cpath d='M40 180A60 50 0 0 1 160 180Z' fill='%23a0aec0'/%3E%3C/svg%3E");
+  const [tab, setTab] = useState("join");
+  const [pin, setPin] = useState(params.get("pin") || "");
+  const [nick, setNick] = useState("");
+  const [avatar, setAvatar] = useState("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%232a3040'/%3E%3Ccircle cx='100' cy='70' r='40' fill='%23a0aec0'/%3E%3Cpath d='M40 180A60 50 0 0 1 160 180Z' fill='%23a0aec0'/%3E%3C/svg%3E");
   const [showAvatars, setShowAvatars] = useState(false);
-  const [err, setErr]         = useState("");
+  const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
-  const [muted, setMuted]     = useState(() => localStorage.getItem("qf_muted") === "1");
   const pinRefs = useRef([]);
-
-  function scrollTo(id) {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
-  function toggleMute() {
-    const next = !muted;
-    setMuted(next);
-    localStorage.setItem("qf_muted", next ? "1" : "0");
-  }
 
   async function handleJoin(e) {
     e.preventDefault(); setErr("");
@@ -47,332 +33,156 @@ export default function HomePage() {
       navigate(`/play/${pin}?nickname=${encodeURIComponent(nick.trim())}&avatar=${encodeURIComponent(avatar)}`);
     } catch {
       setErr("Game not found — double-check the PIN!");
-      if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
     } finally { setLoading(false); }
   }
 
   return (
-    <div className="mesh-bg animate-page" style={{ minHeight: "100vh", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
+    <div id="app" className="page-with-footer">
       <NetworkStatus />
-
-      {/* Dot grid */}
-      <div className="dot-grid" style={{ position: "fixed", inset: 0, opacity: 0.2, pointerEvents: "none" }} />
-
-      {/* Header */}
-      <header className="site-header">
-        <div className="site-header-inner">
-          <a href="#top" className="brand-wordmark" aria-label="QuizFlow home">
-            <div className="brand-mark" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-              </svg>
-            </div>
-            <div className="brand-copy">
-              <div className="brand-title">QuizFlow</div>
-              <div className="brand-subtitle">Invite-only secure quizzes</div>
-            </div>
-          </a>
-
-          <nav className="topbar-actions" aria-label="Primary">
-            {[
-              { id: "about", label: "About" },
-              { id: "features", label: "Features" },
-              { id: "works", label: "How It Works" },
-              { id: "setup", label: "Setup Guide" },
-            ].map(item => (
-              <button key={item.id} type="button" className="btn-ghost" style={{ padding: "8px 12px", borderRadius: 999, fontSize: "0.78rem", letterSpacing: "0.02em" }} onClick={() => scrollTo(item.id)}>
-                {item.label}
-              </button>
-            ))}
-          </nav>
-
-          <div className="topbar-actions">
-            <button type="button" className="btn-primary-sq" style={{ padding: "10px 16px", borderRadius: 16 }} onClick={() => { setTab("create"); scrollTo("launch"); }}>
-              Create Quiz
-            </button>
-            <ThemeToggle />
-          </div>
-        </div>
+      <header className="marketing-nav">
+        <a className="marketing-brand" href="/">Quiz Template</a>
+        <nav className="marketing-links">
+          <a href="#about">About</a>
+          <a href="#features">Features</a>
+          <a href="#how-it-works">How It Works</a>
+        </nav>
+        <ThemeToggle />
       </header>
 
-      {/* Hero + Card */}
-      <main className="page-main" style={{ paddingTop: "2rem", paddingBottom: "3rem" }}>
-        <section id="top" className="hero-block" style={{ padding: "1rem 0 2.25rem" }}>
-          <div className="hero-eyebrow">Modern Secure Quiz App Experience</div>
-          <h1 className="hero-title" style={{ maxWidth: 1100, margin: "0 auto" }}>
-            Secure Quiz app - Smart <br />&amp; Secure Quiz Platform
-          </h1>
-          <p className="hero-copy" style={{ maxWidth: 820 }}>
-            Host or join real-time quizzes with a clean, invite-only flow. The experience stays simple, fast, and readable on every screen.
-          </p>
-
-          <div className="pill-row" style={{ justifyContent: "center", marginTop: "1.7rem" }}>
-            <button type="button" className="btn-primary-sq" onClick={() => { setTab("create"); scrollTo("launch"); }}>
-              Create a Quiz
-            </button>
-            <button type="button" className="btn-secondary-sq" onClick={() => scrollTo("works")}>
-              How It Works
-            </button>
-          </div>
-
-          <div className="hero-proof" aria-label="Highlights">
-            {[
-              "Invite-only access",
-              "Live dashboard analytics",
-              "Works on mobile + desktop",
-              "Share link in seconds",
-            ].map(item => (
-              <span key={item}>{item}</span>
-            ))}
-          </div>
-        </section>
-
-        <section id="about" className="glass-card-sq" style={{ padding: "1.35rem", marginTop: "1.5rem" }}>
-          <div style={{ maxWidth: 760 }}>
-            <div className="hero-eyebrow" style={{ marginBottom: 0.6 }}>About SecureQuiz</div>
-            <h2 style={{ margin: 0, fontFamily: "var(--font-display)", fontSize: "clamp(1.6rem, 3vw, 2.25rem)", letterSpacing: "-0.03em", color: "var(--text)" }}>
-              Secure Quiz app built for anyone who wants to run or take quizzes quickly and securely.
-            </h2>
-          </div>
-
-          <div className="section-shell" style={{ marginTop: "1.15rem" }}>
-            {[
-              {
-                title: "Create in minutes",
-                copy: "Simple question and option inputs with no setup overhead.",
-              },
-              {
-                title: "Share instantly",
-                copy: "Generate a quiz link, send the PIN, and bring players in fast.",
-              },
-              {
-                title: "Track live results",
-                copy: "See submissions, answer splits, and rankings in real time.",
-              },
-              {
-                title: "Reduce cheating",
-                copy: "Built-in monitoring keeps the experience honest and focused.",
-              },
-            ].map((item, index) => (
-              <div key={item.title} className="meta-card" style={{ alignItems: "flex-start", padding: "1rem", minHeight: 112 }}>
-                <div style={{
-                  width: 32, height: 32, borderRadius: 999,
-                  display: "grid", placeItems: "center",
-                  background: index === 0 ? "rgba(96,165,250,0.12)" : index === 1 ? "rgba(47,111,58,0.12)" : index === 2 ? "rgba(139,92,246,0.12)" : "rgba(245,158,11,0.12)",
-                  color: "var(--text)", border: "1px solid var(--border)", flexShrink: 0,
-                  fontFamily: "var(--font-mono)", fontWeight: 700,
-                }}>
-                  {index + 1}
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1rem", color: "var(--text)" }}>{item.title}</div>
-                  <div style={{ color: "var(--muted)", fontSize: "0.9rem", lineHeight: 1.6 }}>{item.copy}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section id="features" className="pill-row" style={{ justifyContent: "center", marginTop: "1.5rem" }}>
-          {[
-            "Modern UI",
-            "Invite-only access",
-            "Live dashboards",
-            "Mobile-first flows",
-          ].map(item => (
-            <span key={item}>{item}</span>
-          ))}
-        </section>
-
-        <section id="works" className="section-shell" style={{ marginTop: "1.75rem", alignItems: "stretch" }}>
-          <div className="glass-card-sq" style={{ padding: "1.35rem" }}>
-            <div className="hero-eyebrow" style={{ marginBottom: 8 }}>How It Works</div>
-            <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1.8rem", letterSpacing: "-0.03em", marginBottom: 18, color: "var(--text)" }}>
-              A simple flow from setup to live play.
-            </div>
-            <div className="panel-stack">
-              {[
-                ["01", "Create or pick a quiz", "Start from a template or build your own question set."],
-                ["02", "Share the access PIN", "Send the room code and let players join from any device."],
-                ["03", "Run the game live", "Watch the leaderboard, answer stats, and results update in real time."],
-              ].map(step => (
-                <div key={step[0]} className="meta-card" style={{ alignItems: "flex-start" }}>
-                  <div style={{
-                    width: 42, height: 42, borderRadius: 14,
-                    display: "grid", placeItems: "center",
-                    background: "rgba(26,37,23,0.06)", color: "var(--text)",
-                    border: "1px solid var(--border)", flexShrink: 0,
-                    fontFamily: "var(--font-mono)", fontWeight: 700,
-                  }}>{step[0]}</div>
-                  <div>
-                    <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "var(--text)", marginBottom: 4 }}>{step[1]}</div>
-                    <div style={{ color: "var(--muted)", lineHeight: 1.6, fontSize: "0.9rem" }}>{step[2]}</div>
-                  </div>
-                </div>
-              ))}
+      <section id="screen-registration" className="screen active">
+        <div className="screen-inner landing-shell">
+          <div className="hero landing-hero reveal-up" style={{ marginTop: 0, textAlign: "left", maxWidth: 1020 }}>
+            <div className="hero-eyebrow">Premium Interactive Quiz Template</div>
+            <h1 className="hero-title">Reusable Quiz Experience Kit</h1>
+            <div className="landing-actions" style={{ justifyContent: "flex-start" }}>
+              <a className="btn-primary-sq" href="#join-card">Try Participant Flow</a>
+              <a className="btn-secondary-sq" href="#how-it-works">See Flow Map</a>
             </div>
           </div>
 
-          <div id="launch" className="glass-card-sq" style={{ padding: "1.35rem" }}>
-            <div className="hero-eyebrow" style={{ marginBottom: 8 }}>Setup Guide</div>
-            <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1.8rem", letterSpacing: "-0.03em", marginBottom: 12, color: "var(--text)" }}>
-              Launch or join a session.
-            </div>
-            <div style={{ marginBottom: 16, color: "var(--muted)", lineHeight: 1.6 }}>
-              Use the participant login to join with a PIN, or switch to the host dashboard to start a new game.
-            </div>
+          <div className="landing-proof reveal-up">
+            <span>Realtime room sync</span>
+            <span>Host controls + analytics</span>
+            <span>Mobile/desktop responsive</span>
+            <span>Smooth micro-interactions</span>
+          </div>
 
-            <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-              {[
-                { id: "join", label: "Join" },
-                { id: "create", label: "Host" },
-              ].map(item => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => { setTab(item.id); setErr(""); }}
-                  className="btn-secondary-sq"
-                  style={{ flex: 1, padding: "10px 12px", borderRadius: 999, background: tab === item.id ? "rgba(26,37,23,0.08)" : "rgba(255,255,255,0.8)" }}
-                >
-                  {item.label}
-                </button>
-              ))}
+          <div id="about" className="card glass-card-sq landing-card reveal-up">
+            <h2 className="card-title">About This Template</h2>
+            <p className="card-subtitle">This structure mirrors a modern quiz platform UI while keeping all copy generic for reuse.</p>
+            <div className="landing-about-grid">
+              <div className="notice-box"><span className="notice-icon">A</span><span>Structured sections for onboarding, joining, hosting, and results.</span></div>
+              <div className="notice-box"><span className="notice-icon">B</span><span>Dark premium visual system with optional light minimal mode.</span></div>
+              <div className="notice-box"><span className="notice-icon">C</span><span>Card-first hierarchy with smooth hover, reveal, and button transitions.</span></div>
+              <div className="notice-box"><span className="notice-icon">D</span><span>Accessibility-aware contrast, sizing, and focus treatments.</span></div>
             </div>
+          </div>
 
-            <div className="glass-card-sq" style={{ padding: 0, overflow: "hidden" }}>
-              <div style={{ display: "flex", borderBottom: "1px solid rgba(26,37,23,0.08)", background: "rgba(255,255,255,0.55)" }}>
-                {[
-                  { id: "join", label: "Participant Login" },
-                  { id: "create", label: "Host Dashboard" },
-                ].map(t => (
-                  <button key={t.id} onClick={() => { setTab(t.id); setErr(""); }} style={{
-                    flex: 1, padding: "14px 0",
-                    fontFamily: "var(--font-display)", fontWeight: 700,
-                    fontSize: "0.84rem", letterSpacing: "0.01em",
-                    color: tab === t.id ? "var(--text)" : "var(--muted)",
-                    background: tab === t.id ? "rgba(26,37,23,0.06)" : "transparent",
-                    borderBottom: `2px solid ${tab === t.id ? "var(--cyan)" : "transparent"}`,
-                    transition: "all 0.2s", cursor: "pointer",
-                  }}>{t.label}</button>
-                ))}
+          <div id="join-card" className="card glass-card-sq reveal-up" style={{ maxWidth: 640, width: "100%" }}>
+          <div className="flex border-b border-white/10 mb-8 bg-black/20 rounded-xl overflow-hidden p-1 shadow-inner">
+            <button onClick={() => { setTab("join"); setErr(""); }} className={`flex-1 py-3 text-sm font-semibold rounded-lg transition-all ${tab === "join" ? "bg-indigo-500 shadow-lg text-white" : "text-slate-400 hover:bg-white/5"}`}>Participant Login</button>
+            <button onClick={() => { setTab("create"); setErr(""); }} className={`flex-1 py-3 text-sm font-semibold rounded-lg transition-all ${tab === "create" ? "bg-indigo-500 shadow-lg text-white" : "text-slate-400 hover:bg-white/5"}`}>Host Dashboard</button>
+          </div>
+
+          {tab === "join" ? (
+            <form onSubmit={handleJoin} className="flex flex-col gap-6">
+              <div>
+                <h2 className="card-title">Join Session</h2>
+                <p className="card-subtitle">Enter placeholder participant information to simulate a join flow.</p>
               </div>
 
-              <div style={{ padding: "20px" }}>
-                {tab === "join" ? (
-                  <form onSubmit={handleJoin} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                    <div>
-                      <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--muted)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 8 }}>
-                        Game PIN
-                      </label>
-                      <div style={{ display: "flex", gap: 6, justifyContent: "space-between" }}>
-                        {[0,1,2,3,4,5].map(i => (
-                          <input key={i} ref={el => pinRefs.current[i] = el}
-                            value={pin[i] || ""}
-                            onChange={e => {
-                              const val = e.target.value.replace(/\D/g, "").slice(-1);
-                              if (!val && e.target.value !== "") return;
-                              const newPin = (pin || "").split("");
-                              newPin[i] = val;
-                              setPin(newPin.join(""));
-                              if (val && i < 5) pinRefs.current[i + 1].focus();
-                            }}
-                            onKeyDown={e => {
-                              if (e.key === "Backspace" && !pin[i] && i > 0) pinRefs.current[i - 1].focus();
-                            }}
-                            className={`input-sq ${err.includes("PIN") ? "ans-btn wrong" : ""}`}
-                            style={{
-                              width: "15%", aspectRatio: "1/1", textAlign: "center",
-                              fontSize: "1.6rem", padding: 0, fontFamily: "var(--font-mono)", fontWeight: 700,
-                              transition: "all 0.2s cubic-bezier(0.175,0.885,0.32,1.275)",
-                            }}
-                            onFocus={e => e.target.select()}
-                          />
-                        ))}
-                      </div>
-                    </div>
-
-                    <div>
-                      <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--muted)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 8 }}>
-                        Nickname
-                      </label>
-                      <input
-                        value={nick}
-                        onChange={e => setNick(e.target.value.slice(0, 20))}
-                        placeholder="e.g. QuizMaster99"
-                        maxLength={20}
-                        className="input-sq"
-                      />
-                    </div>
-
-                    <div>
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                        <label style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--muted)", letterSpacing: "0.12em", textTransform: "uppercase" }}>
-                          Your Avatar
-                        </label>
-                        <button type="button" onClick={() => setShowAvatars(!showAvatars)} style={{
-                          fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--cyan)",
-                          background: "none", border: "none", cursor: "pointer",
-                        }}>
-                          {showAvatars ? "Hide ▲" : "Change ▼"}
-                        </button>
-                      </div>
-
-                      <div style={{
-                        display: "flex", alignItems: "center", gap: 10,
-                        padding: "10px 14px", borderRadius: 12,
-                        background: "rgba(255,255,255,0.72)", border: "1.5px solid var(--border)",
-                      }}>
-                        <img src={avatar} alt="Avatar" style={{ width: 44, height: 44, objectFit: "contain", background: "transparent", borderRadius: 12, border: "1px solid rgba(26,37,23,0.1)" }} />
-                        <span style={{ fontFamily: "var(--font-inter)", color: "var(--muted)", fontSize: "0.83rem" }}>
-                          {nick || "Your nickname"} · ready to play!
-                        </span>
-                      </div>
-
-                      {showAvatars && (
-                        <div className="animate-slide-up" style={{ marginTop: 10 }}>
-                          <AvatarPicker selected={avatar} onSelect={e => { setAvatar(e); setShowAvatars(false); }} />
-                        </div>
-                      )}
-                    </div>
-
-                    {err && (
-                      <div className="animate-pop-in" style={{
-                        padding: "11px 14px", borderRadius: 12,
-                        background: "rgba(159,58,47,0.08)",
-                        border: "1px solid rgba(159,58,47,0.2)",
-                        color: "#9f3a2f", fontSize: "0.83rem",
-                        fontFamily: "var(--font-inter)",
-                      }}>⚠️ {err}</div>
-                    )}
-
-                    <button type="submit" disabled={loading || pin.length !== 6 || nick.length < 2}
-                      className="btn-primary-sq w-full" style={{ width: "100%", padding: "15px" }}>
-                      {loading ? (
-                        <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span style={{ animation: "timerPulse 0.7s ease infinite" }}>⏳</span> Joining...
-                        </span>
-                      ) : "Join Game →"}
-                    </button>
-                  </form>
-                ) : (
-                  <CreatePanel navigate={navigate} />
-                )}
+              <div className="form-group">
+                <label className="block text-sm text-slate-300 mb-2 font-medium">Game PIN <span className="text-red-400">*</span></label>
+                <div className="flex gap-2 justify-between">
+                  {[0,1,2,3,4,5].map(i => (
+                    <input key={i} ref={el => pinRefs.current[i] = el}
+                      value={pin[i] || ""}
+                      onChange={e => {
+                        const val = e.target.value.replace(/\D/g, "").slice(-1);
+                        if (!val && e.target.value !== "") return;
+                        const newPin = (pin || "").split("");
+                        newPin[i] = val;
+                        setPin(newPin.join(""));
+                        if (val && i < 5) pinRefs.current[i + 1].focus();
+                      }}
+                      onKeyDown={e => {
+                        if (e.key === "Backspace" && !pin[i] && i > 0) pinRefs.current[i - 1].focus();
+                      }}
+                      className="input-sq text-center font-bold text-xl h-12 px-0"
+                      style={{ aspectRatio: "1/1" }}
+                    />
+                  ))}
+                </div>
               </div>
+
+              <div className="form-group">
+                <label className="block text-sm text-slate-300 mb-2 font-medium">Nickname <span className="text-red-400">*</span></label>
+                <input type="text" value={nick} onChange={e => setNick(e.target.value.slice(0, 20))} placeholder="e.g. John Doe" className="input-sq" />
+              </div>
+
+              <div className="notice-box bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-4 flex gap-3 text-sm text-indigo-200">
+                <span className="notice-icon text-xl">📌</span>
+                <span>Select an avatar below before joining. Play on full-screen to guarantee speed.</span>
+              </div>
+
+              {/* Avatar block inline */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm text-slate-300 font-medium">Your Avatar</label>
+                  <button type="button" onClick={() => setShowAvatars(!showAvatars)} className="text-xs text-indigo-400 font-semibold tracking-wide uppercase">{showAvatars ? "Hide ▲" : "Change ▼"}</button>
+                </div>
+                <div className="flex items-center gap-3 p-2 rounded-xl bg-white/5 border border-white/10 shadow-inner">
+                  <img src={avatar} alt="Avatar" className="w-12 h-12 object-contain rounded-lg border border-white/10 bg-black/30 p-1" />
+                  <span className="text-slate-300 text-sm font-medium">{nick || "Your nickname"}</span>
+                </div>
+                {showAvatars && <div className="mt-4"><AvatarPicker selected={avatar} onSelect={e => { setAvatar(e); setShowAvatars(false); }} /></div>}
+              </div>
+
+              {err && <div className="error-msg text-red-400 text-sm bg-red-500/10 border border-red-500/20 p-3 rounded-lg">⚠️ {err}</div>}
+
+              <button id="btn-start-quiz" type="submit" disabled={loading || pin.length !== 6 || nick.length < 2} className="btn-primary-sq w-full py-3.5 text-lg font-semibold tracking-wide">
+                <span id="btn-start-text">{loading ? "Joining Session..." : "Join Quiz →"}</span>
+              </button>
+            </form>
+          ) : (
+            <CreatePanel navigate={navigate} />
+          )}
+          </div>
+
+          <div id="features" className="card glass-card-sq landing-card reveal-up">
+            <h2 className="card-title">Core Components</h2>
+            <p className="card-subtitle">Reusable pieces that replicate the original UX rhythm.</p>
+            <div className="features-grid" style={{ maxWidth: "none", padding: 0, margin: 0 }}>
+              <article className="feature-card"><div className="feature-icon">🧭</div><h3>Adaptive Navbar</h3><p>Sticky navigation with theme toggle and responsive links.</p></article>
+              <article className="feature-card"><div className="feature-icon">🗂</div><h3>Glass Cards</h3><p>Layered panels for forms, stats, and stage-based quiz content.</p></article>
+              <article className="feature-card"><div className="feature-icon">🎛</div><h3>Interaction Buttons</h3><p>Primary and secondary CTA styles with shimmer motion.</p></article>
+              <article className="feature-card"><div className="feature-icon">🧪</div><h3>Quiz Surface</h3><p>Question canvas with options, timers, and result transitions.</p></article>
+              <article className="feature-card"><div className="feature-icon">📊</div><h3>Result Layer</h3><p>Distribution, ranking, and card-based score summaries.</p></article>
             </div>
           </div>
-        </section>
 
-        <section id="setup" className="pill-row" style={{ justifyContent: "center", marginTop: "1.5rem" }}>
-          {[
-            "Simple question builder",
-            "Live response tracking",
-            "Leaderboards in real time",
-            "Cheat-aware game flow",
-          ].map(item => (
-            <span key={item}>{item}</span>
-          ))}
-        </section>
-      </main>
+          <div id="how-it-works" className="card glass-card-sq landing-card reveal-up">
+            <h2 className="card-title">Template Flow</h2>
+            <p className="card-subtitle">A neutral sequence you can wire to any backend logic.</p>
+            <div className="landing-steps">
+              <article className="step-item"><span className="step-index">1</span><div><h3>Configure Session</h3><p>Host sets quiz metadata and question inventory.</p></div></article>
+              <article className="step-item"><span className="step-index">2</span><div><h3>Share Access Code</h3><p>Participants join using a short room code and nickname.</p></div></article>
+              <article className="step-item"><span className="step-index">3</span><div><h3>Run Live Questions</h3><p>Timed rounds with synchronized answer collection.</p></div></article>
+              <article className="step-item"><span className="step-index">4</span><div><h3>Reveal Results</h3><p>Display ranking, streaks, and aggregate answer metrics.</p></div></article>
+              <article className="step-item"><span className="step-index">5</span><div><h3>Export Insights</h3><p>Review participation and performance records.</p></div></article>
+            </div>
+          </div>
+
+          <div className="card glass-card-sq landing-card landing-cta reveal-up">
+            <h2 className="card-title">Start Building</h2>
+            <p className="card-subtitle">Use this screen set as a drop-in base for your own product content.</p>
+            <div style={{ display: "flex", gap: "0.8rem", flexWrap: "wrap", justifyContent: "center" }}>
+              <a href="#join-card" className="btn-primary-sq">Open Join Module</a>
+              <a href="#features" className="btn-secondary-sq">Browse Components</a>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

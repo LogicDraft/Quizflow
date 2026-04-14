@@ -1,5 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import ThemeToggle from "./components/ThemeToggle";
+import AmbientEffects from "./components/AmbientEffects";
 import { SocketProvider } from "./context/SocketContext";
 import HomePage from "./pages/HomePage";
 import HostDashboard from "./pages/HostDashboard";
@@ -53,6 +54,7 @@ function NotFound() {
 export default function App() {
   return (
     <SocketProvider>
+      <AmbientEffects />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />

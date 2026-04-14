@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 const STORAGE_KEY = "qf_ui_mode";
-const DEFAULT_MODE = "minimal";
+const DEFAULT_MODE = "glass";
 
 const ThemeContext = createContext({
   mode: DEFAULT_MODE,

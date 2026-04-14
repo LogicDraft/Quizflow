@@ -163,14 +163,17 @@ export default function PlayerScreen() {
   );
 
   return (
-    <div className="mesh-bg" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      <div className="dot-grid" style={{ position: "fixed", inset: 0, opacity: 0.18, pointerEvents: "none" }} />
+    <div id="app" className="relative after:absolute after:inset-0 after:bg-[url('/noise.png')] after:opacity-[0.02] after:pointer-events-none min-h-screen flex flex-col font-inter tracking-tight">
       {urgent && <div className="urgency-vignette" />}
       <NetworkStatus />
       {phase === P.STARTING && <CountdownOverlay onDone={() => {}} />}
-      <StatusBar />
+      
+      {/* Top Bar Wrapper */}
+      <div className="px-4 pt-4 z-40 relative">
+        <StatusBar />
+      </div>
 
-      <main style={{ flex: 1, display: "flex", flexDirection: "column", position: "relative", zIndex: 10, overflow: "hidden" }}>
+      <main className="flex-1 flex flex-col relative z-10 w-full max-w-4xl mx-auto px-4 pb-6 mt-4">
 
         {/* CONNECTING */}
         {phase === P.CONNECTING && (
@@ -182,97 +185,87 @@ export default function PlayerScreen() {
 
         {/* LOBBY */}
         {phase === P.LOBBY && (
-          <div className="animate-phase" style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px 20px", gap: 22, textAlign: "center" }}>
-            <div style={{ position: "relative", width: 120, height: 120 }}>
-              <img src={(emoji.startsWith("/") || emoji.startsWith("data:")) ? emoji : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%232a3040'/%3E%3Ccircle cx='100' cy='70' r='40' fill='%23a0aec0'/%3E%3Cpath d='M40 180A60 50 0 0 1 160 180Z' fill='%23a0aec0'/%3E%3C/svg%3E"} alt="Avatar" style={{ width: "100%", height: "100%", objectFit: "contain", position: "relative", zIndex: 5, filter: "drop-shadow(0 10px 20px rgba(1,6,14,0.28))" }} />
+          <div className="animate-phase flex-1 flex flex-col items-center justify-center p-6 gap-8 text-center w-full max-w-sm mx-auto">
+            <div className="relative w-32 h-32 mx-auto">
+              <img src={(emoji.startsWith("/") || emoji.startsWith("data:")) ? emoji : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%232a3040'/%3E%3Ccircle cx='100' cy='70' r='40' fill='%23a0aec0'/%3E%3Cpath d='M40 180A60 50 0 0 1 160 180Z' fill='%23a0aec0'/%3E%3C/svg%3E"} alt="Avatar" className="w-full h-full object-contain relative z-10 drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" />
               {/* Animated rings */}
               {[0,1].map(i => (
-                <div key={i} style={{
-                  position: "absolute", inset: -12 - i*16, borderRadius: "50%",
-                  border: "1.5px solid rgba(96,165,250,0.28)",
+                <div key={i} className="absolute rounded-full border border-indigo-500/30" style={{
+                  inset: -12 - i*16,
                   animation: `ripple ${1.5 + i * 0.5}s ease-out ${i * 0.4}s infinite`,
                 }} />
               ))}
             </div>
 
-            <div className="animate-slide-up">
-              <div style={{ fontFamily: "var(--font-inter)", fontWeight: 800, fontSize: "2.2rem", color: "var(--text)" }}>
+            <div className="animate-[slideUp_0.5s_ease-out_forwards]">
+              <div className="font-inter font-bold text-4xl text-white tracking-tight drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
                 {nickname}
               </div>
-              <div style={{ color: "var(--muted)", fontSize: "0.9rem", marginTop: 5 }}>
+              <div className="text-indigo-300 font-medium text-sm mt-2 tracking-wide uppercase">
                 You're in! 🎉
               </div>
             </div>
 
-            <div className="glass-card-sq animate-pop-in" style={{
-              borderRadius: 22, padding: "18px 40px",
-                border: "1px solid rgba(148,163,184,0.16)",
-              animationDelay: "80ms", animationFillMode: "both",
-            }}>
-              <div style={{ fontFamily: "var(--font-inter)", fontWeight: 700, fontSize: "1.1rem", color: "var(--text)" }}>{quizTitle}</div>
-              <div style={{ color: "var(--muted)", fontSize: "0.82rem", marginTop: 5 }}>
+            <div className="glass-card-sq animate-[popIn_0.3s_ease-out_forwards] rounded-2xl w-full p-6 mt-2 border border-white/10" style={{ animationDelay: "80ms" }}>
+              <div className="font-inter font-bold text-lg text-slate-200">{quizTitle}</div>
+              <div className="text-slate-400 text-sm mt-1">
                 {pCount} player{pCount !== 1 ? "s" : ""} in lobby
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: 16 }}>
+            <div className="flex gap-4 mt-2">
               {["⚡","🔥","🎯","🏆"].map((e, i) => (
-                <span key={i} style={{ fontSize: "2rem", animation: `timerPulse ${1.4 + i * 0.3}s ease ${i * 0.25}s infinite` }}>{e}</span>
+                <span key={i} className="text-3xl drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" style={{ animation: `timerPulse ${1.4 + i * 0.3}s ease ${i * 0.25}s infinite` }}>{e}</span>
               ))}
             </div>
 
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem", color: "var(--muted)", letterSpacing: "0.15em", textTransform: "uppercase", animation: "timerPulse 2s ease infinite" }}>
+            <div className="font-mono text-xs text-indigo-400/80 tracking-widest uppercase mt-4 animate-[pulse_2s_ease-in-out_infinite]">
               Waiting for host to start...
             </div>
           </div>
         )}
 
         {/* QUESTION / ANSWERED */}
+        {/* QUESTION / ANSWERED */}
         {(phase === P.QUESTION || phase === P.ANSWERED) && question && (
-          <div className="animate-phase" style={{ flex: 1, display: "flex", flexDirection: "column", padding: "clamp(10px,3vw,16px) clamp(12px,3vw,16px) 14px", gap: 10 }}>
-            {/* Q progress pills */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div style={{ display: "flex", gap: 4 }}>
-                {Array.from({ length: question.total }).map((_, i) => (
-                  <div key={i} style={{
-                    height: 6, borderRadius: 4,
-                    width: i === question.index ? 20 : 7,
-                    background: i < question.index ? "var(--green)" : i === question.index ? "var(--cyan)" : "var(--border)",
-                    transition: "all 0.4s ease",
-                    boxShadow: i === question.index ? "0 0 8px var(--cyan)" : "none",
-                  }} />
-                ))}
+          <div className="animate-phase flex-1 flex flex-col gap-4">
+            
+            {/* Header Mirroring SecureQuizWeb quiz-header */}
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl shadow-[0_0_40px_rgba(99,102,241,0.15)] p-4 flex justify-between items-center w-full">
+              <div className="flex flex-col gap-1">
+                <span className="font-mono text-[10px] text-indigo-400 font-bold uppercase tracking-widest bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-full w-max">
+                  {nickname}
+                </span>
+                <span className="text-slate-300 font-medium text-sm">
+                  Question {question.index + 1} of {question.total}
+                </span>
               </div>
-              <div className="badge badge-cyan" style={{ padding: "3px 10px", fontSize: "0.62rem" }}>
-                {question.index + 1}/{question.total}
-              </div>
-            </div>
-
-            {/* Circular timer + question */}
-            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-              <CircularTimer
-                totalTime={question.time}
-                running={phase === P.QUESTION && selected === null}
-                size={90}
-                onExpire={() => { if (phase === P.QUESTION) setPhase(P.ANSWERED); }}
-              />
-              <div className="glass-card-sq" style={{
-                flex: 1, borderRadius: 18, padding: "16px 18px",
-                border: "1px solid rgba(148,163,184,0.14)",
-                boxShadow: "0 4px 20px rgba(96,165,250,0.05)",
-              }}>
-                <div style={{
-                  fontFamily: "var(--font-inter)", fontWeight: 700,
-                  fontSize: "clamp(0.88rem,3.5vw,1.1rem)", color: "var(--text)", lineHeight: 1.45,
-                  wordBreak: "break-word", overflowWrap: "break-word",
-                }}>
-                  {question.text}
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <CircularTimer
+                    totalTime={question.time}
+                    running={phase === P.QUESTION && selected === null}
+                    size={52}
+                    onExpire={() => { if (phase === P.QUESTION) setPhase(P.ANSWERED); }}
+                  />
                 </div>
               </div>
             </div>
 
+            {/* Progress Bar Track */}
+            <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden mt-1 mb-2 shadow-inner">
+              <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-500 ease-out shadow-[0_0_10px_rgba(99,102,241,0.5)]" style={{ width: `${((question.index + 1) / question.total) * 100}%` }} />
+            </div>
+
+            {/* Question Card */}
+            <div className="glass-card-sq p-6 md:p-8 rounded-2xl w-full flex flex-col items-center justify-center min-h-[140px] text-center mb-2 shadow-[0_5px_25px_rgba(0,0,0,0.3)]">
+               <div className="font-inter font-bold text-xl md:text-2xl text-white leading-relaxed break-words">
+                 {question.text}
+               </div>
+            </div>
+
             {/* Answer buttons */}
-            <div className={`ans-grid ${urgent ? "heartbeat-grid" : ""}`} style={{ flex: 1 }}>
+            <div className={`grid grid-cols-1 sm:grid-cols-2 gap-3 ${urgent ? "animate-[shake_0.4s_ease-in-out_infinite]" : ""}`}>
               {question.options.map((opt, i) => {
                 const c         = ANSWER_COLORS[i];
                 const isSel     = selected === i;
@@ -377,48 +370,44 @@ export default function PlayerScreen() {
 
         {/* REVEAL */}
         {phase === P.REVEAL && reveal && (
-          <div className="phase-enter-up" style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px 18px", gap: 18, textAlign: "center", overflowY: "auto" }}>
-            <div style={{ fontSize: "5rem", lineHeight: 1, animation: selected === reveal.correctAnswer ? "popIn 0.5s ease" : "shake 0.4s ease" }}>
+          <div className="animate-[slideUp_0.5s_ease-out_forwards] flex-1 flex flex-col items-center justify-center p-6 gap-6 text-center w-full max-w-sm mx-auto">
+            <div className={`text-[6rem] leading-none drop-shadow-[0_0_30px_rgba(255,255,255,0.4)] ${selected === reveal.correctAnswer ? "animate-[popIn_0.5s_ease-out]" : "animate-[shake_0.4s_ease-in-out]"}`}>
               {selected === reveal.correctAnswer ? "🎉" : "😔"}
             </div>
 
             <div>
-              <div style={{
-                fontFamily: "var(--font-inter)", fontWeight: 800, fontSize: "2rem",
-                color: selected === reveal.correctAnswer ? "var(--green)" : "var(--red)",
-              }}>
+              <div className={`font-inter font-black text-4xl tracking-tight drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] ${selected === reveal.correctAnswer ? "text-emerald-400" : "text-rose-500"}`}>
                 {selected === reveal.correctAnswer ? "Correct!" : "Incorrect"}
               </div>
-              <div style={{ color: "var(--muted)", fontSize: "0.88rem", marginTop: 6 }}>
-                Correct: <span style={{ color: "var(--text)", fontWeight: 600 }}>{reveal.correctText}</span>
+              <div className="text-slate-400 text-sm mt-3 tracking-wide bg-black/20 rounded-lg py-2 px-4 inline-block border border-white/5">
+                Correct: <span className="text-white font-semibold">{reveal.correctText}</span>
               </div>
             </div>
 
             {/* Score card */}
-            <div className="glass-card-sq" style={{
-              borderRadius: 22, padding: "18px 40px",
-              border: "1px solid rgba(172,200,162,0.18)",
-            }}>
+            <div className="glass-card-sq rounded-2xl p-6 w-full mt-2 border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.4)]">
               <ScoreCounter value={totalScore} style={{
-                fontWeight: 800, fontSize: "2.4rem", color: "var(--cyan)",
-                textShadow: "0 0 20px rgba(172,200,162,0.55)",
+                fontWeight: 800, fontSize: "2.8rem", color: "white",
+                textShadow: "0 0 20px rgba(99,102,241,0.6)",
               }} />
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.68rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.12em", marginTop: 4 }}>
+              <div className="font-mono text-[10px] text-indigo-400 uppercase tracking-widest mt-2 font-bold opacity-80">
                 Total Score
               </div>
               {myRank && (
-                <div style={{ fontFamily: "var(--font-inter)", fontWeight: 700, color: myRank <= 3 ? "var(--amber)" : "var(--text)", marginTop: 8, fontSize: "1.1rem" }}>
+                <div className={`font-inter font-bold mt-4 text-[1.1rem] ${myRank <= 3 ? "text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]" : "text-slate-300"}`}>
                   {getMedal(myRank) || `#${myRank}`} Rank
                 </div>
               )}
             </div>
 
-            <div style={{ marginTop: 10 }}>
-              <div style={{ fontFamily: "var(--font-inter)", fontSize: "0.85rem", color: "var(--pink)", fontWeight: 700, marginBottom: 8, animation: "popIn 1s ease 1s both" }}>React while you wait 👇</div>
-              <EmojiReactions />
+            <div className="mt-4 w-full">
+              <div className="font-inter text-[10px] text-indigo-300 font-bold mb-3 uppercase tracking-widest animate-[popIn_1s_ease_1s_both]">React while you wait 👇</div>
+              <div className="bg-white/5 rounded-2xl p-2 border border-white/10 backdrop-blur-md">
+                <EmojiReactions />
+              </div>
             </div>
 
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem", color: "var(--muted)", letterSpacing: "0.12em", textTransform: "uppercase", animation: "timerPulse 2s ease infinite", marginTop: 10 }}>
+            <div className="font-mono text-[10px] text-indigo-500 tracking-widest uppercase animate-[pulse_2s_ease-in-out_infinite] mt-4 font-bold">
               Next question coming up...
             </div>
           </div>
