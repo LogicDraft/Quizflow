@@ -3,6 +3,8 @@ import ThemeToggle from "./components/ThemeToggle";
 import AmbientEffects from "./components/AmbientEffects";
 import { SocketProvider } from "./context/SocketContext";
 import HomePage from "./pages/HomePage";
+import ParticipantPage from "./pages/ParticipantPage";
+import HostingPage from "./pages/HostingPage";
 import HostDashboard from "./pages/HostDashboard";
 import PlayerScreen from "./pages/PlayerScreen";
 
@@ -58,8 +60,11 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/participant" element={<HomePage forcedTab="join" showLanding={false} />} />
-          <Route path="/hosting" element={<HomePage forcedTab="create" showLanding={false} />} />
+          <Route path="/participant" element={<ParticipantPage />} />
+          <Route path="/hosting" element={<HostingPage />} />
+          <Route path="/about" element={<HomePage />} />
+          <Route path="/features" element={<HomePage />} />
+          <Route path="/how-it-works" element={<HomePage />} />
           <Route path="/host" element={<HostDashboard />} />
           <Route path="/host/:pin" element={<HostDashboard />} />
           <Route path="/play/:pin" element={<PlayerScreen />} />
