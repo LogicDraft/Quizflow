@@ -11,10 +11,10 @@ const BLANK_QUESTION = () => ({
   text: "", options: ["", "", "", ""], correct: 0, time: 20,
 });
 
-export default function HomePage() {
+export default function HomePage({ forcedTab = null, showLanding = true }) {
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const [tab, setTab] = useState("join");
+  const [tab, setTab] = useState(forcedTab || "join");
   const [pin, setPin] = useState(params.get("pin") || "");
   const [nick, setNick] = useState("");
   const [avatar, setAvatar] = useState("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%232a3040'/%3E%3Ccircle cx='100' cy='70' r='40' fill='%23a0aec0'/%3E%3Cpath d='M40 180A60 50 0 0 1 160 180Z' fill='%23a0aec0'/%3E%3C/svg%3E");
@@ -22,6 +22,13 @@ export default function HomePage() {
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
   const pinRefs = useRef([]);
+
+  useEffect(() => {
+    if (forcedTab) {
+      setTab(forcedTab);
+      setErr("");
+    }
+  }, [forcedTab]);
 
   async function handleJoin(e) {
     e.preventDefault(); setErr("");
@@ -42,6 +49,7 @@ export default function HomePage() {
       <header className="marketing-nav">
         <a className="marketing-brand" href="/">Quiz Template</a>
         <nav className="marketing-links">
+          <a href="#portal-access">Portals</a>
           <a href="#about">About</a>
           <a href="#features">Features</a>
           <a href="#how-it-works">How It Works</a>
@@ -51,22 +59,48 @@ export default function HomePage() {
 
       <section id="screen-registration" className="screen active">
         <div className="screen-inner landing-shell">
+          {showLanding && (
           <div className="hero landing-hero reveal-up" style={{ marginTop: 0, textAlign: "left", maxWidth: 1020 }}>
             <div className="hero-eyebrow">Premium Interactive Quiz Template</div>
             <h1 className="hero-title">Reusable Quiz Experience Kit</h1>
             <div className="landing-actions" style={{ justifyContent: "flex-start" }}>
-              <a className="btn-primary-sq" href="#join-card">Try Participant Flow</a>
+              <a className="btn-primary-sq" href="#portal-access">Choose Portal</a>
               <a className="btn-secondary-sq" href="#how-it-works">See Flow Map</a>
             </div>
           </div>
+          )}
 
+          {showLanding && (
           <div className="landing-proof reveal-up">
             <span>Realtime room sync</span>
             <span>Host controls + analytics</span>
             <span>Mobile/desktop responsive</span>
             <span>Smooth micro-interactions</span>
           </div>
+          )}
 
+          {showLanding && (
+          <div id="portal-access" className="card glass-card-sq landing-card reveal-up">
+            <h2 className="card-title">Portal Access</h2>
+            <p className="card-subtitle">Use separate pages for participants and hosts.</p>
+            <div className="portal-grid">
+              <article className="portal-card">
+                <div className="portal-kicker">Participant Website</div>
+                <h3>Join a Live Quiz</h3>
+                <p>Dedicated join experience with PIN entry, nickname, and avatar selection.</p>
+                <a className="btn-primary-sq" href="/participant">Open Participant Portal</a>
+              </article>
+              <article className="portal-card">
+                <div className="portal-kicker">Host Website</div>
+                <h3>Create and Launch</h3>
+                <p>Dedicated host experience for choosing quiz sets and launching sessions.</p>
+                <a className="btn-primary-sq" href="/hosting">Open Host Portal</a>
+              </article>
+            </div>
+          </div>
+          )}
+
+          {showLanding && (
           <div id="about" className="card glass-card-sq landing-card reveal-up">
             <h2 className="card-title">About This Template</h2>
             <p className="card-subtitle">This structure mirrors a modern quiz platform UI while keeping all copy generic for reuse.</p>
@@ -77,12 +111,15 @@ export default function HomePage() {
               <div className="notice-box"><span className="notice-icon">D</span><span>Accessibility-aware contrast, sizing, and focus treatments.</span></div>
             </div>
           </div>
+          )}
 
           <div id="join-card" className="card glass-card-sq reveal-up" style={{ maxWidth: 640, width: "100%" }}>
+          {!forcedTab && (
           <div className="flex border-b border-white/10 mb-8 bg-black/20 rounded-xl overflow-hidden p-1 shadow-inner">
             <button onClick={() => { setTab("join"); setErr(""); }} className={`flex-1 py-3 text-sm font-semibold rounded-lg transition-all ${tab === "join" ? "bg-indigo-500 shadow-lg text-white" : "text-slate-400 hover:bg-white/5"}`}>Participant Login</button>
             <button onClick={() => { setTab("create"); setErr(""); }} className={`flex-1 py-3 text-sm font-semibold rounded-lg transition-all ${tab === "create" ? "bg-indigo-500 shadow-lg text-white" : "text-slate-400 hover:bg-white/5"}`}>Host Dashboard</button>
           </div>
+          )}
 
           {tab === "join" ? (
             <form onSubmit={handleJoin} className="flex flex-col gap-6">
@@ -149,6 +186,7 @@ export default function HomePage() {
           )}
           </div>
 
+          {showLanding && (
           <div id="features" className="card glass-card-sq landing-card reveal-up">
             <h2 className="card-title">Core Components</h2>
             <p className="card-subtitle">Reusable pieces that replicate the original UX rhythm.</p>
@@ -160,7 +198,9 @@ export default function HomePage() {
               <article className="feature-card"><div className="feature-icon">📊</div><h3>Result Layer</h3><p>Distribution, ranking, and card-based score summaries.</p></article>
             </div>
           </div>
+          )}
 
+          {showLanding && (
           <div id="how-it-works" className="card glass-card-sq landing-card reveal-up">
             <h2 className="card-title">Template Flow</h2>
             <p className="card-subtitle">A neutral sequence you can wire to any backend logic.</p>
@@ -172,15 +212,19 @@ export default function HomePage() {
               <article className="step-item"><span className="step-index">5</span><div><h3>Export Insights</h3><p>Review participation and performance records.</p></div></article>
             </div>
           </div>
+          )}
 
+          {showLanding && (
           <div className="card glass-card-sq landing-card landing-cta reveal-up">
             <h2 className="card-title">Start Building</h2>
             <p className="card-subtitle">Use this screen set as a drop-in base for your own product content.</p>
             <div style={{ display: "flex", gap: "0.8rem", flexWrap: "wrap", justifyContent: "center" }}>
-              <a href="#join-card" className="btn-primary-sq">Open Join Module</a>
+              <a href="/participant" className="btn-primary-sq">Open Participant Portal</a>
+              <a href="/hosting" className="btn-primary-sq">Open Host Portal</a>
               <a href="#features" className="btn-secondary-sq">Browse Components</a>
             </div>
           </div>
+          )}
         </div>
       </section>
     </div>

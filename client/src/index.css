@@ -1562,6 +1562,50 @@ html[data-ui="minimal"] .speed-badge {
   text-align: center;
 }
 
+.portal-grid {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.portal-card {
+  border-radius: 1rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.portal-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.portal-card h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 1.05rem;
+}
+
+.portal-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.55;
+  flex: 1;
+}
+
+.portal-card .btn-primary-sq {
+  text-decoration: none;
+  width: 100%;
+}
+
 .reveal-up {
   opacity: 0;
   transform: translateY(14px);
@@ -1580,6 +1624,10 @@ html[data-ui="minimal"] .speed-badge {
 }
 
 @media (max-width: 960px) {
+  .portal-grid {
+    grid-template-columns: 1fr;
+  }
+
   .features-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1595,7 +1643,40 @@ html[data-ui="minimal"] .speed-badge {
   }
 
   .landing-about-grid,
+  .portal-grid,
   .features-grid {
     grid-template-columns: 1fr;
   }
+}
+
+html[data-ui="minimal"] #canvas,
+html[data-ui="minimal"] #cursor {
+  display: none !important;
+}
+
+html[data-ui="minimal"] body {
+  background: radial-gradient(circle at 16% 10%, #dcead6 0%, #acc8a2 44%, #8dad84 100%);
+}
+
+html[data-ui="minimal"] .hero-title {
+  color: #1a2517 !important;
+  text-shadow: none;
+  -webkit-text-fill-color: #1a2517 !important;
+}
+
+html[data-ui="minimal"] .hero-eyebrow,
+html[data-ui="minimal"] .card-subtitle,
+html[data-ui="minimal"] .portal-kicker,
+html[data-ui="minimal"] .portal-card p {
+  color: #344a2d;
+}
+
+html[data-ui="minimal"] .landing-proof span,
+html[data-ui="minimal"] .notice-box,
+html[data-ui="minimal"] .portal-card,
+html[data-ui="minimal"] .feature-card,
+html[data-ui="minimal"] .step-item {
+  background: #edf5e9;
+  border-color: rgba(26, 37, 23, 0.18);
+  color: #22311d;
 }

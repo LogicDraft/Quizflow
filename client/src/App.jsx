@@ -58,6 +58,8 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/participant" element={<HomePage forcedTab="join" showLanding={false} />} />
+          <Route path="/hosting" element={<HomePage forcedTab="create" showLanding={false} />} />
           <Route path="/host" element={<HostDashboard />} />
           <Route path="/host/:pin" element={<HostDashboard />} />
           <Route path="/play/:pin" element={<PlayerScreen />} />
