@@ -7,6 +7,43 @@ export default function HomePage() {
       <NetworkStatus />
 
       <style>{`
+        .home-brand {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.8rem;
+          margin-bottom: 1rem;
+        }
+        .home-brand-mark {
+          width: 2.75rem;
+          height: 2.75rem;
+          border-radius: 0.95rem;
+          display: grid;
+          place-items: center;
+          border: 1px solid rgba(96, 165, 250, 0.28);
+          background: linear-gradient(145deg, rgba(96, 165, 250, 0.14), rgba(141, 173, 132, 0.2));
+          color: rgba(96, 165, 250, 0.92);
+          box-shadow: var(--shadow-soft);
+        }
+        .home-brand-mark svg {
+          width: 1.25rem;
+          height: 1.25rem;
+        }
+        .home-brand-copy {
+          text-align: left;
+        }
+        .home-brand-title {
+          font-family: var(--font-display);
+          font-size: 1.08rem;
+          font-weight: 800;
+          letter-spacing: 0.02em;
+          color: var(--text);
+        }
+        .home-brand-subtitle {
+          margin-top: 0.14rem;
+          font-size: 0.8rem;
+          color: var(--muted);
+        }
         .home-top-nav {
           display: flex;
           justify-content: center;
@@ -185,6 +222,16 @@ export default function HomePage() {
 
       <header className="site-header">
         <div className="site-header-inner" style={{ justifyContent: "center" }}>
+          <div className="home-brand">
+            <div className="home-brand-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+              </svg>
+            </div>
+            <div className="home-brand-copy">
+              <div className="home-brand-title">QuizFlow</div>
+            </div>
+          </div>
           <div className="home-top-nav">
             <a href="#about" className="home-pill">About</a>
             <a href="#features" className="home-pill">Features</a>
@@ -197,10 +244,10 @@ export default function HomePage() {
 
       <main className="page-main" style={{ maxWidth: 980, display: "grid", gap: 14 }}>
         <section id="about" className="glass-card-sq" style={{ padding: "2rem", textAlign: "center" }}>
-          <div className="hero-eyebrow">Simple Home</div>
-          <h1 className="hero-title" style={{ fontSize: "clamp(2rem, 5vw, 3.2rem)" }}>Quiz Platform</h1>
+          <div className="hero-eyebrow">QuizFlow</div>
+          <h1 className="hero-title" style={{ fontSize: "clamp(2rem, 5vw, 3.2rem)" }}>QuizFlow</h1>
           <p className="hero-copy" style={{ marginTop: "0.9rem" }}>
-            About: This platform supports real-time quiz sessions with dedicated participant and hosting portals.
+            QuizFlow supports real-time quiz sessions with dedicated participant and hosting portals.
           </p>
         </section>
 
@@ -269,8 +316,8 @@ export default function HomePage() {
                 </svg>
               </div>
               <div>
-                <div className="footer-brand-text">The SecureQuiz Project</div>
-                <div className="footer-brand-tagline">Smart &amp; Secure Quiz Platform</div>
+                  <div className="footer-brand-text">QuizFlow</div>
+                  <div className="footer-brand-tagline">Smart &amp; Secure Quiz Platform</div>
               </div>
             </div>
 
@@ -298,7 +345,7 @@ export default function HomePage() {
           </div>
 
           <div className="footer-bottom">
-            <div className="footer-copy">&copy; 2026 The SecureQuiz Project. All rights reserved.</div>
+            <div className="footer-copy">&copy; 2026 QuizFlow. All rights reserved.</div>
           </div>
         </div>
       </footer>
