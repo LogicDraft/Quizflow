@@ -63,7 +63,7 @@ module.exports = function registerSocketHandlers(io) {
     // ─────────────────────────────────────────────
     // PLAYER: Join a game with PIN + nickname
     // ─────────────────────────────────────────────
-    socket.on("player:join", ({ pin, nickname }) => {
+    socket.on("player:join", ({ pin, nickname, avatar }) => {
       const session = GameStore.getSession(pin);
 
       if (!session) {

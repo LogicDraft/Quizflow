@@ -17,8 +17,29 @@ const server = http.createServer(app);
 // ── CORS config ──────────────────────────────────────────
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
 
+const normalizeOrigin = (origin) => {
+  if (!origin || typeof origin !== "string") return origin;
+  return origin.endsWith("/") ? origin.slice(0, -1) : origin;
+};
+
+const allowedOrigins = CLIENT_URL.split(",")
+  .map((origin) => normalizeOrigin(origin.trim()))
+  .filter(Boolean);
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+  const normalized = normalizeOrigin(origin);
+  return allowedOrigins.includes(normalized);
+};
+
 app.use(cors({
-  origin: CLIENT_URL,
+  origin: (origin, callback) => {
+    if (isAllowedOrigin(origin)) {
+      callback(null, true);
+      return;
+    }
+    callback(new Error("Not allowed by CORS"));
+  },
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
@@ -28,7 +49,13 @@ app.use(express.json());
 // ── Socket.io setup ──────────────────────────────────────
 const io = new Server(server, {
   cors: {
-    origin: CLIENT_URL,
+    origin: (origin, callback) => {
+      if (isAllowedOrigin(origin)) {
+        callback(null, true);
+        return;
+      }
+      callback(new Error("Not allowed by CORS"));
+    },
     methods: ["GET", "POST"],
     credentials: true
   },
