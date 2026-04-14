@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>QuizFlow — Real-Time Quiz Platform</title>
+    <title>QuizFlow</title>
     <meta name="description" content="Host and play real-time quizzes with friends. Fast, fun, and competitive!" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -19,7 +19,7 @@
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(err => {
+          navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }).catch(err => {
             console.warn('SW registration failed: ', err);
           });
         });
